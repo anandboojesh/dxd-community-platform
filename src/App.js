@@ -12,14 +12,18 @@ import CommunityManagementPage from './pages/CommunityManagementPage';
 import { auth, db } from "./services/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import { onAuthStateChanged } from 'firebase/auth';
 
-const Navbar = () => {
-  const location = useLocation();
-  const isActive = (path) => location.pathname === path;
+const Navbar = ({userRole}) => {
+  const Location = useLocation();
+  const isActive = (path) => Location.pathname === path;
 
   return (
     <nav className="navbar">
       <ul className="navbar-list">
+
+        {userRole === "Member" && (
+          <>
         <li className="navbar-item">
           <Link
             to="/profile"
@@ -56,6 +60,12 @@ const Navbar = () => {
             Discover
           </Link>
         </li>
+        </>
+        ) }
+
+        {!userRole && (
+         null
+        )}
       </ul>
     </nav>
   );
@@ -63,29 +73,46 @@ const Navbar = () => {
 
 function App() {
   const [userRole, setUserRole] = useState(null); // Store user role state
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
-    const fetchUserRole = async () => {
-      const user = auth.currentUser;
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userRef = doc(db, "users", user.uid); // Get user data from Firestore
-        const docSnap = await getDoc(userRef);
-        if (docSnap.exists()) {
-          setUserRole(docSnap.data().role); // Assuming role is stored as 'role'
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            setUserRole(userDoc.data().role);
+          } else {
+            console.error("No user document found!");
+          }
+        } catch (err) {
+          console.error("Error fetching user role:", err);
         }
+      } else {
+        setUserRole(null);
       }
-    };
+      setLoading(false);
+    });
 
-    fetchUserRole();
+    return () => unsubscribe();
   }, []);
 
+  if (loading)
+    return (
+      <div>
+        <p>Loading...</p>
+      </div>
+    );
+
+  
   
 
   return (
     <Router>
-      {userRole === "Member" && location.pathname !== "/login" && location.pathname !== "/signup" && (
-        <Navbar /> // Display Navbar if user is a member and not on login/signup page
-      )}
+     
+        <Navbar userRole={userRole} /> 
+      
       <div className="app-content">
         <Routes>
           <Route path="/login" element={<LoginPage />} />
