@@ -1,0 +1,970 @@
+/* Overall page layout */
+.community-page {
+  overflow-y: auto;
+    top: 0;
+    left: 0;
+    position: fixed;
+    width: 100%; /* Ensure it spans the entire viewport width */
+    height: 100%; /* Optional: Ensure it spans the viewport height */
+    margin-top: 60px;
+  }
+
+  .community-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #2f3136; /* Matches the sidebar color scheme */
+    border-bottom: 1px solid #1e1f23;
+    color: #ffffff;
+    height: 60px;
+}
+
+.community-navbar-left h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.community-navbar-right {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.community-navbar-icon {
+    font-size: 18px;
+    color: #b9bbbe;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.community-navbar-icon:hover {
+    color: #ffffff;
+}
+
+.assignment-submissions-section{
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.assignment-submissions-section h2{
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ffff;
+}
+
+.assignment-submissions-card{
+  background: linear-gradient(145deg, #ffffff, #f0f0f0); /* Subtle gradient for a clean look */
+  border: 1px solid #e0e0e0; /* Soft border */
+  border-radius: 12px; /* Smoother corners */
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  margin-bottom: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.assignment-submissions-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  background-color: #005bb5;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.assignment-submissions-header h2{
+  font-size: 15px; /* Larger, more prominent header */
+  font-weight: bold;
+  margin: 0;
+  color: #ffff; /* Darker text for contrast */
+  padding: 10px;
+  text-align: center;
+}
+
+.admin-actions{
+  display: flex;
+}
+
+.status-button {
+  padding: 8px 12px;
+  margin: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.status-button.complete {
+  background-color: #4caf50;
+  color: white;
+}
+
+.status-button.reject {
+  background-color: #f44336;
+  color: white;
+}
+
+.status-button:hover {
+  opacity: 0.8;
+}
+
+.feedback-section {
+  margin-top: 10px;
+}
+
+.feedback-textarea {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  resize: none;
+  font-size: 14px;
+}
+
+.edit-feedback-button,
+.save-feedback-button,
+.cancel-feedback-button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.edit-feedback-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.save-feedback-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.cancel-feedback-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.edit-feedback-button:hover,
+.save-feedback-button:hover,
+.cancel-feedback-button:hover {
+  opacity: 0.8;
+}
+
+
+.feedback-textarea {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 10px;
+  resize: none;
+  font-size: 14px;
+}
+.feedback-textarea:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
+
+.assignment-submissions-gird{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Create a 4-column grid */
+  gap: 20px; /* Space between cards */
+  padding: 20px;
+}
+
+.my-submissions-section {
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.my-submissions-section h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ffff;
+}
+
+.my-submissions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Create a 4-column grid */
+  gap: 20px; /* Space between cards */
+  padding: 20px;
+}
+
+.my-submission-card {
+  background: linear-gradient(145deg, #ffffff, #f0f0f0); /* Subtle gradient for a clean look */
+  border: 1px solid #e0e0e0; /* Soft border */
+  border-radius: 12px; /* Smoother corners */
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  margin-bottom: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
+}
+
+.my-submission-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Elevated shadow on hover */
+  transform: translateY(-5px); /* Lift on hover */
+}
+
+.my-submission-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  background-color: #005bb5;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.my-submission-card-title {
+  font-size: 15px; /* Larger, more prominent header */
+  font-weight: bold;
+  margin: 0;
+  color: #ffff; /* Darker text for contrast */
+  padding: 10px;
+  text-align: center;
+}
+
+.my-submission-status {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.my-submission-status.Success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.my-submission-status.Pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.my-submission-status.Failed {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.my-submission-card-content p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #666;
+  text-align: left;
+}
+
+.my-submission-card-content a {
+  color: #007bff;
+  text-decoration: none;
+  text-align: left;
+}
+
+.my-submission-card-content a:hover {
+  text-decoration: underline;
+  text-align: left;
+}
+
+.re-submit-button {
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px 24px;
+  color: #ffffff;
+  background: linear-gradient(90deg, #4caf50, #2e7d32);
+  border: none;
+  border-radius: 25px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  text-transform: uppercase;
+}
+
+.re-submit-button:hover {
+  background: linear-gradient(90deg, #66bb6a, #388e3c);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.re-submit-button:active {
+  background: linear-gradient(90deg, #4caf50, #2e7d32);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  transform: translateY(2px);
+}
+
+
+/* Community Members List Styles */
+.members-list {
+    background-color: #2f3136;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 8px;
+    
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .members-list h3 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #fff;
+  }
+  
+  .members-list ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  
+  .members-list ul li {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 16px;
+    color: #555;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .members-list ul li:last-child {
+    border-bottom: none;
+  }
+  
+  .members-list ul li .member-name {
+    flex-grow: 1;
+  }
+  
+  .members-list ul li .remove-member {
+    font-size: 16px;
+    color: #ff4c4c;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .members-list ul li .remove-member:hover {
+    color: #cc0000;
+  }
+  
+  .members-list p {
+    font-size: 16px;
+    color: #777;
+    text-align: center;
+  }
+  
+  .members-list ul li .remove-member {
+    margin-left: 10px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .members-list {
+      padding: 15px;
+    }
+  
+    .members-list h3 {
+      font-size: 20px;
+    }
+  
+    .members-list ul li {
+      font-size: 14px;
+    }
+  }
+
+/* Task Component Styles */
+.task-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f9f9; /* Light background */
+  border: 1px solid #ddd; /* Subtle border */
+  border-radius: 8px; /* Rounded edges */
+  padding: 20px;
+  margin: 10px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: box-shadow 0.2s ease;
+}
+
+.task-container:hover {
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.task-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.task-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.task-action-button {
+  font-size: 14px;
+  padding: 8px 12px;
+  color: #fff;
+  background-color: #5865f2;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.task-action-button:hover {
+  background-color: #4754c5; /* Darker shade on hover */
+}
+
+.task-description {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.read-more {
+  color: #5865f2;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: underline;
+  margin-left: 5px;
+}
+
+.read-more:hover {
+  color: #4754c5; /* Darker shade on hover */
+}
+
+.task-meta {
+  font-size: 14px;
+  color: #777;
+  text-align: right;
+}
+
+/* Completed Task */
+.task-container.completed {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.task-title.completed {
+  text-decoration: line-through;
+  color: #155724;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .task-container {
+      padding: 15px;
+  }
+
+  .task-title {
+      font-size: 16px;
+  }
+
+  .task-description {
+      font-size: 14px;
+  }
+
+  .task-meta {
+      font-size: 12px;
+  }
+}
+
+/* Task Grid Layout */
+.tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Create a 4-column grid */
+  gap: 20px; /* Space between cards */
+  padding: 20px;
+}
+.task-card {
+  background: linear-gradient(145deg, #ffffff, #f0f0f0); /* Subtle gradient for a clean look */
+  border: 1px solid #e0e0e0; /* Soft border */
+  border-radius: 12px; /* Smoother corners */
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  margin-bottom: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
+}
+
+.task-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Elevated shadow on hover */
+  transform: translateY(-5px); /* Lift on hover */
+}
+
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.task-card-header h3 {
+  font-size: 1.5rem; /* Larger, more prominent header */
+  font-weight: 700; /* Bold for emphasis */
+  margin: 0;
+  color: #2c3e50; /* Darker text for contrast */
+}
+
+.task-card p {
+  font-size: 1rem; /* Standard readable text size */
+  color: #555; /* Neutral color for text */
+  line-height: 1.6; /* Comfortable line spacing */
+  margin-bottom: 12px;
+}
+
+.task-actions {
+  display: flex;
+  gap: 12px; /* Adequate spacing between icons */
+}
+
+.task-actions .edit-icon,
+.task-actions .delete-icon {
+  cursor: pointer;
+  font-size: 1.5rem; /* Slightly larger for better usability */
+  transition: transform 0.2s ease, color 0.2s ease; /* Smooth hover and click effects */
+}
+
+.task-actions .edit-icon {
+  color: #28a745; /* Green for edit */
+}
+
+.task-actions .edit-icon:hover {
+  color: #218838; /* Darker green */
+  transform: scale(1.1); /* Slight zoom on hover */
+}
+
+.task-actions .delete-icon {
+  color: #dc3545; /* Red for delete */
+}
+
+.task-actions .delete-icon:hover {
+  color: #c82333; /* Darker red */
+  transform: scale(1.1); /* Slight zoom on hover */
+}
+
+
+.submit-assignment-btn {
+  display: inline-block;
+  background: linear-gradient(45deg, #6a11cb, #2575fc); /* Gradient color */
+  color: #fff; /* White text */
+  font-size: 15px; /* Slightly larger text */
+  font-weight: 600; /* Bold text */
+  padding: 12px 24px; /* Comfortable padding */
+  border-radius: 8px; /* Rounded corners */
+  border: none; /* No border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
+  transition: all 0.3s ease; /* Smooth hover effects */
+  cursor: pointer; /* Pointer cursor for interactivity */
+  text-align: center;
+ 
+}
+
+.submit-assignment-btn:hover {
+  background: linear-gradient(45deg, #2575fc, #6a11cb); /* Reverse gradient on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Deeper shadow on hover */
+  transform: translateY(-3px); /* Lift button on hover */
+}
+
+.submit-assignment-btn:active {
+  transform: translateY(0); /* Reset lift on click */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow on click */
+}
+
+
+/* Responsiveness */
+@media (max-width: 1024px) {
+  .tasks-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 columns for medium screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .tasks-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .tasks-grid {
+    grid-template-columns: 1fr; /* 1 column for very small screens */
+  }
+}
+
+
+
+.add-task-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #5865f2; /* Primary theme color */
+  border: none;
+  border-radius: 5px; /* Rounded edges */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.add-task-button:hover {
+  background-color: #4754c5; /* Slightly darker on hover */
+  transform: translateY(-2px); /* Lift effect */
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Enhanced shadow */
+}
+
+.add-task-button:active {
+  background-color: #3c45a5; /* Darker shade for active state */
+  transform: translateY(0); /* Reset lift effect */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Reset shadow */
+}
+
+/* Task Modal Styles */
+.task-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.task-modal-content {
+  background-color: #1e1e1e;
+  color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+}
+
+.task-modal-header,
+.task-modal-footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.task-modal-body label {
+  display: block;
+  margin: 10px 0 5px;
+}
+
+.task-modal-body input,
+.task-modal-body textarea {
+  width: 95%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  border: none;
+}
+
+.task-submit-button,
+.task-cancel-button {
+  padding: 10px 20px;
+  background-color: #5865f2;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.task-cancel-button {
+  background-color: #ff4c4c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .community-navbar {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .members-list {
+    padding: 10px;
+  }
+
+  .task-modal-content {
+    width: 90%;
+  }
+}
+
+  /* Sidebar styles */
+  .sidebar {
+    width: 240px;
+    background-color: #202225;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .sidebar h2 {
+    font-size: 15px;
+    font-weight: bold;
+   margin: 10px;
+    color: #ffff;
+  }
+
+  .join-message-container {
+    background: linear-gradient(90deg, #4a90e2, #0078d7); /* Gradient background in blue tones */
+    display: flex;
+    height: 20px; /* Slightly taller for better visibility */
+    padding: 15px;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+
+.join-community-message {
+    color: #ffffff;
+    font-weight: bold;
+    margin: 10px;
+    font-size: 14px; /* Increased font size for better readability */
+    font-family: 'Arial', sans-serif; /* Clean, professional font */
+}
+
+.join-btn {
+    display: inline-block;
+    color: #ffffff;
+    text-align: center;
+    font-weight: bold;
+    font-size: 12px; /* Slightly larger font for better readability */
+    padding: 8px 20px; /* Balanced padding for a professional feel */
+    border: none;
+    border-radius: 20px; /* Fully rounded button for a sleek look */
+    background: linear-gradient(90deg, #4a90e2, #0078d7); /* Blue gradient */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for a floating effect */
+}
+
+.join-btn:hover {
+    background: linear-gradient(90deg, #0078d7, #4a90e2); /* Reverse gradient on hover */
+    transform: translateY(-2px); /* More noticeable lift effect */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+.join-btn:active {
+    transform: translateY(0); /* Reset lift effect */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Reset shadow */
+    background: linear-gradient(90deg, #005bb5, #4a90e2); /* Darker gradient for click feedback */
+}
+
+ 
+.sidebar-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #b9bbbe;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  .sidebar-item.active,
+  .sidebar-item:hover {
+    background-color: #5865f2;
+    color: white;
+    border-radius: 5px;
+  }
+  
+  /* Main content area */
+  .content {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  
+  .content h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .content p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #666;
+  }
+  
+  /* Rules Section */
+  .rules-section {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    align-content: center;
+  }
+
+  .my-submissions-section{
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    align-content: center;
+  }
+
+  .rules-container {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    width: 600px;
+ 
+    
+  }
+
+  .rules-container h3 {
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: #333;
+  }
+
+  .rules-container ul {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+
+  .rules-container ul li {
+    margin-bottom: 10px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #555;
+  }
+
+  .rules-container p {
+    font-size: 14px;
+    color: #777;
+    margin-top: 10px;
+  }
+
+  .rules-container ul li button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 14px;
+    background-color: #f0f0f0;
+    color: #5865f2;
+    border: 1px solid #5865f2;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  .rules-container ul li button:hover {
+    background-color: #5865f2;
+    color: #fff;
+  }
+
+  /* Add/Edit Rule Form */
+.add-rule-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f0f0f0; /* Light background for contrast */
+    border: 1px solid #ccc; /* Subtle border */
+    border-radius: 5px;
+    width: 600px;
+    align-items: center;
+  }
+  
+  .add-rule-form textarea {
+    width: 100%;
+    height: 80px;
+    resize: none;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.2s ease;
+  }
+  
+  .add-rule-form textarea:focus {
+    outline: none;
+    border-color: #5865f2; /* Matches the hover color of sidebar items */
+  }
+  
+  .add-rule-form button {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #5865f2; /* Primary theme color */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .add-rule-form button:hover {
+    background-color: #4754c5; /* Slightly darker shade on hover */
+  }
+
+  .add-rule-form button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .community-page {
+      flex-direction: column;
+    }
+  
+    .sidebar {
+      width: 100%;
+      padding: 10px;
+      box-shadow: none;
+      border-right: none;
+      border-bottom: 1px solid #e0e0e0;
+    }
+  
+    .content {
+      padding: 15px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .sidebar h2 {
+      font-size: 16px;
+    }
+  
+    .sidebar-item {
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+  
+    .content h1 {
+      font-size: 20px;
+    }
+  
+    .content p {
+      font-size: 14px;
+    }
+
+   
+     
+  }

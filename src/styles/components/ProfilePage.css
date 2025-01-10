@@ -1,0 +1,589 @@
+/* General Reset */
+body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    background-color: #2f3136;
+    color: white;
+  }
+  
+  /* Profile Page Container */
+  .profile-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    flex: 1;
+    
+  }
+  
+  /* Profile Banner */
+  .profile-banner {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Profile Info Section */
+  .profile-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 80%;
+    max-width: 800px;
+    margin-top: -75px;
+    padding: 20px;
+    background-color: #36393f;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 1;
+  }
+  
+  .profile-pic-container {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid #2f3136;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    background-color: #ffff;
+  }
+  
+  .profile-pic {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .profile-details {
+    flex: 1;
+    margin-left: 20px;
+  }
+  
+  .profile-name {
+    font-size: 1.8rem;
+    margin: 0;
+  }
+  
+  .profile-username {
+    font-size: 1rem;
+    color: #b9bbbe;
+    margin: 5px 0;
+  }
+  
+  .edit-profile-button {
+    background-color: #5865f2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .edit-profile-button:hover {
+    background-color: #4752c4;
+  }
+  
+  /* About Me Section */
+  .profile-informattions {
+    margin-top: 20px;
+    width: 80%;
+    max-width: 800px;
+    background-color: #36393f;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .profile-informattions h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .profile-informattions p {
+    font-size: 1rem;
+    color: #d4d7dc;
+    line-height: 1.5;
+  }
+
+  .sidebar {
+    width: 250px;
+    background-color: #f4f4f4;
+    padding: 20px;
+    height: 100vh;
+  }
+  
+  .sidebar ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .sidebar li {
+    margin-bottom: 20px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .user-page{
+    display: flex;
+    top: 0;
+    left: 0;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    margin-top: 60px;
+    background: linear-gradient(135deg, #2f3136, #3a3f44);
+  }
+
+  /* Sidebar */
+.sidebar {
+    width: 240px;
+    background-color: #202225;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .sidebar-item {
+    display: flex;
+    justify-content: space-between;  /* Space out the text and icon */
+    align-items: center;  /* Vertically align items */
+    padding: 10px;
+  }
+  
+  .arrow-icon {
+    margin-left: 10px;  /* Add a small space between the text and the icon */
+    font-size: 18px;  /* Adjust icon size */
+  }
+  
+  
+  .sidebar-item.active,
+  .sidebar-item:hover {
+    background-color: #5865f2;
+    color: white;
+    border-radius: 5px;
+  }
+
+  /* Container for community options */
+.community-options {
+    margin-left: 20px; /* Indent from the main sidebar */
+    margin-top: 10px; /* Add some spacing from the Community option */
+    padding: 10px;
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  }
+  
+  /* Create Community Button */
+  .create-community-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #007bff; /* Primary button color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    margin-bottom: 15px; /* Add space below button */
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .create-community-button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+  }
+  
+  /* Plus icon in Create Community Button */
+  .plus-icon {
+    font-size: 16px;
+    margin-right: 8px; /* Space between the icon and text */
+  }
+  
+  /* Community List Section */
+  .community-list {
+    margin-top: 10px;
+  }
+  
+  /* Community List Items */
+  .community-list ul {
+    list-style: none; /* Remove bullet points */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+  }
+  
+  .community-item {
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    background-color: #ffffff; /* White background for each item */
+    border-radius: 5px;
+    border: 1px solid #ddd; /* Light border */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .community-item:hover {
+    background-color: #f1f1f1; /* Highlight on hover */
+    transform: scale(1.02); /* Slight zoom effect */
+  }
+  
+  /* Fallback message styling */
+  .community-list p {
+    color: #666; /* Grey text for "No communities joined yet" */
+    font-size: 14px;
+    margin: 10px 0;
+  }
+  
+  /* Profile Status */
+.profile-status {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+  }
+  
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+  
+  .online {
+    background-color: green;
+  }
+  
+  .offline {
+    background-color: red;
+  }
+  
+  .status-text {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .main-content {
+    flex: 1; /* Allow the main content to take up remaining space */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 20px;
+  }
+
+  .bio-textarea {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #bdc3c7;
+    margin-bottom: 10px;
+    resize: none;
+  }
+  
+  .bio-textarea:focus {
+    outline: none;
+    border-color: #1abc9c;
+    box-shadow: 0 0 5px rgba(26, 188, 156, 0.5);
+  }
+  
+  .save-button,
+  .cancel-button,
+  .add-about-me-button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  .save-button {
+    background-color: #1abc9c;
+    color: white;
+  }
+  
+  .save-button:hover {
+    background-color: #16a085;
+  }
+  
+  .cancel-button {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  .cancel-button:hover {
+    background-color: #c0392b;
+  }
+  
+  .add-about-me-button {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  .add-about-me-button:hover {
+    background-color: #2980b9;
+  }
+
+  /* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal Container */
+.modal-container {
+  background-color: #1e1e1e;;
+  border-radius: 10px;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #2f3136;
+  padding-bottom: 10px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #b9bbbe;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-button:hover {
+  color: #e74c3c;
+}
+
+/* Modal Title */
+.modal-title {
+  color: #fff;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+/* Options Container */
+.options-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+/* Option Card */
+.option {
+  background-color: #36393f;
+  border-radius: 8px;
+  width: 48%;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 10px;
+}
+
+.option:hover {
+  background-color: #4a4e54;
+}
+
+.icon-container {
+  width: 50px;
+  height: 50px;
+  background-color: #7289da;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.icon-container img {
+  width: 24px;
+  height: 24px;
+}
+
+.option p {
+  color: #b9bbbe;
+  font-size: 0.9rem;
+}
+
+/* Footer */
+.modal-footer {
+  margin-top: 20px;
+}
+
+.cta-button {
+  background-color: #5865f2;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #4752c4;
+}
+
+/* Avatar Grid */
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.avatar-image {
+  width: 100%;
+  max-width: 70px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.avatar-image:hover {
+  border-color: #007bff;
+}
+
+.avatar-image.selected {
+  border-color: #007bff;
+}
+
+.community-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border: 1px solid #ccc; /* Border color */
+  border-radius: 8px; /* Rounded corners */
+  background-color: #f9f9f9; /* Background color */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  color: #000;
+}
+
+.community-option:hover {
+  background-color: #e6e6e6; /* Hover background color */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow on hover */
+}
+
+.arrow-icon {
+  font-size: 16px; /* Adjust arrow size */
+  color: #333; /* Arrow color */
+}
+
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: #ccc; /* Adjust the color as needed */
+  margin: 16px 0; /* Add spacing around the divider */
+}
+
+.community-footer {
+  display: flex;
+  justify-content: space-between; /* Space between the text and button */
+  align-items: center; /* Vertically align the text and button */
+  padding: 16px; /* Add padding around the footer */
+  flex-direction: column;
+}
+
+.create-community-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+}
+
+.create-community-input-group{
+  display: flex;
+  flex-direction: column;
+}
+
+.create-community-input-group label{
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.create-community-input-group input{
+  padding: 10px;
+  border: 1px solid #333333;
+  border-radius: 4px;
+  background: #2c2c2c;
+  color: #ffffff;
+  font-size: 1rem;
+  margin-bottom: 10px;
+
+}
+
+.create-communnity-profile-pic-container {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 5px solid #2f3136;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  background-color: #ffff;
+}
+
+.create-community-profile-pic {
+  width: 30%;
+  height: 30%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.community-footer p {
+  margin: 0; /* Remove default margin */
+  font-size: 24px; /* Adjust font size */
+  color: #fff; /* Text color */
+  margin-bottom: 10px;
+}
+
+.join-button {
+  padding: 8px 16px; /* Add padding inside the button */
+  font-size: 14px; /* Font size */
+  font-weight: bold; /* Bold text */
+  color: #fff; /* White text color */
+  background-color: #007bff; /* Blue background color */
+  border: none; /* Remove default border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.join-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}

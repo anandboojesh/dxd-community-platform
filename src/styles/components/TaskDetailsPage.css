@@ -1,0 +1,93 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #2f3136;
+    color: white;
+}
+
+
+
+/* Styles for the Task Details Page */
+.task-details-page {
+    font-family: Arial, sans-serif;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    position: fixed;
+    margin-top: 60px;
+  }
+
+  /* Task Details Page Navbar */
+.task-details-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #2f3136; /* Matches the sidebar color scheme */
+    border-bottom: 1px solid #1e1f23;
+    color: #ffffff;
+    height: 60px;
+    width: 100%;
+  }
+
+  .task-details-container{
+    background-color: #2c2f33;
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .task-details-content{
+    padding: 20px;
+  }
+
+  .task-details-container h1 {
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  
+  .task-details-container p {
+    font-size: 1rem;
+    color: #fff;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  
+  .task-details-container strong {
+    font-weight: bold;
+  }
+  
+ .task-details-container .task-description {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .task-details-container .task-info {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .task-details-container .task-info p {
+    margin-bottom: 5px;
+  }
+  

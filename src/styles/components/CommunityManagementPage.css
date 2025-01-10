@@ -1,0 +1,205 @@
+/* General styling for the page layout */
+.community-management-page {
+    overflow-y: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%; /* Ensure it spans the entire viewport width */
+    height: 100%; /* Optional: Ensure it spans the viewport height */
+    margin-top: 60px;
+    display: flex; /* Flexbox layout for sidebar and content */
+  }
+  
+  /* Sidebar styling */
+  .community-management-sidebar {
+    width: 240px;
+    background-color: #202225;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: fixed; /* Fix sidebar on the left */
+    top: 0;
+    bottom: 0;
+  }
+  
+  .community-management-sidebar h2 {
+    font-size: 15px;
+    font-weight: bold;
+    margin: 10px;
+    color: #ffff;
+  }
+  
+  /* Sidebar items */
+  .sidebar-item {
+    display: flex;
+    justify-content: space-between;  /* Space out the text and icon */
+    align-items: center;  /* Vertically align items */
+    padding: 10px;
+    cursor: pointer; /* Indicate that it's clickable */
+  }
+  
+  .sidebar-item:hover {
+    background-color: #34495e;
+  }
+  
+  .sidebar-item.active {
+    background-color: #5865f2;
+    color: white;
+    border-radius: 5px;
+  }
+  
+  /* Main content styling */
+  .community-management-content {
+    flex-grow: 1;
+    padding: 20px;
+    margin-left: 240px; /* Adjust for sidebar width */
+    overflow-y: auto;
+  }
+  
+  .community-management-content h3 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #34495e;
+  }
+  
+  /* General section styling */
+  .general-section h4 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+  }
+  
+  .general-section p {
+    font-size: 1rem;
+    margin: 5px 0;
+    color: #7f8c8d;
+  }
+  
+  /* Form Group */
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    display: block;
+    font-size: 1rem;
+    color: #ffff;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    width: 60%;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+  
+  /* Save Button */
+  button {
+    background-color: #5865f2;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  button:hover {
+    background-color: #34495e;
+  }
+
+
+  /* Security section styling */
+.security-section h4 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+  }
+  
+  .security-section .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .security-section .form-group label {
+    display: block;
+    font-size: 1rem;
+    color: #34495e;
+  }
+  
+  .security-section .form-group input {
+    width: 60%;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .security-section .generate-code-button {
+    background-color: #f39c12;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .security-section .generate-code-button:hover {
+    background-color: #e67e22;
+  }
+  
+  .security-section .visibility-select {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
+  
+  .security-section .form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 20px;
+  }
+  
+  .security-section .disable-community-btn,
+  .security-section .delete-community-btn {
+    background-color: #e74c3c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .security-section .disable-community-btn:hover,
+  .security-section .delete-community-btn:hover {
+    background-color: #c0392b;
+  }
+  
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .community-management-page {
+      flex-direction: column;
+    }
+  
+    .community-management-sidebar {
+      width: 100%;
+      box-shadow: none;
+      padding: 15px;
+      position: relative; /* Sidebar takes normal flow on small screens */
+    }
+  
+    .community-management-content {
+      padding: 15px;
+      margin-left: 0; /* Remove left margin on small screens */
+    }
+  }
+  
