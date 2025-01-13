@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/components/CommunityPage.css";
 import { auth, db, } from "../services/firebase";
-import { doc, getDoc, collection, getDocs, serverTimestamp, setDoc, addDoc, updateDoc, arrayUnion, deleteDoc, writeBatch, where, query, orderBy } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, serverTimestamp, setDoc, addDoc, updateDoc, arrayUnion, deleteDoc, writeBatch, where, query, orderBy, onSnapshot } from "firebase/firestore";
 import { FaBell, FaDownload, FaEdit, FaEllipsisV, FaPaperPlane, FaTrash, FaUsers, } from "react-icons/fa";
 import { ref, } from "firebase/database";
 import { CloudinaryContext, Image, Video, Transformation } from 'cloudinary-react';
