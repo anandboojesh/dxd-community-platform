@@ -21,8 +21,19 @@ const SettingsPage = () => {
 
   const handleLogout = async () => {
     try {
+      // Update the user's profile status to offline in Firestore
+      const user = auth.currentUser;
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        await updateDoc(userDocRef, { profileStatus: "offline" });
+      }
+  
+      // Sign out the user from Firebase Authentication
       await auth.signOut();
-      navigate("/login"); 
+  
+      // Redirect to the login page
+      navigate("/login");
+  
       setIsLoggingOut(true);
     } catch (error) {
       console.error("Error logging out: ", error);
@@ -167,7 +178,7 @@ const SettingsPage = () => {
             </div>
       <div class="preview-info">
       <div class="preview-avatar-container">
-        <img src="https://via.placeholder.com/80" alt="Profile Avatar" />
+        <img src={userData.avatar||"https://via.placeholder.com/80"} alt="Profile Avatar" />
       </div>
       <div>
         <h3 class="preview-display-name">{userData.name||"Loading..."}</h3>

@@ -125,48 +125,56 @@
   font-size: 14px;
 }
 
-.edit-feedback-button,
-.save-feedback-button,
-.cancel-feedback-button {
-  margin-left: 10px;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.edit-feedback-button {
-  background-color: #007bff;
-  color: white;
-}
-
-.save-feedback-button {
-  background-color: #4caf50;
-  color: white;
-}
-
-.cancel-feedback-button {
-  background-color: #f44336;
-  color: white;
-}
-
-.edit-feedback-button:hover,
-.save-feedback-button:hover,
-.cancel-feedback-button:hover {
-  opacity: 0.8;
-}
-
-
 .feedback-textarea {
   width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 4px;
   padding: 10px;
-  margin-top: 10px;
-  resize: none;
-  font-size: 14px;
+  margin-top: 5px;
+  font-size: 0.9rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  resize: vertical;
 }
+
+.save-feedback-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 8px 12px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.save-feedback-btn:hover {
+  background-color: #218838;
+}
+
+.cancel-feedback-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 8px 12px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-feedback-btn:hover {
+  background-color: #c82333;
+}
+
+.edit-admin-feedback-btn {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-left: 10px;
+}
+
+
+
+
 .feedback-textarea:focus {
   border-color: #4caf50;
   outline: none;
@@ -302,14 +310,202 @@
 }
 
 
+.announcements-section {
+  background-color: #2c2f33;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  margin-top: 20px;
+  width: 90%; /* Ensure it spans the full width of the container */
+  max-width: 1200px; /* Optional: Limit max width for better visual alignment */
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto;
+}
+
+.announcements-section h2 {
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.announcement-list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.announcement-card {
+  background-color: #23272a;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.announcement-content {
+  color: #dcdfe4;
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
+.announcement-meta {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+}
+
+.announcement-input-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.announcement-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #5865f2;
+  background-color: #23272a;
+  color: #dcdfe4;
+}
+
+.announcement-input:focus {
+  outline: none;
+  border-color: #7289da;
+  box-shadow: 0 0 5px rgba(114, 137, 218, 0.5);
+}
+
+.announcement-share-button {
+  background-color: #5865f2;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.announcement-share-button:hover {
+  background-color: #4752c4;
+}
+
+  /* Leaderboard section */
+  .leaderboard-section {
+    background-color: #2c2f33;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    margin-top: 20px;
+    width: 90%; /* Ensure it spans the full width of the container */
+    max-width: 1200px; /* Optional: Limit max width for better visual alignment */
+    margin-left: auto; /* Center horizontally */
+    margin-right: auto;
+  }
+  
+  /* Table container for responsive scrolling */
+  .leaderboard-table-container {
+    overflow-x: auto;
+  }
+  
+  /* Leaderboard table styling */
+  .leaderboard-table {
+    width: 100%; /* Make the table span the full width of the container */
+    border-collapse: collapse;
+    font-family: 'Roboto', sans-serif;
+    text-align: left;
+    margin-top: 20px;
+    background-color: #23272a;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 15px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  
+  .leaderboard-table th {
+    background-color: #5865f2;
+    color: #fff;
+  }
+  
+  .leaderboard-table td {
+    color: #dcdfe4;
+  }
+
+* Row styling */
+.leaderboard-row {
+  background-color: #2c2f33;
+  border-bottom: 1px solid #40444b;
+  transition: background-color 0.3s ease;
+}
+
+.leaderboard-row:nth-child(even) {
+  background-color: #23272a;
+}
+
+.leaderboard-row:hover {
+  background-color: #3a3e44;
+}
+
+/* Rank column */
+.rank {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #f1c40f;
+}
+
+/* Member name column */
+.member-name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #dcdfe4;
+}
+
+/* Total score column */
+.total-score {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2ecc71;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .leaderboard-section {
+    padding: 20px;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 8px;
+  }
+
+  .leaderboard-section {
+    padding: 15px;
+  }
+}
+
 /* Community Members List Styles */
 .members-list {
     background-color: #2f3136;
     padding: 20px;
     margin-top: 20px;
     border-radius: 8px;
-    
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .member-name{
+    color: #fff;
   }
   
   .members-list h3 {
@@ -724,8 +920,7 @@
   .join-message-container {
     background: linear-gradient(90deg, #4a90e2, #0078d7); /* Gradient background in blue tones */
     display: flex;
-    height: 20px; /* Slightly taller for better visibility */
-    padding: 15px;
+    padding:10px;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */

@@ -64,7 +64,7 @@ const DiscoverPage = () => {
             {communities.map((community) => (
               <div className="server-card" key={community.id}  onClick={() => navigate(`/community/${community.communityId}`)}>
                 <img
-                  src={community.imgSrc || "https://via.placeholder.com/150"}
+                  src={community.profilePhoto || "https://via.placeholder.com/150"}
                   alt={community.communityName}
                 />
                 <p>{community.communityName}</p>

@@ -89,21 +89,21 @@ body {
     opacity: 0.9;
   }
   
-  .submit-button {
+  .login-button {
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 30px;
+    padding: 10px;
     width: 100%;
     margin-top: 15px;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 12px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     font-weight: bold;
   }
   
-  .submit-button:hover {
+  .login-button:hover {
     background-color: #0056b3;
   }
   
@@ -159,6 +159,10 @@ body {
   .login-input-group input:focus {
     border-color: #007bff;
     outline: none;
+  }
+
+  .login-input-group .login-button{
+
   }
   
   /* Footer Links */

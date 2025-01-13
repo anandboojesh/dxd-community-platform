@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/components/CommunityPage.css";
 import { auth, db, } from "../services/firebase";
-import { doc, getDoc, collection, getDocs, serverTimestamp, setDoc, addDoc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore";
-import { FaBell, FaDownload, FaEdit, FaEllipsisV, FaTrash, FaUsers, } from "react-icons/fa";
+import { doc, getDoc, collection, getDocs, serverTimestamp, setDoc, addDoc, updateDoc, arrayUnion, deleteDoc, writeBatch, where, query, orderBy } from "firebase/firestore";
+import { FaBell, FaDownload, FaEdit, FaEllipsisV, FaPaperPlane, FaTrash, FaUsers, } from "react-icons/fa";
 import { ref, } from "firebase/database";
 import { CloudinaryContext, Image, Video, Transformation } from 'cloudinary-react';
 import jsPDF from "jspdf";
@@ -38,6 +38,182 @@ const CommunityPage = () => {
   const [assignmentLink, setAssignmentLink] = useState(""); // State for assignment link
   const [submissions, setSubmissions] = useState([]); // State to store submissions
   const [submissionsLoaded, setSubmissionsLoaded] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]); // State to store leaderboard data
+  const [showResubmitModal, setShowResubmitModal] = useState(false); // Modal state
+  const [selectedSubmission, setSelectedSubmission] = useState(null); // Selected submission for resubmit
+  const [newAssignmentLink, setNewAssignmentLink] = useState(""); // New link for resubmission
+  const [editingFeedbackId, setEditingFeedbackId] = useState(null); // ID of the submission being edited
+  const [newFeedback, setNewFeedback] = useState(""); // New feedback text
+  const [announcements, setAnnouncements] = useState([]); // Store announcements
+  const [newAnnouncement, setNewAnnouncement] = useState(""); // Store input text
+
+
+  useEffect(() => {
+    if (activeSection !== "Announcements") return;
+  
+    const fetchAnnouncements = () => {
+      try {
+        const announcementsRef = collection(db, "community-announcement");
+        const q = query(
+          announcementsRef,
+          where("communityId", "==", communityId),
+          orderBy("timestamp", "desc")
+        );
+  
+        // Set up Firestore listener
+        const unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            const fetchedAnnouncements = snapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+            setAnnouncements(fetchedAnnouncements);
+          },
+          (error) => {
+            console.error("Error listening to announcements:", error);
+          }
+        );
+  
+        // Return cleanup function to unsubscribe
+        return unsubscribe;
+      } catch (error) {
+        console.error("Error fetching announcements:", error);
+      }
+    };
+  
+    const unsubscribe = fetchAnnouncements();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [communityId, activeSection]);
+
+  
+  const handlePostAnnouncement = async () => {
+    if (!newAnnouncement.trim()) {
+      alert("Announcement cannot be empty.");
+      return;
+    }
+  
+    try {
+      const announcementData = {
+        announcement: newAnnouncement.trim(),
+        timestamp: serverTimestamp(),
+        communityId,
+        adminId: auth.currentUser?.uid,
+        communityName,
+      };
+  
+      // Add to Firestore
+      await addDoc(collection(db, "community-announcement"), announcementData);
+  
+      // Update local state
+      setAnnouncements((prev) => [
+        { ...announcementData, timestamp: new Date() },
+        ...prev,
+      ]);
+  
+      setNewAnnouncement(""); // Clear input
+    } catch (error) {
+      console.error("Error posting announcement:", error);
+      alert("Failed to post the announcement. Please try again.");
+    }
+  };
+  
+
+
+  const handleEditFeedback = (submission) => {
+    setEditingFeedbackId(submission.id); // Set the ID of the submission being edited
+    setNewFeedback(submission.adminFeedback || ""); // Prefill with existing feedback
+  };
+  
+
+  const handleOpenResubmitModal = (submission) => {
+    setSelectedSubmission(submission);
+    setNewAssignmentLink(submission.assignmentLink || ""); // Prefill with the current link
+    setShowResubmitModal(true);
+  };
+  
+
+  const handleResubmitAssignment = async () => {
+    if (!newAssignmentLink.trim()) {
+      alert("Please provide a valid assignment link.");
+      return;
+    }
+  
+    try {
+      // Reference to the specific submission document
+      const submissionRef = doc(db, "community-assignment-submission", selectedSubmission.id);
+  
+      // Update Firestore
+      await updateDoc(submissionRef, {
+        assignmentLink: newAssignmentLink.trim(),
+        assignmentStatus: "Resubmitted for Review",
+        timestamp: serverTimestamp(),
+      });
+  
+      // Update local state
+      setSubmissions((prevSubmissions) =>
+        prevSubmissions.map((submission) =>
+          submission.id === selectedSubmission.id
+            ? {
+                ...submission,
+                assignmentLink: newAssignmentLink.trim(),
+                assignmentStatus: "Resubmitted for Review",
+              }
+            : submission
+        )
+      );
+  
+      alert("Your assignment has been resubmitted for review!");
+      setShowResubmitModal(false);
+      setSelectedSubmission(null);
+      setNewAssignmentLink("");
+    } catch (error) {
+      console.error("Error resubmitting assignment:", error);
+      alert("Failed to resubmit the assignment. Please try again.");
+    }
+  };
+  
+
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const submissionsCollectionRef = collection(db, "community-assignment-submission");
+        const submissionsSnapshot = await getDocs(submissionsCollectionRef);
+  
+        if (!submissionsSnapshot.empty) {
+          // Aggregate scores by memberId
+          const scores = {};
+          submissionsSnapshot.docs
+            .filter((doc) => doc.data().communityId === communityId) // Filter by current community
+            .forEach((doc) => {
+              const { memberId, rewardEarned } = doc.data();
+              if (scores[memberId]) {
+                scores[memberId] += parseInt(rewardEarned, 10);
+              } else {
+                scores[memberId] = parseInt(rewardEarned, 10);
+              }
+            });
+  
+          // Convert scores object to array and sort by total score
+          const aggregatedScores = Object.entries(scores)
+            .map(([memberId, totalScore]) => ({ memberId, totalScore }))
+            .sort((a, b) => b.totalScore - a.totalScore); // Descending order
+  
+          setLeaderboard(aggregatedScores);
+        }
+      } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+      }
+    };
+  
+    if (activeSection === "Leaderboard") {
+      fetchLeaderboard();
+    }
+  }, [communityId, activeSection]);
+  
 
   const handleShowAssignmentModal = (task) => {
     setSelectedTask(task); // Store the selected task
@@ -207,36 +383,67 @@ const downloadFeedbackAsPDF = (feedback) => {
       alert("Failed to add task.");
     }
   };
-
+  
 
   const handleUpdateStatus = async (submissionId, newStatus) => {
     try {
       const submission = submissions.find((sub) => sub.id === submissionId);
+      const userId = submission.memberId; // Get the userId from the submission
   
-      // Reference to the specific submission
+      // Reference to the specific submission in the community-assignment-submission collection
       const submissionRef = doc(db, "community-assignment-submission", submissionId);
   
-      // Update the status and feedback in Firestore
-      await updateDoc(submissionRef, {
+      // Reference to the user document in the "users" collection
+      const userRef = doc(db, "users", userId);
+  
+      // Check if points are available for the submission
+      const taskPoints = submission.points || 0;
+  
+      // Start a batch operation to ensure atomicity
+      const batch = writeBatch(db);
+  
+      // Update the assignment status, feedback, and rewardEarned in the community-assignment-submission collection
+      batch.update(submissionRef, {
         assignmentStatus: newStatus,
-        adminFeedback: submission.feedbackText?.trim()
+        adminFeedback: submission.feedbackText?.trim() || submission.adminFeedback,
+        rewardEarned: taskPoints // Add rewardEarned field with task points
       });
   
-      // Update the local state
+      // Add task points to the user's score in the users collection
+      const userDoc = await getDoc(userRef);
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      const currentUserScore = parseInt(userData.userScore, 10) || 0; // Convert to integer
+
+      // Add task points to the current userScore
+      const updatedScore = currentUserScore + taskPoints;
+
+      // Update the userScore in the users collection as a number
+      batch.update(userRef, {
+        userScore: updatedScore // Store the updated score as a number
+      });
+    }
+  
+      // Commit the batch
+      await batch.commit();
+  
+      // Update the local state to reflect the changes
       setSubmissions((prevSubmissions) =>
         prevSubmissions.map((submission) =>
           submission.id === submissionId
-            ? { ...submission, assignmentStatus: newStatus, adminFeedback: submission.feedbackText?.trim() }
+            ? { ...submission, assignmentStatus: newStatus, adminFeedback: submission.feedbackText?.trim() || submission.adminFeedback, rewardEarned: taskPoints }
             : submission
         )
       );
   
-      alert(`Assignment status updated to "${newStatus}"`);
+      alert(`Assignment status updated to "${newStatus}" and task score added to user score.`);
     } catch (error) {
       console.error("Error updating assignment status:", error);
-      alert("Failed to update status.");
+      alert("Failed to update status and user score.");
     }
   };
+  
+  
   
   const handleToggleFeedbackEdit = (submissionId, isEditing) => {
     setSubmissions((prevSubmissions) =>
@@ -258,37 +465,39 @@ const downloadFeedbackAsPDF = (feedback) => {
     );
   };
 
-  const handleSaveFeedback = async (submissionId) => {
-    try {
-      const submission = submissions.find((sub) => sub.id === submissionId);
+  const handleSaveFeedback = async () => {
+    if (!newFeedback.trim()) {
+      alert("Feedback cannot be empty.");
+      return;
+    }
   
-      // Reference to the specific submission
-      const submissionRef = doc(db, "community-assignment-submission", submissionId);
+    try {
+      // Reference to the specific submission document
+      const submissionRef = doc(db, "community-assignment-submission", editingFeedbackId);
   
       // Update Firestore
       await updateDoc(submissionRef, {
-        adminFeedback: submission.feedbackText?.trim(),
+        adminFeedback: newFeedback.trim(),
       });
   
       // Update local state
       setSubmissions((prevSubmissions) =>
         prevSubmissions.map((submission) =>
-          submission.id === submissionId
-            ? {
-                ...submission,
-                adminFeedback: submission.feedbackText?.trim(),
-                isEditingFeedback: false,
-              }
+          submission.id === editingFeedbackId
+            ? { ...submission, adminFeedback: newFeedback.trim() }
             : submission
         )
       );
   
-      alert("Feedback saved successfully!");
+      alert("Feedback updated successfully!");
+      setEditingFeedbackId(null);
+      setNewFeedback("");
     } catch (error) {
-      console.error("Error saving feedback:", error);
-      alert("Failed to save feedback.");
+      console.error("Error updating feedback:", error);
+      alert("Failed to update feedback. Please try again.");
     }
   };
+  
   
   
   
@@ -310,6 +519,9 @@ const downloadFeedbackAsPDF = (feedback) => {
       const submissionNum = Math.floor(10000 + Math.random() * 90000); // 5-digit random number
       const submissionId = `submission-${submissionNum}`;
   
+      // Ensure points is a valid number
+      const points = selectedTask.points !== undefined && selectedTask.points !== null ? selectedTask.points : 0; // Default to 0 if points is not defined
+  
       const assignmentData = {
         submissionId, // Add the generated submission ID
         assignmentLink,
@@ -321,14 +533,11 @@ const downloadFeedbackAsPDF = (feedback) => {
         adminId: AdminID,
         timestamp: serverTimestamp(),
         assignmentStatus: "Submitted for review",
-        points: selectedTask.points,
+        points, // Ensure this is a valid number
         deadline: selectedTask.taskDeadline
       };
   
-      const assignmentCollectionRef = collection(
-        db,
-        "community-assignment-submission"
-      );
+      const assignmentCollectionRef = collection(db, "community-assignment-submission");
       await addDoc(assignmentCollectionRef, assignmentData);
   
       alert("Assignment submitted successfully!");
@@ -340,9 +549,10 @@ const downloadFeedbackAsPDF = (feedback) => {
       setSubmissions((prevSubmissions) => [...prevSubmissions, assignmentData]);
     } catch (error) {
       console.error("Error submitting assignment:", error);
-      alert("Failed to submit assignment.");
+      alert(error);
     }
   };
+  
   
   
 
@@ -421,7 +631,8 @@ const downloadFeedbackAsPDF = (feedback) => {
                     const userData = userDoc.data();
                     memberNames.push({
                         uid: uid,
-                        name: userData.name || "Anonymous"  // Default to "Anonymous" if name is missing
+                        name: userData.name || "Anonymous",  // Default to "Anonymous" if name is missing
+                        status: userData.profileStatus
                     });
                 }
             }
@@ -658,7 +869,46 @@ const downloadFeedbackAsPDF = (feedback) => {
   </div>
 )}
 
-        {activeSection === "Announcements" && <p>Here are the announcements.</p>}
+{activeSection === "Announcements" && (
+  <div className="announcements-section">
+    <h2>Announcements</h2>
+    
+    <div className="announcement-list">
+      {announcements.length > 0 ? (
+        announcements.map((announcement) => (
+          <div key={announcement.id} className="announcement-card">
+            <p className="announcement-content">{announcement.announcement}</p>
+            <span className="announcement-meta">
+  Posted by {announcement.adminId === auth.currentUser?.uid ? "You" : "Admin"}
+  &nbsp;on{" "}
+  {announcement.timestamp.toLocaleDateString()|| "Unknown"}
+</span>
+
+
+          </div>
+        ))
+      ) : (
+        <p>No announcements yet.</p>
+      )}
+    </div>
+    
+    {isAdmin && (
+      <div className="announcement-input-container">
+        <input
+          type="text"
+          value={newAnnouncement}
+          onChange={(e) => setNewAnnouncement(e.target.value)}
+          placeholder="Write an announcement..."
+          className="announcement-input"
+        />
+        <button onClick={handlePostAnnouncement} className="announcement-share-button">
+          <FaPaperPlane/>
+        </button>
+      </div>
+    )}
+  </div>
+)}
+
         {activeSection === "Tasks" && (
       <div className="tasks-section">
 
@@ -722,7 +972,43 @@ const downloadFeedbackAsPDF = (feedback) => {
         )}
 
         {activeSection === "Courses" && <p>Here are the courses.</p>}
-        {activeSection === "Leaderboard" && <p>Check out the leaderboard.</p>}
+        {activeSection === "Leaderboard" && (
+  <div className="leaderboard-section">
+    <h2>Leaderboard</h2>
+    {leaderboard.length > 0 ? (
+      <div className="leaderboard-table-container">
+        <table className="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Member</th>
+              <th>Total Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {leaderboard.map((entry, index) => {
+              const memberName = members.find((member) => member.uid === entry.memberId)?.name || "Unknown";
+              const isCurrentUser = entry.memberId === auth.currentUser?.uid;
+              return (
+                <tr key={entry.memberId} className="leaderboard-row">
+                  <td className="rank">{index + 1}</td>
+                  <td className="member-name">
+                    {memberName} {isCurrentUser && <span style={{ color: "#f1c40f" }}>(You)</span>}
+                  </td>
+                  <td className="total-score">{entry.totalScore} points</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <p>No submissions yet.</p>
+    )}
+  </div>
+)}
+
+
         {activeSection === "Manage" && isAdmin && <p>Manage community settings here.</p>}
         {activeSection === "Submissions" && isAdmin && (
   <div className="assignment-submissions-section">
@@ -743,22 +1029,43 @@ const downloadFeedbackAsPDF = (feedback) => {
                 <p style={{fontSize:'13px'}}><strong>Status:</strong> {submission.assignmentStatus}</p>
                 <p style={{fontSize:'13px'}}><strong>Task Score:</strong> {submission.points} points</p>
                 <div className="feedback-section">
-                <p style={{fontSize:'13px'}}>
-                      <strong>Admin Feedback:</strong> {submission.adminFeedback}{" "}
-                    </p>
-                  {submission.adminFeedback ? (
-                    null
-                  ) : (
-                    <>
-                      <textarea
-                        className="feedback-textarea"
-                        placeholder="Enter feedback for this submission"
-                        value={submission.feedbackText ?? submission.adminFeedback ?? ""}
-                        onChange={(e) => handleFeedbackChange(submission.id, e.target.value)}
-                      ></textarea>
-                    </>
-                  )}
-                </div>
+  <p style={{ fontSize: '13px' }}>
+    <strong>Admin Feedback:</strong>
+    {editingFeedbackId === submission.id ? (
+      <>
+        <textarea
+          className="feedback-textarea"
+          value={newFeedback}
+          onChange={(e) => setNewFeedback(e.target.value)}
+          placeholder="Enter your feedback here"
+        ></textarea>
+        <button className="save-feedback-btn" onClick={handleSaveFeedback}>
+          Save
+        </button>
+        <button
+          className="cancel-feedback-btn"
+          onClick={() => {
+            setEditingFeedbackId(null);
+            setNewFeedback("");
+          }}
+        >
+          Cancel
+        </button>
+      </>
+    ) : (
+      <>
+        {submission.adminFeedback || "No feedback provided."}
+        <button
+          className="edit-admin-feedback-btn"
+          onClick={() => handleEditFeedback(submission)}
+        >
+          Edit
+        </button>
+      </>
+    )}
+  </p>
+</div>
+
 
 
                 <div className="admin-actions">
@@ -823,8 +1130,12 @@ const downloadFeedbackAsPDF = (feedback) => {
                 </div>
                 <div className="my-submission-card-content">
                   <p><strong>Link:</strong> <a href={submission.assignmentLink} target="_blank" rel="noopener noreferrer" style={{fontSize:'13px'}}>{submission.assignmentLink}</a></p>
+                  <p ><strong>Task  ID:</strong> {submission.taskId}</p>
                   <p><strong>Submitted On:</strong> {new Date(submission.timestamp?.seconds * 1000).toLocaleString()}</p>
                   <p ><strong>status:</strong> {submission.assignmentStatus}</p>
+                  {submission.rewardEarned && (
+                    <p ><strong>Reward:</strong><span style={{color:'green',fontWeight:'bold'}}>{submission.rewardEarned} points</span> </p>
+                  )}
                   {submission.adminFeedback ? (<>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor:'#ccc',padding:'10px', borderRadius:'10px', marginBottom:'10px' }}>
                   <p style={{ fontSize: '13px', fontWeight: 'bold', textAlign:'center',  }}>Admin Feedback</p>
@@ -849,7 +1160,7 @@ const downloadFeedbackAsPDF = (feedback) => {
                 {submission.assignmentStatus === "Rejected" && (
                   <>
                   <div>
-                    <button className="re-submit-button">Re Submit</button>
+                    <button className="re-submit-button"  onClick={() => handleOpenResubmitModal(submission)}>Re Submit</button>
                   </div>
                   </>
                 )}
@@ -875,7 +1186,12 @@ const downloadFeedbackAsPDF = (feedback) => {
     <ul>
         {members.map((member) => (
             <li key={member.uid}>
-                <span className="member-name">{member.name}</span>
+                <span className="member-name">{member.name} </span> 
+                <span className={`status-dot ${member.status === "online" ? "online" : "offline"}`}></span>
+
+                  <span className="status-text">
+                    {member.status}
+                  </span>
             </li>
         ))}
     </ul>
@@ -1012,6 +1328,35 @@ const downloadFeedbackAsPDF = (feedback) => {
          </div>
        </div>
       )}
+
+{showResubmitModal && (
+  <div className="task-modal-overlay">
+    <div className="task-modal-content">
+      <div className="task-modal-header">
+        <h2>Re-Submit Assignment</h2>
+      </div>
+      <div className="task-modal-body">
+        <label htmlFor="new-assignment-link">New Assignment Link</label>
+        <input
+          id="new-assignment-link"
+          type="text"
+          value={newAssignmentLink}
+          onChange={(e) => setNewAssignmentLink(e.target.value)}
+          placeholder="Enter new assignment link"
+        />
+      </div>
+      <div className="task-modal-footer">
+        <button className="task-submit-button" onClick={handleResubmitAssignment}>
+          Submit
+        </button>
+        <button className="task-cancel-button" onClick={() => setShowResubmitModal(false)}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
 {showAssignmentModal && (
   <div className="task-modal-overlay">

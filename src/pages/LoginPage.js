@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { auth } from "../services/firebase";
+import { auth, db } from "../services/firebase";
 import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
@@ -9,6 +9,7 @@ import { FaGoogle, FaApple } from "react-icons/fa";
 import { MdPhoneIphone } from "react-icons/md"; 
 import { useNavigate } from "react-router-dom";
 import "../styles/components/LoginPage.css";
+import { doc, updateDoc } from "firebase/firestore";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -16,10 +17,25 @@ const LoginPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const updateProfileStatus = async (uid) => {
+    try {
+      const userDocRef = doc(db, "users", uid); // Reference to the user's document
+      await updateDoc(userDocRef, { profileStatus: "online" }); // Update the profileStatus
+    } catch (err) {
+      console.error("Error updating profile status:", err);
+      alert("Error while updating status")
+    }
+  };
+
   const handleEmailPasswordLogin = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password); // Define userCredential
+    const user = userCredential.user; // Access the user object
+
+    // Update profileStatus
+    await updateProfileStatus(user.uid);
+
       navigate("/profile");
     } catch (err) {
       setError(err.message);
@@ -29,7 +45,11 @@ const LoginPage = () => {
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const userCredential = await signInWithPopup(auth, provider); // Define userCredential
+    const user = userCredential.user; // Access the user object
+
+    // Update profileStatus
+    await updateProfileStatus(user.uid);
       navigate("/profile");
     } catch (err) {
       setError(err.message);
@@ -71,7 +91,7 @@ const LoginPage = () => {
               required
             />
           </div>
-          <button type="submit" className="submit-button">
+          <button type="submit" className="login-button">
             Log In
           </button>
         </form>

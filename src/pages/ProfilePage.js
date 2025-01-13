@@ -412,6 +412,7 @@ const ProfilePage = () => {
                   src={communityProfilePic || uploadPhoto}
                   alt="Community Profile"
                   className="create-community-profile-pic"
+                  title="community profile picture"
                 />
                 {/* Add logic to upload or choose profile pic */}
               </div>
