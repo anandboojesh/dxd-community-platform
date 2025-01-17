@@ -189,23 +189,6 @@ const ProfilePage = () => {
   };
 
 
-   const generateEntranceCode = async () => {
-      // Generate a random entrance code
-      const code = Math.random().toString(36).substr(2, 8);
-      setEntranceCode(code); // Update state with generated code
-    
-      try {
-        // Update the Firestore document with the new entrance code
-        const communityRef = doc(db, "communities", communityId);
-        await updateDoc(communityRef, {
-          communityEntranceCode: code, // Store the entrance code in the communityDescription field
-        });
-        alert("Entrance code generated and saved!");
-      } catch (error) {
-        console.error("Error updating entrance code in Firestore:", error);
-        alert(error);
-      }
-    };
     
     const handleCreateCommunity = async () => {
       try {

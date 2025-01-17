@@ -681,7 +681,6 @@ const downloadFeedbackAsPDF = (feedback) => {
       const loginTimestamp = new Date();
      await setDoc(doc(collection(db, "activity_logs"), userId + "_" + loginTimestamp.getTime()), {
       userId: userId,
-      email: user.email,
       action: "Status",
       message: `Admin updated the status of submission '${submission.assignmentName}' to '${newStatus}'`,
       communityId,
