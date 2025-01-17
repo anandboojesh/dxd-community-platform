@@ -90,20 +90,6 @@
     color: #b0b3b8; /* Subtle gray for less important text */
   }
   
-  button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 25px;
-    border: none;
-    cursor: pointer;
-    background: linear-gradient(135deg, #4caf50, #81c784); /* Gradient for buttons */
-    color: white;
-    transition: background 0.3s;
-  }
-  
-  button:hover {
-    background: linear-gradient(135deg, #388e3c, #66bb6a); /* Darker gradient on hover */
-  }
 
   .admin-tools {
     margin-top: 10px;
