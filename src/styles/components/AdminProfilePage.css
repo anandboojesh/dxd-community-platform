@@ -1,0 +1,73 @@
+/* AdminProfilePage.css */
+
+body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    background-color: #2f3136;
+    color: white;
+  }
+
+/* General styles for the page */
+.admin-page {
+    display: flex;
+    top: 0;
+    left: 0;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    margin-top: 60px;
+    background: linear-gradient(135deg, #2f3136, #3a3f44);
+  }
+  
+  .admin-sidebar {
+    width: 240px;
+    background-color: #202225;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .sidebar-item {
+    display: flex;
+    justify-content: space-between;  /* Space out the text and icon */
+    align-items: center;  /* Vertically align items */
+    padding: 10px;
+  }
+  
+  .sidebar-item.active,
+  .sidebar-item:hover {
+    background-color: #5865f2;
+    color: white;
+    border-radius: 5px;
+  }
+  
+  .admin-content {
+    flex: 1; /* Allow the main content to take up remaining space */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 20px;
+  }
+  .admin-page-body{
+    font-size: 1rem;
+    color: #555555;
+  }
+  
+  h1 {
+    font-size: 2em;
+  }
+  
+  .profile-section, .users-section, .communities-section, .reports-section, .admin-settings-section {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  p {
+    color: #7f8c8d;
+    font-size: 1.1em;
+  }
+  

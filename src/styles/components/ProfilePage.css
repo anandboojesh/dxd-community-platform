@@ -17,6 +17,73 @@ body, html {
     flex: 1;
     
   }
+
+  .profile-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 10px 15px;
+    width: fit-content;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .score-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #6b7280;
+  }
+  
+  .score-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #1f2937;
+  }
+
+  
+  .joined-communities {
+    margin-top: 20px;
+  }
+
+  .community-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .community-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    transition: box-shadow 0.2s;
+    margin-bottom: 10px;
+  }
+
+  .community-link:hover {
+    background-color: #f1f1f1; /* Highlight on hover */
+    transform: scale(1.02); /* Slight zoom effect */
+  }
+
+  .community-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+
+  .community-name {
+    font-size: 16px;
+    font-weight: bold;
+  }
   
   /* Profile Banner */
   .profile-banner {
@@ -231,6 +298,7 @@ body, html {
     border: 1px solid #ddd; /* Light border */
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    display: flex;
   }
   
   .community-item:hover {
@@ -586,4 +654,96 @@ body, html {
 
 .join-button:hover {
   background-color: #0056b3; /* Darker blue on hover */
+}
+/* Main container */
+.activity-logs {
+  padding: 20px;
+  background-color: #36393f; /* Dark background */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Darker shadow for depth */
+}
+
+/* Tab buttons */
+.tabs {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  background: #202225; /* Dark background for tabs */
+  border: 1px solid #444; /* Slightly lighter border */
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+  color: #b9bbbe; /* Light text color */
+}
+
+.tab-button:hover {
+  background: #5865f2; /* Highlight color */
+  color: white; /* White text on hover */
+}
+
+.tab-button.active {
+  background: #5865f2; /* Active tab color */
+  color: white;
+  border-color: #5865f2; /* Border color for active tab */
+}
+/* CSS for loading progress bar */
+.loading-indicator {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 20px;
+  background-color: #f3f3f3;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4caf50;  /* You can change the color */
+  transition: width 0.3s ease;
+}
+
+
+/* Log Table */
+.log-table-container {
+  margin-top: 20px;
+}
+
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #202225; /* Dark table background */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.log-table th, .log-table td {
+  padding: 12px;
+  text-align: left;
+  color: #b9bbbe; /* Light text color */
+}
+
+.log-table th {
+  background-color: #2f3136; /* Darker header background */
+  font-weight: bold;
+}
+
+.log-row:hover {
+  background-color: #4f5459; /* Hover effect with a lighter dark background */
+  transition: background-color 0.3s ease;
+}
+
+/* No Logs */
+.no-logs {
+  text-align: center;
+  padding: 20px;
+  font-size: 16px;
+  color: #777; /* Lighter grey text */
 }

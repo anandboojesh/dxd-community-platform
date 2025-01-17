@@ -9,8 +9,7 @@ import { FaGoogle, FaApple } from "react-icons/fa";
 import { MdPhoneIphone } from "react-icons/md"; 
 import { useNavigate } from "react-router-dom";
 import "../styles/components/LoginPage.css";
-import { doc, updateDoc } from "firebase/firestore";
-
+import { addDoc, collection, doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,11 +26,23 @@ const LoginPage = () => {
     }
   };
 
+  
+
   const handleEmailPasswordLogin = async (e) => {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password); // Define userCredential
     const user = userCredential.user; // Access the user object
+
+    const loginTimestamp = new Date();
+    await setDoc(doc(collection(db, "activity_logs"), user.uid + "_" + loginTimestamp.getTime()), {
+      userId: user.uid,
+      email: user.email,
+      action: "Login",
+      message: `Logged in from "${window.location.hostname}" on ${loginTimestamp.toISOString()}`,
+      timestamp: loginTimestamp,
+      ip: window.location.hostname,
+    });
 
     // Update profileStatus
     await updateProfileStatus(user.uid);
@@ -48,6 +59,16 @@ const LoginPage = () => {
       const userCredential = await signInWithPopup(auth, provider); // Define userCredential
     const user = userCredential.user; // Access the user object
 
+    const loginTimestamp = new Date();
+    await setDoc(doc(collection(db, "activity_logs"), user.uid + "_" + loginTimestamp.getTime()), {
+      userId: user.uid,
+      email: user.email,
+      action: "Login",
+      message: `Logged in from "${window.location.hostname}" on ${loginTimestamp.toISOString()}`,
+      timestamp: loginTimestamp,
+      ip: window.location.hostname,
+    });
+
     // Update profileStatus
     await updateProfileStatus(user.uid);
       navigate("/profile");
@@ -55,6 +76,8 @@ const LoginPage = () => {
       setError(err.message);
     }
   };
+
+
 
   return (
     <div className="login-modal">

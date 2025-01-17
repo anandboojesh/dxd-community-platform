@@ -61,7 +61,8 @@ const SignUpPage = () => {
           dateOfBirth: "",
           signUpDate: serverTimestamp(),
           role: "Member",
-          uid: user.uid
+          uid: user.uid,
+          userScore:0,
         });
       }
   

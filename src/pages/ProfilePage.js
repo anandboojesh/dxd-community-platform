@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "../styles/components/ProfilePage.css";
 import { auth, db } from "../services/firebase";
-import { doc, getDoc, collection, getDocs, updateDoc, addDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, updateDoc, addDoc, serverTimestamp, setDoc, where, query, orderBy } from "firebase/firestore";
 import { FaChevronDown, FaChevronUp, FaTimes, FaUpload, FaUserAlt } from "react-icons/fa";
 import { AiOutlineArrowRight } from 'react-icons/ai';
 import { useNavigate } from "react-router-dom";
+import { gapi } from "gapi-script";
 const avatars = [
   require("./assets/avatar1.png"),
   require("./assets/avatar2.png"),
@@ -28,7 +29,15 @@ const avatars = [
   require("./assets/avatar20.png"),
 ];
 
+
+
 const uploadPhoto = require('./assets/upload_photo.jpg')
+
+const LoadingSpinner = () => (
+  <div className="spinner-container">
+    <div className="spinner"></div>
+  </div>
+);
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState({
@@ -51,7 +60,123 @@ const ProfilePage = () => {
   const [showCreateCommunityModal, setShowCreateCommunityModal] = useState(false);
   const [communityName, setCommunityName] = useState("");
   const [communityProfilePic, setCommunityProfilePic] = useState(null);
+  const [logs, setLogs] = useState([]);
+  const [activeTab, setActiveTab] = useState('login');  // Default active tab
+  const [loading, setLoading] = useState(true);
+  const [entranceCode, setEntranceCode] = useState("");
+  const [communityProfilePhoto, setCommunityProfilePhoto] = useState("");
 
+  
+  const initGoogleDrive = () => {
+    gapi.load("client:auth2", async () => {
+      try {
+        await gapi.client.init({
+          apiKey: "AIzaSyCAu251nw4im3YJZLyJUgJmZAF7jTICSh0",
+          clientId: "960353326099-8cjg184n3dpruud1r3ju66h2p3au7qat.apps.googleusercontent.com",
+          discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+          scope: "https://www.googleapis.com/auth/drive.file",
+        });
+        console.log("Google API initialized successfully.");
+      } catch (error) {
+        console.error("Error initializing Google API:", error);
+      }
+    });
+  };
+  
+  
+  useEffect(() => {
+    initGoogleDrive();
+  }, []);
+  
+
+  const imageUrl = 'https://drive.google.com/uc?export=view&id=1IbGgbFTEPc-g3Ac7cOZ65DOcHRWA5FO4';
+  
+  const uploadFileToGoogleDrive = async (file) => {
+    const FOLDER_ID = "1gp8Cde1IGuRL-UUGS1GScYObLLO8qHkw";
+  
+    try {
+      const authInstance = gapi.auth2.getAuthInstance();
+      if (!authInstance.isSignedIn.get()) {
+        await authInstance.signIn();
+      }
+  
+      const token = authInstance.currentUser.get().getAuthResponse().access_token;
+  
+      const metadata = {
+        name: file.name,
+        mimeType: file.type,
+        parents: [FOLDER_ID],
+      };
+  
+      const formData = new FormData();
+      formData.append(
+        "metadata",
+        new Blob([JSON.stringify(metadata)], { type: "application/json" })
+      );
+      formData.append("file", file);
+  
+      const response = await fetch(
+        "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+        {
+          method: "POST",
+          headers: new Headers({ Authorization: `Bearer ${token}` }),
+          body: formData,
+        }
+      );
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Upload failed: ${errorData.error.message}`);
+      }
+  
+      const data = await response.json();
+      console.log("File uploaded successfully:", data);
+      return data.id;
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
+    }
+  };
+  
+
+  const fetchLogs = async (activityType) => {
+    setLoading(true);
+    try {
+      const formattedActivityType = activityType.charAt(0).toUpperCase() + activityType.slice(1); // Match Firestore field case
+      const user = auth.currentUser;
+      // Ensure the user is authenticated before fetching logs
+      if (user) {
+        const logsQuery = query(
+          collection(db, "activity_logs"),
+          where("action", "==", formattedActivityType),
+          where("userId", "==", user.uid) // Filter logs by the current user’s ID
+        );
+        const querySnapshot = await getDocs(logsQuery);
+        const fetchedLogs = querySnapshot.docs.map(doc => doc.data());
+
+        console.log("Fetched Logs:", fetchedLogs); // Debugging logs
+        setLogs(fetchedLogs);
+      }
+    } catch (error) {
+      console.error(`Error fetching logs for ${activityType}:`, error);
+      alert(error)
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+  useEffect(() => {
+    fetchLogs(activeTab); // Fetch logs for the active tab
+  }, [activeTab]);
+  
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+  };
+  
+
+
+ 
   const openCommunityModal = () => setShowCommunityModal(true);
   const closeCommunityModal = () => setShowCommunityModal(false);
 
@@ -63,38 +188,69 @@ const ProfilePage = () => {
     setShowCreateCommunityModal(false);
   };
 
-  const handleCreateCommunity = async () => {
-    try {
-      const user = auth.currentUser;
-      if (user) {
-        const uniqueCommunityId = `COMM-${Date.now()}`; // Generate unique ID based on timestamp
-        const communityData = {
-          name: communityName,
-          createdTime: serverTimestamp(), // Firebase server timestamp
-          adminId: user.uid,
-          adminEmail: user.email,
-          communityId:uniqueCommunityId,
-          adminName: user.displayName || "Admin",
-          profilePhoto: communityProfilePic || uploadPhoto, // Default photo if none is uploaded
-          communityName
-        };
-  
-        // Save to Firestore using uniqueCommunityId as document ID
-        await setDoc(doc(db, "communities", uniqueCommunityId), communityData);
-  
-        console.log("Community Created:", communityData);
-        alert("Community created successfully!");
-      } else {
-        alert("User not authenticated. Please log in.");
+
+   const generateEntranceCode = async () => {
+      // Generate a random entrance code
+      const code = Math.random().toString(36).substr(2, 8);
+      setEntranceCode(code); // Update state with generated code
+    
+      try {
+        // Update the Firestore document with the new entrance code
+        const communityRef = doc(db, "communities", communityId);
+        await updateDoc(communityRef, {
+          communityEntranceCode: code, // Store the entrance code in the communityDescription field
+        });
+        alert("Entrance code generated and saved!");
+      } catch (error) {
+        console.error("Error updating entrance code in Firestore:", error);
+        alert(error);
       }
-    } catch (error) {
-      console.error("Error creating community:", error);
-      alert("Failed to create community. Please try again.");
-    } finally {
-      closeCreateCommunityModal(); // Close the modal
-    }
-  };
-  
+    };
+    
+    const handleCreateCommunity = async () => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const uniqueCommunityId = `COMM-${Date.now()}`;
+          const code = Math.random().toString(36).substr(2, 8);
+          let fileUrl = null;
+    
+          // Upload the profile picture to Google Drive if selected
+          if (communityProfilePic) {
+            const fileId = await uploadFileToGoogleDrive(communityProfilePic); // Upload file
+            fileUrl = `https://drive.google.com/uc?id=${fileId}`; // Construct URL
+          }
+    
+          // Community data to save in Firestore
+          const communityData = {
+            name: communityName,
+            createdTime: serverTimestamp(),
+            adminId: user.uid,
+            adminEmail: user.email,
+            communityId: uniqueCommunityId,
+            adminName: user.displayName || "Admin",
+            profilePhoto: fileUrl || uploadPhoto, // Use uploaded photo or default
+            communityName,
+            visibility: "public",
+            communityEntranceCode: code,
+          };
+    
+          // Save to Firestore
+          await setDoc(doc(db, "communities", uniqueCommunityId), communityData);
+    
+          alert("Community created successfully!");
+        } else {
+          alert("User not authenticated. Please log in.");
+        }
+      } catch (error) {
+        console.error("Error creating community:", error);
+        alert("Failed to create community. Please try again.");
+      } finally {
+        closeCreateCommunityModal();
+      }
+    };
+    
+    
 
   const navigate = useNavigate();
 
@@ -127,6 +283,7 @@ const ProfilePage = () => {
     return () => unsubscribe();
   }, []);
 
+
   const fetchUserData = async (uid) => {
     try {
       const userRef = doc(db, "users", uid);
@@ -150,6 +307,7 @@ const ProfilePage = () => {
           username: userData.username || "No Username",
           aboutMe: userData.aboutMe || "",
           signUpDate: formattedSignUpDate,
+          score: userData.userScore || 0,
         });
 
         const communitiesQuery = collection(db, "communities");
@@ -213,7 +371,7 @@ const ProfilePage = () => {
     <div className="user-page">
       {/* Sidebar */}
       <div className="sidebar">
-        {["Profile", "Community", "Tasks", "Settings"].map((item) => (
+        {["Profile", "Activity","Community","Settings"].map((item) => (
           <div key={item} className="sidebar-section">
              <div
               className={`sidebar-item ${activeSidebar === item ? "active" : ""}`}
@@ -239,6 +397,11 @@ const ProfilePage = () => {
                 {userCommunities.length > 0 ? (
                   userCommunities.map((community) => (
                     <div key={community.communityId} className="community-item" onClick={() => navigate(`/community/${community.communityId}`)}>
+                       <img
+                        src={community.profilePhoto || "https://via.placeholder.com/50"}
+                        alt={community.name}
+                        className="community-icon"
+                      />
                       <p>{community.name}</p>
                     </div>
                   ))
@@ -254,6 +417,136 @@ const ProfilePage = () => {
 
       {/* Main Content Area */}
       <div className="main-content">
+      {activeSidebar === "Activity" && (
+  <div className="activity-logs">
+    {/* Tab Buttons */}
+    <div className="tabs">
+      {["login", "logout", "task", "submission", "status"].map((tab) => (
+        <button
+          key={tab}
+          className={`tab-button ${activeTab === tab ? 'active' : ''}`}
+          onClick={() => handleTabClick(tab)}
+        >
+          {tab.charAt(0).toUpperCase() + tab.slice(1)}
+        </button>
+      ))}
+    </div>
+
+    {/* Loading Indicator */}
+    {loading && <div className="loading-indicator">Loading...</div>}
+
+    {/* Logs Table */}
+    <div className="log-table-container">
+  {logs.length > 0 ? (
+    <table className="log-table">
+      <thead>
+        <tr>
+          {activeTab === "submission" && (
+            <>
+              <th>Community Name</th>
+              <th>Community ID</th>
+              <th>Message</th>
+              <th>Timestamp</th>
+            </>
+          )}
+
+{activeTab === "task" && (
+            <>
+              <th>Community Name</th>
+              <th>Community ID</th>
+              <th>Message</th>
+              <th>Timestamp</th>
+            </>
+          )}
+          {activeTab === "status" && (
+            <>
+              <th>Community Name</th>
+              <th>Community ID</th>
+              <th>Message</th>
+              <th>Timestamp</th>
+            </>
+          )} 
+           {activeTab === "login" &&(
+            <>
+              <th>Action</th>
+              <th>Message</th>
+              <th>IP</th>
+              <th>Timestamp</th>
+            </>
+          )}
+
+          {activeTab === "logout" &&(
+            <>
+              <th>Action</th>
+              <th>Message</th>
+              <th>IP</th>
+              <th>Timestamp</th>
+            </>
+          )}
+        </tr>
+      </thead>
+      <tbody>
+        {logs.map((log, index) => (
+          <tr key={index} className="log-row">
+            {activeTab === "submission" && (
+              <>
+                <td>{log.communityName || "N/A"}</td>
+                <td>{log.communityId || "N/A"}</td>
+                <td>{log.message || "N/A"}</td>
+                <td>{log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : "N/A"}</td>
+              </>
+            )}
+
+            {activeTab === "task" && (
+              <>
+                <td>{log.communityName || "N/A"}</td>
+                <td>{log.communityId || "N/A"}</td>
+                <td>{log.message || "N/A"}</td>
+                <td>{log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : "N/A"}</td>
+              </>
+            )}
+
+            {activeTab === "status" && (
+              <>
+                <td>{log.communityName || "N/A"}</td>
+                <td>{log.communityId || "N/A"}</td>
+                <td>{log.message || "N/A"}</td>
+                <td>{log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : "N/A"}</td>
+              </>
+            )}
+            
+            {activeTab === "login" &&(
+              <>
+                <td>{log.action}</td>
+                <td>{log.message}</td>
+                <td>{log.ip}</td>
+                <td>{log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : "N/A"}</td>
+              </>
+            )}
+
+            {activeTab === "logout" &&(
+              <>
+                <td>{log.action}</td>
+                <td>{log.message}</td>
+                <td>{log.ip}</td>
+                <td>{log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : "N/A"}</td>
+              </>
+            )}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : (
+    <div className="no-logs">
+      <p>No logs available for this action.</p>
+    </div>
+  )}
+</div>
+
+  </div>
+)}
+
+
         {activeSidebar === "Profile" && (
           <div className="profile-page">
             <div className="profile-banner">
@@ -274,6 +567,10 @@ const ProfilePage = () => {
               <div className="profile-details">
                 <h1 className="profile-name">{userData.displayName}</h1>
                 <p className="profile-username">@{userData.username}</p>
+                <div className="profile-score">
+                  <span className="score-label">Score:</span>
+                  <span className="score-value">{userData.score}</span>
+                </div>
                 {/* Profile Status */}
                 <div className="profile-status">
                   <span
@@ -309,6 +606,34 @@ const ProfilePage = () => {
                   <button onClick={() => setIsEditingBio(true)} className="add-about-me-button">
                     {userData.aboutMe ? "Edit Bio" : "Add Bio"}
                   </button>
+
+                     {/* Joined Communities Section */}
+                     <div className="joined-communities">
+  <h2>Joined Communities</h2>
+  {userCommunities.length > 0 ? (
+    userCommunities.map((community) => (
+      <a
+        key={community.communityId}
+        href={`/community/${community.communityId}`}
+        className="community-link"
+      >
+        <img
+          src={
+            community.profilePhoto
+              ? community.profilePhoto // Use the saved Google Drive URL
+              : "https://via.placeholder.com/50" // Default image
+          }
+          alt={community.name}
+          className="community-icon"
+        />
+        <span className="community-name">{community.name}</span>
+      </a>
+    ))
+  ) : (
+    <p>No communities found.</p>
+  )}
+</div>
+
                 </div>
               )}
 
@@ -322,6 +647,7 @@ const ProfilePage = () => {
                 
               </div>
             )}
+
           </div>
  {/* Modal */}
  {isModalOpen && (
@@ -364,7 +690,11 @@ const ProfilePage = () => {
                 ))}
               </div>
             )}
+
+            
           </div>
+
+          
         </div>
       )}
 
@@ -406,16 +736,27 @@ const ProfilePage = () => {
               </button>
             </div>
             <div className="create-community-content">
-              <div className="create-community-profile-pic-container">
-                {/* Profile Pic Selection */}
-                <img
-                  src={communityProfilePic || uploadPhoto}
-                  alt="Community Profile"
-                  className="create-community-profile-pic"
-                  title="community profile picture"
-                />
-                {/* Add logic to upload or choose profile pic */}
-              </div>
+            <div className="create-community-profile-pic-container">
+  <img
+    src={communityProfilePic || uploadPhoto}
+    alt="Community Profile"
+    className="create-community-profile-pic"
+    title="Community profile picture"
+  />
+ <input
+  type="file"
+  accept="image/*"
+  className="image-upload-input"
+  onChange={(e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setCommunityProfilePic(file); // Set the selected file in state
+    }
+  }}
+/>
+
+</div>
+
               <div className="create-community-input-group">
                 <label htmlFor="communityName">Community Name</label>
                 <input

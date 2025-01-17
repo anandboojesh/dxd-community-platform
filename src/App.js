@@ -13,6 +13,9 @@ import { auth, db } from "./services/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from 'firebase/auth';
+import ActivityPage from './pages/activity';
+import AdminProfilePage from './pages/AdminProfilePage';
+import MyCommunities from './pages/myCommuities';
 
 const Navbar = ({userRole}) => {
   const Location = useLocation();
@@ -22,12 +25,12 @@ const Navbar = ({userRole}) => {
     <nav className="navbar">
       <ul className="navbar-list">
 
-        {userRole === "Member" && (
-          <>
-        <li className="navbar-item">
+      {userRole === "Admin" && (
+        <>
+         <li className="navbar-item">
           <Link
-            to="/profile"
-            className={`navbar-link ${isActive("/profile") ? "active" : ""}`}
+            to="/adminprofile"
+            className={`navbar-link ${isActive("/adminprofile") ? "active" : ""}`}
           >
             <FaUser className="icon" size={20} />
             Profile
@@ -42,6 +45,49 @@ const Navbar = ({userRole}) => {
             Communities
           </Link>
         </li>
+
+        <li className="navbar-item">
+          <Link
+            to="/leaderboard"
+            className={`navbar-link ${isActive("/leaderboard") ? "active" : ""}`}
+          >
+            <FaTrophy className="icon" size={30} />
+            Leaderboard
+          </Link>
+        </li>
+        <li className="navbar-item">
+          <Link
+            to="/discover"
+            className={`navbar-link ${isActive("/discover") ? "active" : ""}`}
+          >
+            <FaCompass className="icon" size={30} />
+            Discover
+          </Link>
+        </li>
+        </>
+      )}
+
+        {userRole === "Member" && (
+          <>
+        <li className="navbar-item">
+          <Link
+            to="/profile"
+            className={`navbar-link ${isActive("/profile") ? "active" : ""}`}
+          >
+            <FaUser className="icon" size={20} />
+            Profile
+          </Link>
+        </li>
+        <li className="navbar-item">
+          <Link
+            to="/MyCommunities"
+            className={`navbar-link ${isActive("/MyCommunities") ? "active" : ""}`}
+          >
+            <FaUsers className="icon" size={30} />
+            Communities
+          </Link>
+        </li>
+
         <li className="navbar-item">
           <Link
             to="/leaderboard"
@@ -124,6 +170,14 @@ function App() {
           <Route path="/community/:communityId" element={<CommunityPage />} />
           <Route path="/community/:communityId/tasks/:taskId" element={<TaskDetailsPage />} />
           <Route path="/community/:communityId/manage" element={<CommunityManagementPage />} />
+          <Route path='activity' element={<ActivityPage/>}/>
+          <Route path='MyCommunities' element={<MyCommunities/>} />
+
+          {userRole === "Admin" && (
+            <>
+              <Route path='adminProfile' element={<AdminProfilePage/>}/>
+            </>
+          )}
         </Routes>
       </div>
     </Router>

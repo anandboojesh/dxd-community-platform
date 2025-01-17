@@ -4,10 +4,17 @@ import { db } from "../services/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
+const LoadingSpinner = () => (
+  <div className="spinner-container">
+    <div className="spinner"></div>
+  </div>
+);
+
 const DiscoverPage = () => {
   const [activeTab, setActiveTab] = useState("Home");
   const [activeSidebar, setActiveSidebar] = useState("Home");
   const [communities, setCommunities] = useState([]);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   const navigate = useNavigate();
 
@@ -22,8 +29,10 @@ const DiscoverPage = () => {
           ...doc.data(),
         }));
         setCommunities(fetchedCommunities);
+        setLoading(false); // Set loading to false after fetching data
       } catch (error) {
         console.error("Error fetching communities:", error);
+        setLoading(false); // Ensure loading is false even if there's an error
       }
     };
 
@@ -35,7 +44,6 @@ const DiscoverPage = () => {
 
   return (
     <div className="discover-page">
-      
       {/* Main Content */}
       <div className="main-content">
         {/* Banner */}
@@ -60,18 +68,29 @@ const DiscoverPage = () => {
         {/* Featured Servers */}
         <div className="featured-section">
           <h2>Featured communities</h2>
-          <div className="server-grid">
-            {communities.map((community) => (
-              <div className="server-card" key={community.id}  onClick={() => navigate(`/community/${community.communityId}`)}>
-                <img
-                  src={community.profilePhoto || "https://via.placeholder.com/150"}
-                  alt={community.communityName}
-                />
-                <p>{community.communityName}</p>
-              </div>
-            ))}
-          </div>
-          <div style={{padding:'40px'}}/>
+
+          {/* Show loading spinner if data is still loading */}
+          {loading ? (
+            <LoadingSpinner />
+          ) : (
+            <div className="server-grid">
+              {communities.map((community) => (
+                <div
+                  className="server-card"
+                  key={community.id}
+                  onClick={() => navigate(`/community/${community.communityId}`)}
+                >
+                  <img
+                    src={community.profilePhoto || "https://via.placeholder.com/150"}
+                    alt={community.communityName}
+                  />
+                  <p>{community.communityName}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{ padding: "40px" }} />
         </div>
       </div>
     </div>

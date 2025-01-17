@@ -7,6 +7,15 @@ import { FaBell, FaDownload, FaEdit, FaEllipsisV, FaPaperPlane, FaTrash, FaUsers
 import { ref, } from "firebase/database";
 import { CloudinaryContext, Image, Video, Transformation } from 'cloudinary-react';
 import jsPDF from "jspdf";
+import { gapi } from "gapi-script";
+
+
+
+const LoadingSpinner = () => (
+  <div className="spinner-container">
+    <div className="spinner"></div>
+  </div>
+);
 
 const CommunityPage = () => {
   const { communityId } = useParams(); // Get community ID from URL
@@ -39,6 +48,8 @@ const CommunityPage = () => {
   const [submissions, setSubmissions] = useState([]); // State to store submissions
   const [submissionsLoaded, setSubmissionsLoaded] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]); // State to store leaderboard data
+  const [loading, setLoading] = useState(false);  // State to track loading status
+  const [errorMessage, setErrorMessage] = useState(null);
   const [showResubmitModal, setShowResubmitModal] = useState(false); // Modal state
   const [selectedSubmission, setSelectedSubmission] = useState(null); // Selected submission for resubmit
   const [newAssignmentLink, setNewAssignmentLink] = useState(""); // New link for resubmission
@@ -46,6 +57,213 @@ const CommunityPage = () => {
   const [newFeedback, setNewFeedback] = useState(""); // New feedback text
   const [announcements, setAnnouncements] = useState([]); // Store announcements
   const [newAnnouncement, setNewAnnouncement] = useState(""); // Store input text
+  const [showAddCourseModal, setShowAddCourseModal] = useState(false);
+  const [courseTitle, setCourseTitle] = useState("");
+  const [courseDescription, setCourseDescription] = useState("");
+  const [courseLink, setCourseLink] = useState("");
+  const [courseFile, setCourseFile] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [editingCourseId, setEditingCourseId] = useState(null);
+
+
+  const CLIENT_ID = "960353326099-8cjg184n3dpruud1r3ju66h2p3au7qat.apps.googleusercontent.com";
+const API_KEY = "AIzaSyCAu251nw4im3YJZLyJUgJmZAF7jTICSh0";
+const SCOPES = "https://www.googleapis.com/auth/drive.file";
+
+const initGoogleDrive = () => {
+  gapi.load("client:auth2", async () => {
+    try {
+      await gapi.client.init({
+        apiKey: "AIzaSyCAu251nw4im3YJZLyJUgJmZAF7jTICSh0",
+        clientId: "664226390519-5mva9decdm9tin40vqbbr2ne598rne4c.apps.googleusercontent.com",
+        discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+        scope: "https://www.googleapis.com/auth/drive.file",
+      });
+      console.log("Google API initialized successfully.");
+    } catch (error) {
+      console.error("Error initializing Google API:", error);
+    }
+  });
+};
+
+
+useEffect(() => {
+  initGoogleDrive();
+}, []);
+
+const uploadFileToGoogleDrive = async (file) => {
+  const FOLDER_ID = "1gp8Cde1IGuRL-UUGS1GScYObLLO8qHkw";
+
+  try {
+    const authInstance = gapi.auth2.getAuthInstance();
+    if (!authInstance.isSignedIn.get()) {
+      await authInstance.signIn();
+    }
+
+    const token = authInstance.currentUser.get().getAuthResponse().access_token;
+
+    const metadata = {
+      name: file.name,
+      mimeType: file.type,
+      parents: [FOLDER_ID],
+    };
+
+    const formData = new FormData();
+    formData.append(
+      "metadata",
+      new Blob([JSON.stringify(metadata)], { type: "application/json" })
+    );
+    formData.append("file", file);
+
+    const response = await fetch(
+      "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+      {
+        method: "POST",
+        headers: new Headers({ Authorization: `Bearer ${token}` }),
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Upload failed: ${errorData.error.message}`);
+    }
+
+    const data = await response.json();
+    console.log("File uploaded successfully:", data);
+    return data.id;
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    throw error;
+  }
+};
+
+
+
+
+
+  useEffect(() => {
+    const coursesCollection = collection(db, "community-courses");
+    const unsubscribe = onSnapshot(coursesCollection, (snapshot) => {
+      const coursesList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        showFullDescription: false,
+      }));
+      setCourses(coursesList);
+    }, (error) => {
+      console.error("Error fetching courses:", error);
+    });
+  
+    // Clean up listener on component unmount
+    return () => unsubscribe();
+  }, []);
+  
+
+
+  const toggleDescription = (id) => {
+    setCourses((prevCourses) =>
+      prevCourses.map((course) =>
+        course.id === id
+          ? { ...course, showFullDescription: !course.showFullDescription }
+          : course
+      )
+    );
+  };
+
+  const handleEditCourse = (course) => {
+    setEditingCourseId(course.id); // Track the course ID being edited
+    setCourseTitle(course.title);
+    setCourseDescription(course.description);
+    setCourseLink(course.link);
+    setCourseFile(null); // Leave this empty or handle separately for file updates
+    setShowAddCourseModal(true); // Open the modal
+  };
+  
+
+  const handleDeleteCourse = async (courseId) => {
+    if (window.confirm("Are you sure you want to delete this course?")) {
+      try {
+        await deleteDoc(doc(db, "community-courses", courseId));
+        setCourses((prevCourses) => prevCourses.filter((course) => course.id !== courseId));
+        alert("Course deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting course:", error);
+        alert("Failed to delete the course. Please try again.");
+      }
+    }
+  };
+  
+  
+
+  const handleOpenAddCourseModal = () => setShowAddCourseModal(true);
+  const handleCloseAddCourseModal = () => {
+    setShowAddCourseModal(false);
+    setCourseTitle("");
+    setCourseDescription("");
+    setCourseLink("");
+    setCourseFile(null);
+    setEditingCourseId(null); // Clear editing state
+  };
+  
+  const handleAddCourseSubmit = async () => {
+    if (!courseTitle || !courseDescription) {
+      alert("Please fill in the course title and description.");
+      return;
+    }
+  
+    try {
+      let fileURL = null;
+      let fileName = null;
+  
+      if (courseFile) {
+        const fileId = await uploadFileToGoogleDrive(courseFile);
+        fileURL = `https://drive.google.com/file/d/${fileId}/view`;
+        fileName = courseFile.name; // Extract the file name
+      }
+  
+      const courseData = {
+        title: courseTitle.trim(),
+        description: courseDescription.trim(),
+        link: courseLink ? courseLink.trim() : null,
+        fileURL,
+        fileName, // Include the file name
+        timestamp: serverTimestamp(),
+      };
+  
+      if (editingCourseId) {
+        // Update existing course
+        const courseDocRef = doc(db, "community-courses", editingCourseId);
+        await updateDoc(courseDocRef, courseData);
+  
+        setCourses((prevCourses) =>
+          prevCourses.map((course) =>
+            course.id === editingCourseId ? { ...course, ...courseData } : course
+          )
+        );
+        alert("Course updated successfully!");
+      } else {
+        // Add a new course
+        const courseId = `course-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+        const courseDocRef = doc(db, "community-courses", courseId);
+        await setDoc(courseDocRef, courseData);
+  
+        setCourses((prevCourses) => [...prevCourses, { id: courseId, ...courseData }]);
+        alert("Course added successfully!");
+      }
+  
+      handleCloseAddCourseModal();
+      setEditingCourseId(null);
+    } catch (error) {
+      console.error("Error submitting course:", error);
+      alert(error);
+    }
+  };
+  
+
+
+
+
 
 
   useEffect(() => {
@@ -57,7 +275,6 @@ const CommunityPage = () => {
         const q = query(
           announcementsRef,
           where("communityId", "==", communityId),
-          orderBy("timestamp", "desc")
         );
   
         // Set up Firestore listener
@@ -176,43 +393,57 @@ const CommunityPage = () => {
   };
   
 
-
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
+        setLoading(true); // Start loading spinner
         const submissionsCollectionRef = collection(db, "community-assignment-submission");
         const submissionsSnapshot = await getDocs(submissionsCollectionRef);
-  
-        if (!submissionsSnapshot.empty) {
-          // Aggregate scores by memberId
-          const scores = {};
-          submissionsSnapshot.docs
-            .filter((doc) => doc.data().communityId === communityId) // Filter by current community
-            .forEach((doc) => {
-              const { memberId, rewardEarned } = doc.data();
-              if (scores[memberId]) {
-                scores[memberId] += parseInt(rewardEarned, 10);
-              } else {
-                scores[memberId] = parseInt(rewardEarned, 10);
-              }
-            });
-  
-          // Convert scores object to array and sort by total score
-          const aggregatedScores = Object.entries(scores)
-            .map(([memberId, totalScore]) => ({ memberId, totalScore }))
-            .sort((a, b) => b.totalScore - a.totalScore); // Descending order
-  
-          setLeaderboard(aggregatedScores);
+
+        if (submissionsSnapshot.empty) {
+          setLoading(false);  // No data, stop spinner
+          return;
         }
+
+        const aggregatedScores = submissionsSnapshot.docs
+          .filter((doc) => doc.data().communityId === communityId)
+          .reduce((scores, doc) => {
+            const { memberId, rewardEarned } = doc.data();
+            const score = isNaN(parseInt(rewardEarned, 10)) ? 0 : parseInt(rewardEarned, 10);
+            scores[memberId] = (scores[memberId] || 0) + score;
+            return scores;
+          }, {});
+
+        const leaderboard = Object.entries(aggregatedScores)
+          .map(([memberId, totalScore]) => ({ memberId, totalScore }))
+          .sort((a, b) => b.totalScore - a.totalScore);
+
+        setLeaderboard(leaderboard);
+        updateLeaderboardInFirestore(leaderboard);
+
+        setLoading(false);  // Stop loading spinner
       } catch (error) {
+        setErrorMessage("Failed to fetch leaderboard. Please try again.");
         console.error("Error fetching leaderboard:", error);
+        setLoading(false);  // Stop loading spinner in case of error
       }
     };
-  
+
     if (activeSection === "Leaderboard") {
       fetchLeaderboard();
     }
   }, [communityId, activeSection]);
+
+  const updateLeaderboardInFirestore = (leaderboard) => {
+    const batch = writeBatch(db);
+    leaderboard.forEach(({ memberId, totalScore }) => {
+      const userRef = doc(db, "users", memberId);
+      batch.update(userRef, { userScore: totalScore });
+    });
+    batch.commit().catch((error) => {
+      console.error("Error updating user scores:", error);
+    });
+  };
   
 
   const handleShowAssignmentModal = (task) => {
@@ -353,23 +584,50 @@ const downloadFeedbackAsPDF = (feedback) => {
   
       const taskNum = Math.floor(10000 + Math.random() * 90000); // Generates a 5-digit number
       const taskId = `task-${taskNum}`;
-
+  
       const taskData = {
         taskId,
         taskTitle,
         taskDescription,
         taskNotes,
         taskDeadline,
-        timestamp: serverTimestamp(),  // Automatically add timestamp
+        timestamp: serverTimestamp(), // Automatically add timestamp
         communityId,
         communityName,
-        adminId: AdminID,  // Set the admin ID as the current user ID
-        points:taskPoints
+        adminId: AdminID, // Set the admin ID as the current user ID
+        points: taskPoints,
       };
   
       // Reference to the tasks collection in the specific community
       const tasksCollectionRef = collection(db, "community-tasks", communityId, "tasks");
       const newTaskDocRef = await addDoc(tasksCollectionRef, taskData);
+  
+      // Log activity for each member
+      const communityRef = doc(db, "communities", communityId);
+      const communityDoc = await getDoc(communityRef);
+  
+      if (communityDoc.exists()) {
+        const { member = [] } = communityDoc.data(); // Assuming `member` contains user IDs
+        const loginTimestamp = new Date();
+  
+        const batch = writeBatch(db); // Use batch to write logs atomically
+  
+        member.forEach((memberId) => {
+          const logRef = doc(collection(db, "activity_logs"), `${memberId}_${loginTimestamp.getTime()}`);
+          batch.set(logRef, {
+            action: "Task",
+            message: `Task '${taskTitle}' created for the community.`,
+            communityId,
+            communityName,
+            adminId: AdminID,
+            userId: memberId,
+            timestamp: serverTimestamp(),
+            ip: window.location.hostname,
+          });
+        });
+  
+        await batch.commit();
+      }
   
       // Optionally, you can fetch the newly created task to update the state
       const newTask = { id: newTaskDocRef.id, ...taskData };
@@ -401,6 +659,7 @@ const downloadFeedbackAsPDF = (feedback) => {
   
       // Start a batch operation to ensure atomicity
       const batch = writeBatch(db);
+      
   
       // Update the assignment status, feedback, and rewardEarned in the community-assignment-submission collection
       batch.update(submissionRef, {
@@ -414,18 +673,22 @@ const downloadFeedbackAsPDF = (feedback) => {
     if (userDoc.exists()) {
       const userData = userDoc.data();
       const currentUserScore = parseInt(userData.userScore, 10) || 0; // Convert to integer
-
-      // Add task points to the current userScore
-      const updatedScore = currentUserScore + taskPoints;
-
-      // Update the userScore in the users collection as a number
-      batch.update(userRef, {
-        userScore: updatedScore // Store the updated score as a number
-      });
     }
   
       // Commit the batch
       await batch.commit();
+
+      const loginTimestamp = new Date();
+     await setDoc(doc(collection(db, "activity_logs"), userId + "_" + loginTimestamp.getTime()), {
+      userId: userId,
+      email: user.email,
+      action: "Status",
+      message: `Admin updated the status of submission '${submission.assignmentName}' to '${newStatus}'`,
+      communityId,
+      communityName,
+      timestamp: loginTimestamp,
+      ip: window.location.hostname,
+     })
   
       // Update the local state to reflect the changes
       setSubmissions((prevSubmissions) =>
@@ -536,6 +799,18 @@ const downloadFeedbackAsPDF = (feedback) => {
         points, // Ensure this is a valid number
         deadline: selectedTask.taskDeadline
       };
+
+      const loginTimestamp = new Date();
+         await setDoc(doc(collection(db, "activity_logs"), userId + "_" + loginTimestamp.getTime()), {
+          action: "submission",
+          message: `You have submitted '${selectedTask.taskTitle}' for review at ${new Date().toLocaleString()}`,
+          timestamp: serverTimestamp(),
+          userId: userId,
+          communityId,
+          communityName,
+          adminId: AdminID,
+         })
+  
   
       const assignmentCollectionRef = collection(db, "community-assignment-submission");
       await addDoc(assignmentCollectionRef, assignmentData);
@@ -544,6 +819,8 @@ const downloadFeedbackAsPDF = (feedback) => {
       setAssignmentLink(""); // Reset the input field
       setShowAssignmentModal(false);
       setSelectedTask(null); // Clear the selected task
+
+
   
       // Optionally update the local submissions state
       setSubmissions((prevSubmissions) => [...prevSubmissions, assignmentData]);
@@ -801,6 +1078,13 @@ const downloadFeedbackAsPDF = (feedback) => {
             Add Task
           </button>
         )}
+
+        {activeSection === "Courses" && (
+          <button 
+          className="add-course-button"
+          onClick={handleOpenAddCourseModal}
+          >Add Course</button>
+        )}
         <div
           className="members-icon-container"
           onClick={() => setShowMembers(!showMembers)}
@@ -810,6 +1094,8 @@ const downloadFeedbackAsPDF = (feedback) => {
         
       </>
     )}
+
+    
           <FaBell className="navbar-icon" title="Announcements" />
           <FaEllipsisV className="navbar-icon" title="More Options" />
         </div>
@@ -874,22 +1160,23 @@ const downloadFeedbackAsPDF = (feedback) => {
     <h2>Announcements</h2>
     
     <div className="announcement-list">
-      {announcements.length > 0 ? (
-        announcements.map((announcement) => (
-          <div key={announcement.id} className="announcement-card">
-            <p className="announcement-content">{announcement.announcement}</p>
-            <span className="announcement-meta">
-  Posted by {announcement.adminId === auth.currentUser?.uid ? "You" : "Admin"}
-  &nbsp;on{" "}
-  {announcement.timestamp.toLocaleDateString()|| "Unknown"}
-</span>
+    {announcements.length > 0 ? (
+  announcements.map((announcement) => {
+    const date = announcement.timestamp?.toDate(); // Convert Firebase Timestamp to JS Date
+    return (
+      <div key={announcement.id} className="announcement-card">
+        <p className="announcement-content">{announcement.announcement}</p>
+        <span className="announcement-meta">
+          Posted by {announcement.adminId === auth.currentUser?.uid ? "You" : "Admin"}
+          &nbsp;on {date ? date.toLocaleDateString() : "Unknown"}
+        </span>
+      </div>
+    );
+  })
+) : (
+  <p>No announcements yet.</p>
+)}
 
-
-          </div>
-        ))
-      ) : (
-        <p>No announcements yet.</p>
-      )}
     </div>
     
     {isAdmin && (
@@ -906,7 +1193,10 @@ const downloadFeedbackAsPDF = (feedback) => {
         </button>
       </div>
     )}
+
+<div style={{padding:'40px'}}/>
   </div>
+  
 )}
 
         {activeSection === "Tasks" && (
@@ -971,41 +1261,124 @@ const downloadFeedbackAsPDF = (feedback) => {
       </div>
         )}
 
-        {activeSection === "Courses" && <p>Here are the courses.</p>}
+        {activeSection === "Courses" && (
+        <div className="courses-grid">
+          {courses.map((course) => (
+            <div className="course-card" key={course.id}>
+              {course.fileURL && <img src={course.fileURL} alt={course.title} />}
+              <div className="course-card-content">
+                <div style={{display:'flex', justifyContent:'space-between'}}>
+              
+                <h3 className="course-card-title">{course.title}</h3>
+
+                {isAdmin && (
+              <div className="course-actions">
+                <FaEdit
+                  className="edit-icon"
+                  title="Edit Course"
+                  onClick={() => handleEditCourse(course)}
+                />
+                <FaTrash
+                  className="delete-icon"
+                  title="Delete Course"
+                  onClick={() => handleDeleteCourse(course.id)}
+                />
+              </div>
+            )}
+                </div>
+                <p>
+                  {course.showFullDescription
+                    ? course.description
+                    : `${course.description.slice(0, 100)}...`}
+
+                {course.description.length > 100 && (
+                  <span
+                    className="toggle-description-btn"
+                    onClick={() => toggleDescription(course.id)}
+                    style={{color:'blue'}}
+                  >
+                    {course.showFullDescription ? "Read Less" : "Read More"}
+                  </span>
+                )}
+                </p>
+               
+                {course.link && (
+                  <a
+                    href={course.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {course.link}
+                  </a>
+                )}
+
+                 {/* File Name and Download Icon */}
+          {course.fileURL && (
+            <div className="file-info-container" style={{ marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor:'#ccc', padding:'10px', borderRadius:'10px' }}>
+              <span className="file-name" style={{ fontSize: '14px', fontWeight: 'bold', color:'#000' }}>
+                {course.fileName || "Uploaded File"}
+              </span>
+              <a
+                href={course.fileURL}
+                download={course.fileName || "file"}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <FaDownload style={{ fontSize: '20px', cursor: 'pointer', color: '#007bff' }} />
+              </a>
+            </div>
+          )}
+                <div className="course-card-footer">
+                  <span className="course-timestamp">
+                    {course.timestamp
+                      ? new Date(
+                          course.timestamp.seconds * 1000
+                        ).toLocaleDateString()
+                      : "Unknown"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
         {activeSection === "Leaderboard" && (
   <div className="leaderboard-section">
-    <h2>Leaderboard</h2>
-    {leaderboard.length > 0 ? (
-      <div className="leaderboard-table-container">
-        <table className="leaderboard-table">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Member</th>
-              <th>Total Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaderboard.map((entry, index) => {
-              const memberName = members.find((member) => member.uid === entry.memberId)?.name || "Unknown";
-              const isCurrentUser = entry.memberId === auth.currentUser?.uid;
-              return (
-                <tr key={entry.memberId} className="leaderboard-row">
-                  <td className="rank">{index + 1}</td>
-                  <td className="member-name">
-                    {memberName} {isCurrentUser && <span style={{ color: "#f1c40f" }}>(You)</span>}
-                  </td>
-                  <td className="total-score">{entry.totalScore} points</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    ) : (
-      <p>No submissions yet.</p>
-    )}
-  </div>
+  <h2>Leaderboard</h2>
+  {loading ? (
+    <LoadingSpinner />  // Display spinner when loading
+  ) : errorMessage ? (
+    <div className="error-message">{errorMessage}</div>
+  ) : leaderboard.length > 0 ? (
+    <div className="leaderboard-table-container">
+      <table className="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Member</th>
+            <th>Total Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {leaderboard.map((entry, index) => {
+            const memberName = members.find((member) => member.uid === entry.memberId)?.name || "Unknown";
+            const isCurrentUser = entry.memberId === auth.currentUser?.uid;
+            return (
+              <tr key={entry.memberId} className="leaderboard-row">
+                <td className="rank">{index + 1}</td>
+                <td className="member-name">
+                  {memberName} {isCurrentUser && <span style={{ color: "#f1c40f" }}>(You)</span>}
+                </td>
+                <td className="total-score">{entry.totalScore || 0} points</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <p>No submissions yet.</p>
+  )}
+</div>
 )}
 
 
@@ -1328,6 +1701,59 @@ const downloadFeedbackAsPDF = (feedback) => {
          </div>
        </div>
       )}
+
+{showAddCourseModal && (
+  <div className="task-modal-overlay">
+    <div className="task-modal-content">
+    <div className="task-modal-header">
+      <h2>{editingCourseId ? "Edit Course" : "Add Course"}</h2>
+    </div>
+      <div className="task-modal-body">
+        <label htmlFor="course-title">Title</label>
+        <input
+          id="course-title"
+          type="text"
+          value={courseTitle}
+          onChange={(e) => setCourseTitle(e.target.value)}
+          placeholder="Enter course title"
+        />
+
+        <label htmlFor="course-description">Course Description</label>
+        <textarea
+          id="course-description"
+          value={courseDescription}
+          onChange={(e) => setCourseDescription(e.target.value)}
+          placeholder="Enter course description"
+        />
+
+        <label htmlFor="course-link">Links</label>
+        <input
+          id="course-link"
+          type="text"
+          value={courseLink}
+          onChange={(e) => setCourseLink(e.target.value)}
+          placeholder="Enter course link"
+        />
+
+        <label htmlFor="course-file">Add File</label>
+        <input
+          id="course-file"
+          type="file"
+          onChange={(e) => setCourseFile(e.target.files[0])}
+        />
+      </div>
+      <div className="task-modal-footer">
+        <button className="task-submit-button" onClick={handleAddCourseSubmit}>
+          Submit
+        </button>
+        <button className="task-cancel-button" onClick={handleCloseAddCourseModal}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
 {showResubmitModal && (
   <div className="task-modal-overlay">

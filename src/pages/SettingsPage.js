@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../styles/components/SettingsPage.css";
 import { auth, db } from "../services/firebase";
-import { doc, getDoc, collection, getDocs, updateDoc, } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, updateDoc, addDoc,serverTimestamp, setDoc } from "firebase/firestore";
 import {  sendEmailVerification, EmailAuthProvider, EmailAuthCredential, reauthenticateWithCredential } from "firebase/auth";
 import { FaCheckCircle, FaSignOutAlt,} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +28,15 @@ const SettingsPage = () => {
         await updateDoc(userDocRef, { profileStatus: "offline" });
       }
   
+        const loginTimestamp = new Date();
+           await setDoc(doc(collection(db, "activity_logs"), user.uid + "_" + loginTimestamp.getTime()), {
+             userId: user.uid,
+             email: user.email,
+             action: "Logout",
+             message: `Logged out from "${window.location.hostname}" on ${loginTimestamp.toISOString()}`,
+             timestamp: loginTimestamp,
+             ip: window.location.hostname,
+           });
       // Sign out the user from Firebase Authentication
       await auth.signOut();
   
@@ -37,7 +46,7 @@ const SettingsPage = () => {
       setIsLoggingOut(true);
     } catch (error) {
       console.error("Error logging out: ", error);
-      alert("An error occurred during logout. Please try again.");
+      alert(error);
     }
   };
 
