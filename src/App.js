@@ -16,6 +16,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 import ActivityPage from './pages/activity';
 import AdminProfilePage from './pages/AdminProfilePage';
 import MyCommunities from './pages/myCommuities';
+import Communities from './pages/communityList';
+import Leaderboard from './pages/LeaderboardPage';
 
 const Navbar = ({userRole}) => {
   const Location = useLocation();
@@ -38,7 +40,7 @@ const Navbar = ({userRole}) => {
         </li>
         <li className="navbar-item">
           <Link
-            to="/setting"
+            to="/communities"
             className={`navbar-link ${isActive("/communities") ? "active" : ""}`}
           >
             <FaUsers className="icon" size={30} />
@@ -172,10 +174,12 @@ function App() {
           <Route path="/community/:communityId/manage" element={<CommunityManagementPage />} />
           <Route path='activity' element={<ActivityPage/>}/>
           <Route path='MyCommunities' element={<MyCommunities/>} />
+          <Route path='/leaderboard' element={<Leaderboard/>}/>
 
           {userRole === "Admin" && (
             <>
-              <Route path='adminProfile' element={<AdminProfilePage/>}/>
+              <Route path='/adminProfile' element={<AdminProfilePage/>}/>
+              <Route path='/communities' element={<Communities/>}/>
             </>
           )}
         </Routes>

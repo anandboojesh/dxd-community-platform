@@ -144,7 +144,8 @@ const uploadFileToGoogleDrive = async (file) => {
 
   useEffect(() => {
     const coursesCollection = collection(db, "community-courses");
-    const unsubscribe = onSnapshot(coursesCollection, (snapshot) => {
+    const q = query(coursesCollection, where("communityId", "==", communityId)); // Filter by communityId
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       const coursesList = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -154,6 +155,7 @@ const uploadFileToGoogleDrive = async (file) => {
     }, (error) => {
       console.error("Error fetching courses:", error);
     });
+    
   
     // Clean up listener on component unmount
     return () => unsubscribe();
@@ -215,10 +217,12 @@ const uploadFileToGoogleDrive = async (file) => {
     try {
       let fileURL = null;
       let fileName = null;
+      let fileDownload = null;
   
       if (courseFile) {
         const fileId = await uploadFileToGoogleDrive(courseFile);
         fileURL = `https://drive.google.com/file/d/${fileId}/view`;
+        fileDownload = `https://drive.usercontent.google.com/u/0/uc?id=${fileId}&export=download`;
         fileName = courseFile.name; // Extract the file name
       }
   
@@ -227,8 +231,12 @@ const uploadFileToGoogleDrive = async (file) => {
         description: courseDescription.trim(),
         link: courseLink ? courseLink.trim() : null,
         fileURL,
-        fileName, // Include the file name
+        fileName,
+        fileDownload,
         timestamp: serverTimestamp(),
+        communityId,
+        communityName,
+        AdminID
       };
   
       if (editingCourseId) {
@@ -1264,7 +1272,6 @@ const downloadFeedbackAsPDF = (feedback) => {
         <div className="courses-grid">
           {courses.map((course) => (
             <div className="course-card" key={course.id}>
-              {course.fileURL && <img src={course.fileURL} alt={course.title} />}
               <div className="course-card-content">
                 <div style={{display:'flex', justifyContent:'space-between'}}>
               
@@ -1318,11 +1325,11 @@ const downloadFeedbackAsPDF = (feedback) => {
                 {course.fileName || "Uploaded File"}
               </span>
               <a
-                href={course.fileURL}
+                href={course.fileDownload}
                 download={course.fileName || "file"}
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
-                <FaDownload style={{ fontSize: '20px', cursor: 'pointer', color: '#007bff' }} />
+                <FaDownload style={{ fontSize: '20px', cursor: 'pointer', color: '#000' }} />
               </a>
             </div>
           )}

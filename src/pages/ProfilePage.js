@@ -216,6 +216,7 @@ const ProfilePage = () => {
             communityName,
             visibility: "public",
             communityEntranceCode: code,
+            status:"Active"
           };
     
           // Save to Firestore

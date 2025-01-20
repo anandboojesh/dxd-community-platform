@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, } from "react";
 import { auth, db } from "../services/firebase";
 import {
   signInWithEmailAndPassword,
@@ -9,7 +9,7 @@ import { FaGoogle, FaApple } from "react-icons/fa";
 import { MdPhoneIphone } from "react-icons/md"; 
 import { useNavigate } from "react-router-dom";
 import "../styles/components/LoginPage.css";
-import { addDoc, collection, doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, serverTimestamp, setDoc, updateDoc, getDoc } from "firebase/firestore";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,12 +19,33 @@ const LoginPage = () => {
   const updateProfileStatus = async (uid) => {
     try {
       const userDocRef = doc(db, "users", uid); // Reference to the user's document
-      await updateDoc(userDocRef, { profileStatus: "online" }); // Update the profileStatus
+      const userDoc = await getDoc(userDocRef); // Fetch user data
+      const userData = userDoc.data();
+  
+      if (userData) {
+        const role = userData.role; // Access the user's role
+        if (role === "Admin" || role === "Member") {
+          // Update the profileStatus
+          await updateDoc(userDocRef, { profileStatus: "online" });
+  
+          // Navigate based on the user's role
+          if (role === "Admin") {
+            navigate("/adminprofile");
+          } else if (role === "Member") {
+            navigate("/profile");
+          }
+        } else {
+          throw new Error("Access denied: Unauthorized role.");
+        }
+      } else {
+        throw new Error("No user data found.");
+      }
     } catch (err) {
       console.error("Error updating profile status:", err);
-      alert("Error while updating status")
+      setError(err.message || "An error occurred.");
     }
   };
+  
 
   
 
@@ -47,7 +68,6 @@ const LoginPage = () => {
     // Update profileStatus
     await updateProfileStatus(user.uid);
 
-      navigate("/profile");
     } catch (err) {
       setError(err.message);
     }
@@ -71,7 +91,6 @@ const LoginPage = () => {
 
     // Update profileStatus
     await updateProfileStatus(user.uid);
-      navigate("/profile");
     } catch (err) {
       setError(err.message);
     }
