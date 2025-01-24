@@ -140,9 +140,10 @@ body {
   }
   
   .login-input-group label {
-    display: block;
-    margin-bottom: 3px; /* Reduced margin */
-    color: #b3b3b3;
+    color: #fff;
+    text-align: center;
+    font-size: 14px;
+  
   }
   
   .login-input-group input {

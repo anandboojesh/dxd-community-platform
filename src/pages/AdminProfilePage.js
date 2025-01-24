@@ -5,6 +5,26 @@ import { db, auth } from "../services/firebase";
 import { collection, query, where, getDocs, updateDoc, doc, getDoc } from "firebase/firestore";
 import { FaTimes, FaUserAlt, FaEdit, FaTrashAlt, FaSearch, FaCog, FaStopCircle, FaBan } from "react-icons/fa";
 
+import {
+  Box,
+  Typography,
+  TextField,
+  IconButton,
+  Button,
+  Tooltip,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Checkbox,
+  Paper,
+  Select,
+  MenuItem,
+  Avatar,
+} from "@mui/material";
+
 const defaultProfile = require('./assets/default_profile_avatar.jpg');
 
 const avatars = [
@@ -359,81 +379,250 @@ const AdminProfilePage = () => {
               <p>Configure platform settings and preferences.</p>
             </div>
           )}
-
 {activeSidebar === "Users" && (
-            <div className="users-section">
-              <h1>User Management</h1>
-              
-              {/* Search Bar */}
-              <div className="search-container">
-                <input
-                  type="text"
-                  placeholder="Search users..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  className="search-bar"
+  <Box
+    sx={{
+      background: "linear-gradient(135deg, #2f3136, #3a3f44)",
+      minHeight: "100vh",
+      p: 4,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: 4,
+      color: "#eceff4",
+    }}
+  >
+    {/* Header */}
+    <Typography
+      variant="h3"
+      sx={{
+        fontWeight: "bold",
+        color: "#d8dee9",
+        textShadow: "2px 2px 4px rgba(0, 0, 0, 0.6)",
+      }}
+    >
+      User Management
+    </Typography>
+
+    {/* Search Bar */}
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 2,
+        background: "rgba(255, 255, 255, 0.1)",
+        backdropFilter: "blur(10px)",
+        borderRadius: "20px",
+        padding: "12px 24px",
+        width: "100%",
+        maxWidth: "800px",
+        boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.5)",
+      }}
+    >
+      <TextField
+        fullWidth
+        placeholder="Search users..."
+        variant="standard"
+        value={searchQuery}
+        onChange={handleSearchChange}
+        InputProps={{
+          disableUnderline: true,
+          style: { color: "#eceff4" },
+        }}
+        sx={{
+          "& input": {
+            color: "#d8dee9",
+          },
+        }}
+      />
+      <IconButton
+        sx={{
+          color: "#d8dee9",
+          fontSize: "24px",
+        }}
+      >
+        <FaSearch />
+      </IconButton>
+    </Box>
+
+    {/* Actions */}
+    {selectedUsers.length > 0 && (
+      <Box display="flex" gap={2}>
+        <Button
+          variant="contained"
+          sx={{
+            background: "linear-gradient(135deg, #f0932b, #e84118)",
+            color: "#ffffff",
+            px: 4,
+            fontWeight: "bold",
+            borderRadius: "30px",
+            transition: "background 0.3s ease",
+            "&:hover": {
+              background: "linear-gradient(135deg, #e84118, #c23616)",
+            },
+          }}
+          startIcon={<FaStopCircle />}
+          onClick={openSuspendModal}
+        >
+          Suspend
+        </Button>
+        <Button
+          variant="contained"
+          sx={{
+            background: "linear-gradient(135deg, #c23616, #e84118)",
+            color: "#ffffff",
+            px: 4,
+            fontWeight: "bold",
+            borderRadius: "30px",
+            transition: "background 0.3s ease",
+            "&:hover": {
+              background: "linear-gradient(135deg, #e84118, #e74c3c)",
+            },
+          }}
+          startIcon={<FaBan />}
+          onClick={handleBlockUsers}
+        >
+          Block
+        </Button>
+      </Box>
+    )}
+
+    {/* User Table */}
+    <TableContainer
+      component={Paper}
+      sx={{
+        background: "linear-gradient(135deg, #2f3136, #3a3f44)",
+        backdropFilter: "blur(15px)",
+        borderRadius: "20px",
+        width: "100%",
+        maxWidth: "1200px",
+        boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.6)",
+      }}
+    >
+      <Table>
+        <TableHead>
+          <TableRow
+            sx={{
+              background: "rgba(255, 255, 255, 0.1)",
+              "& th": {
+                color: "#eceff4",
+                fontWeight: "bold",
+              },
+            }}
+          >
+            <TableCell padding="checkbox">
+              <Checkbox sx={{ color: "#d8dee9" }} />
+            </TableCell>
+            <TableCell>Name</TableCell>
+            <TableCell>Username</TableCell>
+            <TableCell>Role</TableCell>
+            <TableCell>Status</TableCell>
+            <TableCell>Account Status</TableCell>
+            <TableCell align="center">Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {filteredUsers.map((user) => (
+            <TableRow
+              key={user.id}
+              sx={{
+                "&:hover": {
+                  background: "rgba(255, 255, 255, 0.1)",
+                },
+              }}
+            >
+              <TableCell padding="checkbox">
+                <Checkbox
+                  checked={selectedUsers.includes(user.id)}
+                  onChange={() => handleSelectUser(user.id)}
+                  sx={{ color: "#eceff4" }}
                 />
-                <FaSearch />
-              </div>
-
-              {selectedUsers.length > 0 && (
-                <div className="user-actions">
-                  <button
-                    className="suspend-button"
-                    onClick={openSuspendModal}
+              </TableCell>
+              <TableCell>
+                <Box display="flex" alignItems="center" gap={2}>
+                  <Avatar
+                    src={user.avatar}
+                    alt={user.name}
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      border: "2px solid #d8dee9",
+                    }}
+                  />
+                  <Typography>{user.name}</Typography>
+                </Box>
+              </TableCell>
+              <TableCell sx={{ color: "#d8dee9" }}>@{user.username}</TableCell>
+              <TableCell>
+                <Select
+                  value={user.role}
+                  onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                  size="small"
+                  sx={{
+                    background: "rgba(255, 255, 255, 0.1)",
+                    color: "#eceff4",
+                    borderRadius: "8px",
+                    "& .MuiSelect-icon": {
+                      color: "#eceff4",
+                    },
+                  }}
+                >
+                  <MenuItem value="Member">Member</MenuItem>
+                  <MenuItem value="Admin">Admin</MenuItem>
+                </Select>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  sx={{
+                    color:
+                      user.profileStatus === "online"
+                        ? "#1abc9c"
+                        : "#e74c3c",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {user.profileStatus || "Offline"}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  sx={{
+                    color:
+                      user.accountStatus === "Active"
+                        ? "#27ae60"
+                        : user.accountStatus === "Blocked"
+                        ? "#e74c3c"
+                        : "#f39c12",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {user.accountStatus}
+                </Typography>
+              </TableCell>
+              <TableCell align="center">
+                <Tooltip title="Edit">
+                  <IconButton
+                    sx={{ color: "#5a9df2" }}
+                    onClick={() => handleEditIconClick(user.id)}
                   >
-                    <FaStopCircle /> Suspend
-                  </button>
-                  <button
-                    className="block-button"
-                    onClick={handleBlockUsers}
-                  >
-                    <FaBan /> Block
-                  </button>
-                </div>
-              )}
+                    <FaCog />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete">
+                  <IconButton sx={{ color: "#e74c3c" }}>
+                    <FaTrashAlt />
+                  </IconButton>
+                </Tooltip>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+    <div style={{ padding: "40px" }} />
+  </Box>
+)}
 
-              {/* User List Table */}
-              <div className="user-table">
-                <div className="table-header">
-                  <div className="table-cell">Name</div>
-                  <div className="table-cell">Username</div>
-                  <div className="table-cell">Role</div>
-                  <div className="table-cell">Status</div>
-                  <div className="table-cell">Account Status</div>
-                  <div className="table-cell">Actions</div>
-                </div>
-
-                {filteredUsers.map((user) => (
-                  <div className="table-row" key={user.id}>
-                      <input
-                        type="checkbox"
-                        checked={selectedUsers.includes(user.id)}
-                        onChange={() => handleSelectUser(user.id)}
-                      />
-                    <div className="table-cell">{user.name}</div>
-                    <div className="table-cell">@{user.username}</div>
-                    <div className="table-cell">
-                      <select
-                        value={user.role}
-                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                      >
-                        <option value="Member">Member</option>
-                        <option value="Admin">Admin</option>
-                      </select>
-                    </div>
-                    <div className="table-cell">{user.profileStatus|| "offline"}</div>
-                    <div className="table-cell">{user.accountStatus}</div>
-                    <div className="table-cell">
-                    <FaCog onClick={() => handleEditIconClick(user.id)} />
-
-                      <FaTrashAlt onClick={() => handleDeleteUser(user.id)} style={{marginLeft:'20px'}} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -580,6 +769,8 @@ const AdminProfilePage = () => {
           </div>
         </div>
       )}
+
+    
 
     </div>
   );

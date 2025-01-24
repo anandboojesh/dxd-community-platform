@@ -1,11 +1,11 @@
-/* General Reset */
-body, html {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-    background-color: #2f3136;
-    color: white;
+
+
+  :root {
+    --primary-color: #ff7e5f; /* Warm gradient start */
+    --secondary-color: #feb47b; /* Warm gradient end */
+    --text-color: #2d2d2d;
+    --background-color: #fff5f0;
+    --hover-color: #ff6347;
   }
   
   /* Profile Page Container */
@@ -15,7 +15,7 @@ body, html {
     align-items: center;
     padding-top: 20px;
     flex: 1;
-    
+    background-color: #fff;
   }
 
   .profile-score {
@@ -108,7 +108,7 @@ body, html {
     max-width: 800px;
     margin-top: -75px;
     padding: 20px;
-    background-color: #36393f;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     position: relative;
@@ -143,14 +143,14 @@ body, html {
   
   .profile-username {
     font-size: 1rem;
-    color: #b9bbbe;
+    color: #fff;
     margin: 5px 0;
   }
   
   .edit-profile-button {
-    background-color: #5865f2;
+    background: var(--secondary-color);
     color: white;
-    border: none;
+    border: 1px solid var(--primary-color);
     padding: 10px 20px;
     border-radius: 5px;
     font-size: 1rem;
@@ -159,7 +159,7 @@ body, html {
   }
   
   .edit-profile-button:hover {
-    background-color: #4752c4;
+    background-color: var(--hover-color);
   }
   
   /* About Me Section */
@@ -167,7 +167,7 @@ body, html {
     margin-top: 20px;
     width: 80%;
     max-width: 800px;
-    background-color: #36393f;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
@@ -184,24 +184,30 @@ body, html {
     line-height: 1.5;
   }
 
-  .sidebar {
-    width: 250px;
-    background-color: #f4f4f4;
-    padding: 20px;
-    height: 100vh;
+  .streak-section {
+    background-color: #f9f9f9;
+    border: 2px solid #ffcc00;
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 100px;
   }
   
-  .sidebar ul {
-    list-style-type: none;
-    padding: 0;
+  .streak-section h2 {
+    font-size: 15px;
+    color: #ff8800;
   }
   
-  .sidebar li {
-    margin-bottom: 20px;
-    font-weight: bold;
-    cursor: pointer;
+  .streak-section p {
+    font-size: 15px;
+    color: #555;
   }
   
+
   .user-page{
     display: flex;
     top: 0;
@@ -209,36 +215,43 @@ body, html {
     position: fixed;
     width: 100%;
     height: 100%;
-    margin-top: 60px;
-    background: linear-gradient(135deg, #2f3136, #3a3f44);
+    margin-top: 90px;
+    background: var(--background-color);
   }
 
   /* Sidebar */
-.sidebar {
+.profile-page-sidebar {
     width: 240px;
-    background-color: #202225;
+    background-color: white;
     padding: 20px 0;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    overflow-y: auto;
   }
   
-  .sidebar-item {
+  .profile-page-sidebar-item {
     display: flex;
     justify-content: space-between;  /* Space out the text and icon */
     align-items: center;  /* Vertically align items */
     padding: 10px;
+    color: var(--text-color);
   }
   
   .arrow-icon {
     margin-left: 10px;  /* Add a small space between the text and the icon */
     font-size: 18px;  /* Adjust icon size */
+
   }
   
   
-  .sidebar-item.active,
-  .sidebar-item:hover {
-    background-color: #5865f2;
+  .profile-page-sidebar-item.active{
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 5px;
+  }
+  .profile-page-sidebar-item:hover {
+    background-color: var(--hover-color);
     color: white;
     border-radius: 5px;
   }
@@ -257,7 +270,7 @@ body, html {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #007bff; /* Primary button color */
+    background-color: var(--primary-color); /* Primary button color */
     color: white;
     border: none;
     border-radius: 5px;
@@ -269,7 +282,7 @@ body, html {
   }
   
   .create-community-button:hover {
-    background-color: #0056b3; /* Darker shade on hover */
+    background-color: var(--hover-color); /* Darker shade on hover */
   }
   
   /* Plus icon in Create Community Button */
@@ -358,7 +371,7 @@ body, html {
   
   .bio-textarea:focus {
     outline: none;
-    border-color: #1abc9c;
+    border-color: var(--primary-color);
     box-shadow: 0 0 5px rgba(26, 188, 156, 0.5);
   }
   
@@ -645,7 +658,7 @@ body, html {
   font-size: 14px; /* Font size */
   font-weight: bold; /* Bold text */
   color: #fff; /* White text color */
-  background-color: #007bff; /* Blue background color */
+  background-color: var(--primary-color); /* Blue background color */
   border: none; /* Remove default border */
   border-radius: 4px; /* Rounded corners */
   cursor: pointer; /* Pointer cursor on hover */
@@ -653,12 +666,12 @@ body, html {
 }
 
 .join-button:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+  background-color: var(--hover-color); /* Darker blue on hover */
 }
 /* Main container */
 .activity-logs {
   padding: 20px;
-  background-color: #36393f; /* Dark background */
+  background-color: #ffff; /* Dark background */
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Darker shadow for depth */
 }
@@ -671,24 +684,24 @@ body, html {
 }
 
 .tab-button {
-  background: #202225; /* Dark background for tabs */
-  border: 1px solid #444; /* Slightly lighter border */
+  background: var(--secondary-color); /* Dark background for tabs */
+  border: 1px solid var(--secondary-color); /* Slightly lighter border */
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
   transition: background 0.3s ease, color 0.3s ease;
-  color: #b9bbbe; /* Light text color */
+  color: #fff; /* Light text color */
 }
 
 .tab-button:hover {
-  background: #5865f2; /* Highlight color */
+  background: var(--hover-color); /* Highlight color */
   color: white; /* White text on hover */
 }
 
 .tab-button.active {
-  background: #5865f2; /* Active tab color */
+  background: var(--primary-color); /* Active tab color */
   color: white;
-  border-color: #5865f2; /* Border color for active tab */
+  border-color: var(--primary-color); /* Border color for active tab */
 }
 /* CSS for loading progress bar */
 .loading-indicator {
@@ -720,23 +733,29 @@ body, html {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
-  background-color: #202225; /* Dark table background */
+  background-color: var(--background-color); /* Dark table background */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.log-table th, .log-table td {
+.log-table th{
   padding: 12px;
   text-align: left;
-  color: #b9bbbe; /* Light text color */
+  color: #ffff;
+}
+
+ .log-table td {
+  padding: 12px;
+  text-align: left;
+  color: var(--text-color); /* Light text color */
 }
 
 .log-table th {
-  background-color: #2f3136; /* Darker header background */
+  background-color: var(--primary-color); /* Darker header background */
   font-weight: bold;
 }
 
 .log-row:hover {
-  background-color: #4f5459; /* Hover effect with a lighter dark background */
+  background-color: var(--secondary-color);
   transition: background-color 0.3s ease;
 }
 
@@ -745,5 +764,5 @@ body, html {
   text-align: center;
   padding: 20px;
   font-size: 16px;
-  color: #777; /* Lighter grey text */
+  color: #000; 
 }

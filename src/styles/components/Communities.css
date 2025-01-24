@@ -440,6 +440,8 @@ body, html {
   background: #1e1e2f; /* Match modal background */
 }
 
+
+
 /* Slide Down Animation */
 @keyframes slideDown {
   from {

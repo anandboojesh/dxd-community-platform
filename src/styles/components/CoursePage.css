@@ -1,0 +1,126 @@
+/* CoursePage.css */
+
+:root {
+    --primary-color: #ff7e5f;
+    --secondary-color: #feb47b;
+    --text-color: #2d2d2d;
+    --background-color: #fff5f0;
+    --hover-color: #ff6347;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+
+
+.course-page-container {
+    flex: 1; /* Allow the main content to take up remaining space */
+    overflow-y: auto; /* Enable vertical scrolling */
+    display: flex;
+    top: 60px;
+    left: 0;
+    position: fixed;
+    width: 100%;
+    height: calc(100% - 60px);
+    background-color: var(--background-color);
+    flex-direction: column;
+    margin-bottom: 60px;
+}
+
+.course-page-content{
+
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    margin: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.course-page-header- {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--secondary-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.course-title {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.go-back-button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.go-back-button:hover {
+    background: var(--hover-color);
+}
+
+.course-page-course-player {
+    margin-bottom: 20px;
+}
+
+iframe {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.course-page-course-tabs {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--secondary-color);
+    margin-bottom: 20px;
+}
+
+.course-page-tab-button {
+    flex: 1;
+    padding: 15px;
+    font-size: 1rem;
+    text-align: center;
+    border: none;
+    background: var(--background-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.course-page-tab-button.active {
+    background: var(--primary-color);
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    font-weight: bold;
+}
+
+.course-page-tab-button:hover {
+    background: var(--hover-color);
+    color: white;
+}
+
+.course-page-tab-content-classname {
+    padding: 20px;
+    background: var(--background-color);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.course-page-course-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-color);
+}
+
+.loading-message, .error-message {
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    margin: 20px 0;
+}

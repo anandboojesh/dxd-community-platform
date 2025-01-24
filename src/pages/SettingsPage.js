@@ -4,6 +4,16 @@ import { auth, db } from "../services/firebase";
 import { doc, getDoc, collection, getDocs, updateDoc, addDoc,serverTimestamp, setDoc } from "firebase/firestore";
 import {  sendEmailVerification, EmailAuthProvider, EmailAuthCredential, reauthenticateWithCredential } from "firebase/auth";
 import { FaCheckCircle, FaSignOutAlt,} from "react-icons/fa";
+import {
+  Box,
+  TextField,
+  Typography,
+  Avatar,
+  Button,
+  Paper,
+  Grid,
+  Divider,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 const SettingsPage = () => {
   const [activeOption, setActiveOption] = useState("Profile Settings");
@@ -370,7 +380,7 @@ const SettingsPage = () => {
             <button className="cancel-button" onClick={() => setIsModalOpen(false)}>
               Cancel
             </button>
-            <button className="logout-button" onClick={handleLogout}>
+            <button className="settings-logout-button" onClick={handleLogout}>
               Logout
             </button>
           </div>

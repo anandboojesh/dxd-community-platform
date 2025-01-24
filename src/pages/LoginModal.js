@@ -56,6 +56,9 @@ const LoginPage = () => {
   };
   
 
+  const handleGoBack = () => {
+    navigate(-1); // Navigates to the previous page in the history stack
+  };
   
 
   const handleEmailPasswordLogin = async (e) => {
@@ -108,11 +111,13 @@ const LoginPage = () => {
 
 
   return (
-    <div className="login-modal">
-      <div className="login-content">
-        <h2>Log In</h2>
+    <div className="main-modal-overlay">
+            <div className="main-modal-content">
+            <div>
+      <div className='main-login-container'>
+        <h2 className='main-login-title'>Log In</h2>
 
-        <button onClick={handleGoogleLogin} className="auth-button google">
+        <button onClick={handleGoogleLogin} className="main-login-auth-button">
         <FaGoogle size={20} />  Continue with Google <p></p>
         </button>
 
@@ -126,19 +131,21 @@ const LoginPage = () => {
 
         {error && <p className="error">{error}</p>}
         <form onSubmit={handleEmailPasswordLogin}>
-          <div className="login-input-group">
-            <label htmlFor="email">Email or Username</label>
+          <div className="main-login-input-group">
+            <label className='main-login-label' htmlFor="email">Email or Username</label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className='main-login-input'
             />
           </div>
-          <div className="login-input-group">
-            <label htmlFor="password">Password</label>
+          <div className="main-login-input-group">
+            <label className='main-login-label' htmlFor="password">Password</label>
             <input
+             className='main-login-input'
               type="password"
               id="password"
               value={password}
@@ -146,13 +153,13 @@ const LoginPage = () => {
               required
             />
           </div>
-          <button type="submit" className="login-button">
+          <button type="submit" className="main-login-button">
             Log In
           </button>
         </form>
 
-        <div className="footer-links">
-          <a href="/forgot-password" className="forgot-password">
+        <div className="main-login-footer-links">
+          <a href="/forgot-password" className="main-login-forgot-password">
             Forgot Password?
           </a>
           <p>
@@ -161,6 +168,11 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
+              <button  className="main-login-close-modal-btn" onClick={handleGoBack}>
+                Close
+              </button>
+            </div>
+          </div>
   );
 };
 

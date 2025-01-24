@@ -43,18 +43,23 @@ body, html {
   margin-top: 60px;
   background: linear-gradient(135deg, #2f3136, #3a3f44);
 }
-
-/* Sidebar */
-.sidebar {
+.discover-sidebar {
   width: 240px;
   background-color: #202225;
   padding: 20px 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  justify-content: space-between; /* Space out items in the sidebar */
+  height: 100vh; /* Ensure the sidebar spans the entire height of the viewport */
 }
 
-.sidebar-item {
+.discover-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.discover-sidebar ul li {
   padding: 10px 20px;
   cursor: pointer;
   color: #b9bbbe;
@@ -62,12 +67,44 @@ body, html {
   transition: background-color 0.2s ease;
 }
 
-.sidebar-item.active,
-.sidebar-item:hover {
+.discover-sidebar ul li:hover {
   background-color: #5865f2;
   color: white;
   border-radius: 5px;
 }
+
+.discover-profile-details {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background-color: #2a2d34;
+  border-radius: 5px;
+}
+
+.discover-profile-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.discover-profile-text {
+  flex: 1;
+}
+
+.discover-profile-name {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0;
+  color: #ffffff;
+}
+
+.discover-profile-username {
+  font-size: 0.9rem;
+  margin: 0;
+  color: #b9bbbe;
+}
+
 
 /* Main Content */
 .main-content {
@@ -132,7 +169,7 @@ body, html {
 
 .server-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   
 }
@@ -158,4 +195,99 @@ body, html {
 .server-card:hover {
   transform: scale(1.05);
   background-color: #5865f2;
+}
+
+
+/* Pagination Arrows */
+.pagination-arrows {
+  position: relative;
+  margin-top: 20px;
+}
+
+.arrow-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #5865f2;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.arrow-button.left {
+  left: -50px; /* Adjust position as needed */
+}
+
+.arrow-button.right {
+  right: -20px;
+}
+
+.arrow-button:hover {
+  background-color: #7289da;
+}
+
+.discover-events-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 20px;
+}
+
+.discover-event-card {
+  border: 1px solid #000;
+  border-radius: 10px;
+  padding: 15px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.discover-event-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.discover-event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.discover-event-card-header h3 {
+  margin: 0;
+  font-size: 16px;
+  flex-grow: 1;
+}
+
+.discover-event-type {
+  background-color: #f0f0f0;
+  padding: 3px 8px;
+  border-radius: 15px;
+  font-size: 12px;
+  color: #666;
+}
+
+.discover-event-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.discover-event-detail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.discover-event-icon {
+  color: #666;
 }

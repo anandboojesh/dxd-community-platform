@@ -292,6 +292,7 @@ const ProfilePage = () => {
           aboutMe: userData.aboutMe || "",
           signUpDate: formattedSignUpDate,
           score: userData.userScore || 0,
+          currentStreak: userData.currentStreak || 0,
         });
 
         const communitiesQuery = collection(db, "communities");
@@ -319,6 +320,47 @@ const ProfilePage = () => {
     }
   };
   
+
+  const incrementStreak = async () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const today = new Date().setHours(0, 0, 0, 0);
+          const lastActivityDate = userData.lastActivityDate?.toDate().setHours(0, 0, 0, 0);
+
+          let newStreak = userData.currentStreak || 0;
+          if (lastActivityDate === today) {
+            // No update if activity already logged today
+            return;
+          } else if (lastActivityDate === today - 86400000) {
+            // Increment streak if the last activity was yesterday
+            newStreak++;
+          } else {
+            // Reset streak if there's a gap
+            newStreak = 1;
+          }
+
+          await updateDoc(userRef, {
+            currentStreak: newStreak,
+            lastActivityDate: new Date(),
+          });
+
+          setUserData((prev) => ({ ...prev, currentStreak: newStreak }));
+        }
+      }
+    } catch (error) {
+      console.error("Error updating streak:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isOnline) incrementStreak();
+  }, [isOnline]);
 
   
 
@@ -354,11 +396,11 @@ const ProfilePage = () => {
   return (
     <div className="user-page">
       {/* Sidebar */}
-      <div className="sidebar">
+      <div className="profile-page-sidebar">
         {["Profile", "Activity","Community","Settings"].map((item) => (
-          <div key={item} className="sidebar-section">
+          <div key={item} className="profile-page-sidebar-section">
              <div
-              className={`sidebar-item ${activeSidebar === item ? "active" : ""}`}
+              className={`profile-page-sidebar-item ${activeSidebar === item ? "active" : ""}`}
               onClick={() => handleSidebarClick(item)}
             >
               {item}
@@ -397,6 +439,7 @@ const ProfilePage = () => {
             )}
           </div>
         ))}
+        <div style={{padding:'40px'}}/>
       </div>
 
       {/* Main Content Area */}
@@ -549,14 +592,9 @@ const ProfilePage = () => {
                 />
               </div>
               <div className="profile-details">
-                <h1 className="profile-name">{userData.displayName}</h1>
-                <p className="profile-username">@{userData.username}</p>
-                <div className="profile-score">
-                  <span className="score-label">Score:</span>
-                  <span className="score-value">{userData.score}</span>
-                </div>
-                {/* Profile Status */}
-                <div className="profile-status">
+                <div style={{display:'flex',}}>
+                <h1 className="profile-name">{userData.displayName} </h1>
+                <div className="profile-status" style={{marginLeft:'20px'}}>
                   <span
                     className={`status-dot ${isOnline ? "online" : "offline"}`}
                   ></span>
@@ -564,6 +602,20 @@ const ProfilePage = () => {
                     {isOnline ? "Online" : "Offline"}
                   </span>
                 </div>
+                </div>
+                <p className="profile-username">@{userData.username}</p>
+                <div style={{display:'flex', justifyContent:'space-between', flexDirection:'column'}}>
+                <div className="profile-score">
+                  <span className="score-label">Score:</span>
+                  <span className="score-value">{userData.score}</span>
+                </div>
+
+                <div className="streak-section">
+                  <h2> Streak</h2>
+                  <p>{userData.currentStreak} day(s)</p>
+                </div>
+           
+              </div>
               </div>
               <button className="edit-profile-button" onClick={() => navigate("/setting")}>Edit Profile</button>
             </div>
@@ -610,7 +662,7 @@ const ProfilePage = () => {
           alt={community.name}
           className="community-icon"
         />
-        <span className="community-name">{community.name}</span>
+        <span className="community-name" style={{color:'#000'}}>{community.name}</span>
       </a>
     ))
   ) : (

@@ -1,0 +1,334 @@
+:root {
+  --primary-color: #ff7e5f; /* Warm gradient start */
+  --secondary-color: #feb47b; /* Warm gradient end */
+  --text-color: #2d2d2d;
+  --background-color: #fff5f0;
+  --hover-color: #ff6347;
+}
+  
+  
+  /* Loading Spinner (Kept mostly the same) */
+  .spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 2s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Layout */
+  .discover-page {
+    display: flex;
+    top: 60px;
+    left: 0;
+    position: fixed;
+    width: 100%;
+    height: calc(100% - 60px);
+    background-color: var(--background-color);
+
+  }
+  
+  .discover-page.authenticated {
+    margin-top: 30px;
+  }
+  
+  .discover-sidebar {
+    width: 240px;
+    background-color: white;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .discover-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .discover-sidebar ul li {
+    padding: 10px 20px;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+  }
+  
+  .discover-sidebar ul li:hover {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .discover-profile-details {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+    margin: 0 15px;
+  }
+  
+  .discover-profile-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+    border: 2px solid var(--secondary-color);
+  }
+  
+  .discover-profile-text {
+    flex: 1;
+  }
+  
+  .discover-profile-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-color);
+  }
+  
+  .discover-profile-username {
+    font-size: 0.9rem;
+    margin: 0;
+    color: #8b8b8b;
+  }
+  
+  /* Main Content */
+  .discover-main-content {
+    flex: 1; /* Allow the main content to take up remaining space */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    margin: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Banner */
+  .discover-banner {
+    text-align: center;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--hover-color));
+    padding: 30px;
+    border-radius: 10px;
+    color: white;
+  }
+  
+  .discover-banner h1 {
+    font-size: 2rem;
+    margin: 0;
+  }
+  
+  .discover-banner p {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.8);
+  }
+  
+  /* Tabs */
+  .discover-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .discover-tab {
+    background-color: var(--secondary-color);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+  
+  .discover-tab.active,
+  .discover-tab:hover {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  /* Featured Section */
+  .featured-section {
+    margin-top: 20px;
+  }
+  
+  .featured-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: var(--text-color);
+  }
+  
+  .server-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  
+  .server-card {
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+    text-align: center;
+    padding: 15px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+  }
+  
+  .server-card img {
+    width: 100%;
+    border-radius: 8px;
+  }
+  
+  .server-card p {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: var(--text-color);
+  }
+  
+  .server-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Other sections kept similar to previous implementation */
+  .discover-events-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .discover-event-card {
+    border: 1px solid var(--secondary-color);
+    border-radius: 10px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: var(--secondary-color);
+  }
+
+  .discover-events-section{
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .discover-events-section h2{
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: var(--text-color);
+  }
+  
+  .discover-event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+  }
+  
+  .discover-event-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .discover-event-card-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-color);
+  }
+  
+  .discover-event-type {
+    background-color: var(--secondary-color);
+    padding: 3px 8px;
+    border-radius: 15px;
+    font-size: 12px;
+    color: var(--text-color);
+  }
+  
+  .discover-event-detail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #8b8b8b;
+  }
+
+  /* Search Bar */
+.discover-search-bar {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .discover-search-input {
+    width: 50%;
+    padding: 10px;
+    border: 1px solid var(--secondary-color);
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+  
+  /* Communities Grid */
+  .discover-communities-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .discover-community-card {
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+    text-align: center;
+    padding: 15px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+  }
+  
+  .discover-community-card img {
+    width: 100%;
+    border-radius: 8px;
+  }
+  
+  .discover-community-name {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: var(--text-color);
+  }
+  
+  .discover-community-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .discover-view-all {
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  
+  .discover-view-all:hover {
+    color: var(--hover-color);
+    text-decoration: underline;
+  }

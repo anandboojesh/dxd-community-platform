@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/components/CommunityPage.css";
 import { auth, db, } from "../services/firebase";
-import { doc, getDoc, collection, getDocs, serverTimestamp, setDoc, addDoc, updateDoc, arrayUnion, deleteDoc, writeBatch, where, query, orderBy, onSnapshot } from "firebase/firestore";
-import { FaBell, FaDownload, FaEdit, FaEllipsisV, FaPaperPlane, FaTrash, FaUsers, } from "react-icons/fa";
+import { doc, getDoc, collection, getDocs, serverTimestamp, setDoc, addDoc, updateDoc, arrayUnion, deleteDoc, writeBatch, where, query, onSnapshot } from "firebase/firestore";
+import { FaBell, FaCalendarAlt, FaDownload, FaEdit, FaEllipsisV, FaPaperPlane, FaTrash, FaUsers, } from "react-icons/fa";
 import { ref, } from "firebase/database";
 import { CloudinaryContext, Image, Video, Transformation } from 'cloudinary-react';
 import jsPDF from "jspdf";
 import { gapi } from "gapi-script";
+import Calendar from "react-calendar/dist/cjs/Calendar.js";
+import ReactDatePicker from "react-datepicker";
 
-
+const meeting_thumbnail = require('./assets/meeting_thumbnail.jpg');
 
 const LoadingSpinner = () => (
   <div className="spinner-container">
@@ -64,11 +66,293 @@ const CommunityPage = () => {
   const [courseFile, setCourseFile] = useState(null);
   const [courses, setCourses] = useState([]);
   const [editingCourseId, setEditingCourseId] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [showAddEventModal, setShowAddEventModal] = useState(false);
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventDescription, setEventDescription] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventType, setEventType] = useState("webinar");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [showCustomEventType, setShowCustomEventType] = useState(false);
+  const [customEventType, setCustomEventType] = useState("");
+  const [lastRegistrationDate, setLastRegistrationDate] = useState("");
+  const [rewards, setRewards] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [editingEventId, setEditingEventId] = useState(null);
+  const [CourseCategory, setCourseCategory] = useState("AI"); // Default category
+  const [searchCourse, setSearchCourse] = useState("");
+const [filterCourseCategory, setFilterCourseCategory] = useState("All"); // Default filter
+
+const filteredCourses = courses.filter((course) => {
+  const matchesSearch = course.title
+    .toLowerCase()
+    .includes(searchCourse.toLowerCase());
+  const matchesCategory =
+    filterCourseCategory === "All" || course.category === filterCourseCategory;
+  return matchesSearch && matchesCategory;
+});
+
+
+const Course_Categories = [
+  "AI", 
+  "Robotics", 
+  "Digital Marketing", 
+  "Web Development", 
+  "Data Science", 
+  "Business", 
+  "Finance", 
+  "Graphic Design", 
+  "Photography", 
+  "Health & Fitness", 
+  "Music", 
+  "Personal Development", 
+  "Teaching & Academics"
+];
 
 
   const CLIENT_ID = "960353326099-8cjg184n3dpruud1r3ju66h2p3au7qat.apps.googleusercontent.com";
 const API_KEY = "AIzaSyCAu251nw4im3YJZLyJUgJmZAF7jTICSh0";
 const SCOPES = "https://www.googleapis.com/auth/drive.file";
+
+
+useEffect(() => {
+  if (activeSection === "Events") {
+    const fetchEvents = async () => {
+      try {
+        const eventsRef = collection(db, "community-events");
+        const q = query(eventsRef, where("communityId", "==", communityId));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const fetchedEvents = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setEvents(fetchedEvents);
+        });
+        return () => unsubscribe();
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
+
+    fetchEvents();
+  }
+}, [activeSection, communityId]);
+
+const handleEditEvent = (event) => {
+  setEditingEventId(event.id); // Set the event ID to be edited
+  setEventTitle(event.title);
+  setEventDescription(event.description);
+  setEventType(event.type);
+  setStartDate(event.startDate?.toDate().toISOString().split("T")[0] || "");
+  setEndDate(event.endDate?.toDate().toISOString().split("T")[0] || "");
+  setStartTime(
+    event.startTime?.toDate().toISOString().split("T")[1]?.substring(0, 5) || ""
+  );
+  setEndTime(
+    event.endTime?.toDate().toISOString().split("T")[1]?.substring(0, 5) || ""
+  );
+  setLastRegistrationDate(
+    event.lastRegistrationDate?.toDate().toISOString().split("T")[0] || ""
+  );
+  setShowAddEventModal(true); // Open modal for editing
+};
+
+const handleAddEvent = async () => {
+  if (!eventTitle || !eventDescription || !startDate || !lastRegistrationDate) {
+    alert("Please fill in all required fields.");
+    return;
+  }
+
+  try {
+    const eventData = {
+      title: eventTitle,
+      description: eventDescription,
+      type: eventType === "custom" ? customEventType : eventType,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      // Parse local times correctly
+      startTime: startTime
+        ? new Date(`${startDate}T${startTime}:00`)
+        : null, // Ensure date + time is combined
+      endTime: endTime
+        ? new Date(`${endDate || startDate}T${endTime}:00`)
+        : null,
+      lastRegistrationDate: new Date(lastRegistrationDate),
+      rewards,
+      communityId,
+      timestamp: serverTimestamp(),
+      communityName,
+      AdminID,
+    };
+
+    if (editingEventId) {
+      // Update existing event
+      const eventDocRef = doc(db, "community-events", editingEventId);
+      await updateDoc(eventDocRef, eventData);
+
+      setEvents((prevEvents) =>
+        prevEvents.map((event) =>
+          event.id === editingEventId ? { ...event, ...eventData } : event
+        )
+      );
+      alert("Event updated successfully!");
+    } else {
+      // Add a new event
+      const newEventDocRef = await addDoc(collection(db, "community-events"), eventData);
+
+      setEvents((prevEvents) => [
+        ...prevEvents,
+        { id: newEventDocRef.id, ...eventData },
+      ]);
+
+      alert("Event created successfully!");
+    }
+
+    // Reset the form
+    setEventTitle("");
+    setEventDescription("");
+    setEventType("");
+    setCustomEventType("");
+    setStartDate("");
+    setEndDate("");
+    setStartTime("");
+    setEndTime("");
+    setLastRegistrationDate("");
+    setRewards("");
+    setEditingEventId(null); // Clear editing mode
+    setShowAddEventModal(false); // Close modal
+  } catch (error) {
+    console.error("Error adding/updating event:", error);
+    alert("Failed to add/update event. Please try again.");
+  }
+};
+
+
+
+const handleCloseAddEventModal = () => {
+  setEventTitle("");
+  setEventDescription("");
+  setEventType("");
+  setCustomEventType("");
+  setStartDate("");
+  setEndDate("");
+  setStartTime("");
+  setEndTime("");
+  setLastRegistrationDate("");
+  setRewards("");
+  setEditingEventId(null); // Clear editing mode
+  setShowAddEventModal(false);
+};
+
+
+
+const handleDeleteEvent = async (eventId) => {
+  if (window.confirm("Are you sure you want to delete this event?")) {
+    try {
+      await deleteDoc(doc(db, "community-events", eventId));
+      setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
+      alert("Event deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      alert("Failed to delete the event. Please try again.");
+    }
+  }
+};
+
+const renderVideoPlayer = (link, courseId) => {
+  if (!link) return null;
+
+  if (link.includes("youtube.com") || link.includes("youtu.be")) {
+    const embedLink = link.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/");
+    return (
+      <div>
+        <img
+          src={getYouTubeThumbnail(link)}
+          alt="YouTube Thumbnail"
+          style={{ width: "100%", maxWidth: "480px", borderRadius: "10px", cursor: "pointer" }}
+          onClick={() => navigate(`/course/${courseId}`)}
+        />
+        <p style={{ color: "#007bff", textAlign: "center", marginTop: "10px" }}>
+          Click to watch the video
+        </p>
+      </div>
+    );
+  } else if (link.includes("zoom.us")) {
+    const meetingID = link.split("/j/")[1]?.split("?")[0];
+    const embedLink = `https://zoom.us/wc/${meetingID}/join`;
+    return (
+      <div>
+        <img
+          src={meeting_thumbnail}
+          alt="Join Zoom Meeting"
+          style={{ width: "100%", maxWidth: "300px", borderRadius: "10px", cursor: "pointer" }}
+          onClick={() => navigate(`/course/${courseId}`)}
+        />
+        <p style={{ color: "#007bff", textAlign: "center", marginTop: "10px" }}>
+          Click to join the meeting
+        </p>
+      </div>
+    );
+  } else if (link.includes("meet.google.com")) {
+    // Show a button to join the Google Meet
+    return (
+        <div style={{ textAlign: "center", marginTop: "20px" }}>
+            <img
+                src={meeting_thumbnail}
+                alt="Google Meet"
+                style={{ width: "100%", maxWidth: "300px", borderRadius: "10px", cursor: "pointer" }}
+            />
+            <p style={{ marginBottom: "10px" }}>Click below to join the Google Meet:</p>
+            <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                    display: "inline-block",
+                    padding: "10px 20px",
+                    backgroundColor: "#007bff",
+                    color: "#fff",
+                    borderRadius: "5px",
+                    textDecoration: "none",
+                }}
+            >
+                Join Meeting
+            </a>
+        </div>
+    );
+} else {
+    return <p>Unsupported video link</p>;
+  }
+};
+
+
+
+
+const getYouTubeThumbnail = (url) => {
+  try {
+    // Extract the YouTube Video ID
+    const videoID = url.includes("v=")
+      ? url.split("v=")[1]?.split("&")[0]
+      : url.includes("youtu.be/")
+      ? url.split("youtu.be/")[1]?.split("?")[0]
+      : null;
+
+    // Return the thumbnail URL or a fallback image
+    return videoID
+      ? `https://img.youtube.com/vi/${videoID}/hqdefault.jpg`
+      : "https://via.placeholder.com/480x360?text=Thumbnail+Unavailable";
+  } catch (error) {
+    console.error("Error generating YouTube thumbnail:", error);
+    alert(error)
+    // Fallback thumbnail if URL parsing fails
+    return "https://via.placeholder.com/480x360?text=Thumbnail+Unavailable";
+  }
+};
+
 
 const initGoogleDrive = () => {
   gapi.load("client:auth2", async () => {
@@ -155,6 +439,10 @@ const uploadFileToGoogleDrive = async (file) => {
     }, (error) => {
       console.error("Error fetching courses:", error);
     });
+
+
+   
+  
     
   
     // Clean up listener on component unmount
@@ -229,6 +517,7 @@ const uploadFileToGoogleDrive = async (file) => {
       const courseData = {
         title: courseTitle.trim(),
         description: courseDescription.trim(),
+        category:CourseCategory, 
         link: courseLink ? courseLink.trim() : null,
         fileURL,
         fileName,
@@ -1030,6 +1319,7 @@ const downloadFeedbackAsPDF = (feedback) => {
     "Rules",
     "Announcements",
     "Tasks",
+    "Events",
     "Courses",
     "Leaderboard",
     ...(isAdmin ? ["Submissions","Manage"] : []),
@@ -1049,13 +1339,13 @@ const downloadFeedbackAsPDF = (feedback) => {
             </div>
           )}
           <div style={{display:'flex'}}>
-      <aside className="sidebar">
+      <aside className="community-sidebar">
         <h2>{communityName || "Community Sidebar"}</h2>
  
         {sidebarOptions.map((option) => (
           <div
             key={option}
-            className={`sidebar-item ${activeSection === option ? "active" : ""}`}
+            className={`community-sidebar-item ${activeSection === option ? "active" : ""}`}
             onClick={() => {
               if (option === "Manage") {
                 navigate(`/community/${communityId}/manage`);
@@ -1085,6 +1375,16 @@ const downloadFeedbackAsPDF = (feedback) => {
             Add Task
           </button>
         )}
+
+        {isAdmin && activeSection === "Events" && (
+          <button
+            className="add-event-button"
+            onClick={() => setShowAddEventModal(true)}
+          >
+            Add Event
+          </button>
+        )}
+
 
         {activeSection === "Courses" && (
           <button 
@@ -1138,7 +1438,7 @@ const downloadFeedbackAsPDF = (feedback) => {
           value={newRule}
           onChange={(e) => setNewRule(e.target.value)}
         ></textarea>
-        <button onClick={handleAddOrUpdateRule}>
+        <button onClick={handleAddOrUpdateRule} className="rules-section-button">
           {editingRule ? "Update Rule" : "Add Rule"}
         </button>
       </div>
@@ -1268,10 +1568,169 @@ const downloadFeedbackAsPDF = (feedback) => {
       </div>
         )}
 
+{activeSection === "Events" && (
+  <div className="events-section">
+    <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+      <input
+        type="text"
+        placeholder="Search events..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="events-search-bar"
+      />
+    <div className="calendar-input-container">
+    <input
+    type="date"
+    value={selectedDate ? selectedDate.toISOString().split("T")[0] : ""}
+    onChange={(e) => setSelectedDate(new Date(e.target.value))}
+    className="calendar-input-native"
+  />
+      </div>
+    </div>
+
+    <div className="events-grid">
+  {events
+    .filter((event) => {
+      const matchesSearch = event.title
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+        event.description
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+
+          const matchesDate =
+          !selectedDate ||
+          (event.date &&
+            event.date.seconds &&
+            new Date(event.date.seconds * 1000).toDateString() ===
+              selectedDate.toDateString());
+        
+
+      return matchesSearch && matchesDate;
+    })
+    .slice(0, 16) // Limit to 16 events for 4x4 grid
+    .map((event) => {
+      // Calculate remaining days for registration
+      const now = new Date();
+      const lastRegistrationDate = new Date(event.lastRegistrationDate.seconds * 1000);
+      const daysRemaining = Math.ceil((lastRegistrationDate - now) / (1000 * 60 * 60 * 24));
+
+      return (
+        <div key={event.id} className="event-card">
+           {isAdmin && (
+            <div className="event-actions" style={{ display: "flex", justifyContent: "space-between" }}>
+              <FaEdit
+                className="edit-icon"
+                title="Edit Event"
+                style={{ cursor: "pointer", color: "#007bff", fontSize: "20px" }}
+                onClick={() => handleEditEvent(event)}
+              />
+              <FaTrash
+                className="delete-icon"
+                title="Delete Event"
+                style={{ cursor: "pointer", color: "red", fontSize: "20px", marginLeft:'10px' }}
+                onClick={() => handleDeleteEvent(event.id)}
+              />
+            </div>
+          )}
+          <div className="events-header" style={{padding:'10px'}}>
+          <h3 style={{fontSize:"14px", textAlign:'center'}}>{event.title}</h3>
+          </div>
+          <p>{event.description.slice(0, 100)}...</p>
+          <p>
+  <strong>Date:</strong>{" "}
+  {event.startDate?.seconds &&
+  event.endDate?.seconds &&
+  event.startDate.seconds === event.endDate.seconds
+    ? // Display only startDate if both are the same
+      `${new Date(event.startDate.seconds * 1000).toLocaleDateString()}`
+    : // Otherwise, display both startDate and endDate
+      `${
+        event.startDate?.seconds
+          ? new Date(event.startDate.seconds * 1000).toLocaleDateString()
+          : "N/A"
+      } - ${
+        event.endDate?.seconds
+          ? new Date(event.endDate.seconds * 1000).toLocaleDateString()
+          : "N/A"
+      }`}
+</p>
+
+<p>
+  <strong>Timings:</strong>{" "}
+  {event.startTime?.seconds
+    ? new Date(event.startTime.seconds * 1000).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "N/A"}{" "}
+  -{" "}
+  {event.endTime?.seconds
+    ? new Date(event.endTime.seconds * 1000).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "N/A"}
+</p>
+
+
+
+
+          <p>
+            <strong>Type:</strong> {event.type}
+          </p>
+          {daysRemaining > 0 && (
+            <p className="registration-message" style={{color:'green', fontSize:'13px', marginBottom:'10px'}}>
+              Registration closes in {daysRemaining} day{daysRemaining > 1 ? "s" : ""}.
+            </p>
+          )}
+          {daysRemaining <= 0 && (
+            <p className="registration-message" style={{ color: "red" }}>
+              Registration is closed.
+            </p>
+          )}
+          <div style={{alignItems:'center'}}>
+          <button className="event-details-button" >
+            Register Event
+          </button>
+          </div>
+        </div>
+      );
+    })}
+</div>
+
+  </div>
+)}
+
+
+
         {activeSection === "Courses" && (
+          <div className="community-course-section">
+          <div className="community-courses-controls">
+          <input
+            type="text"
+            placeholder="Search courses..."
+            value={searchCourse}
+            onChange={(e) => setSearchCourse(e.target.value)}
+            className="courses-search-input"
+          />
+    
+          <select
+            value={filterCourseCategory}
+            onChange={(e) => setFilterCourseCategory(e.target.value)}
+            className="courses-filter-select"
+          >
+            <option value="All" className="courses-filter-select-options">All Categories</option>
+            {Course_Categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="courses-grid">
-          {courses.map((course) => (
-            <div className="course-card" key={course.id}>
+          {filteredCourses.map((course) => (
+            <div className="course-card" key={course.id} onClick={() => navigate(`/course/${course.id}`)}>
               <div className="course-card-content">
                 <div style={{display:'flex', justifyContent:'space-between'}}>
               
@@ -1292,64 +1751,19 @@ const downloadFeedbackAsPDF = (feedback) => {
               </div>
             )}
                 </div>
-                <p>
-                  {course.showFullDescription
-                    ? course.description
-                    : `${course.description.slice(0, 100)}...`}
+                
+                {renderVideoPlayer(course.link)}
 
-                {course.description.length > 100 && (
-                  <span
-                    className="toggle-description-btn"
-                    onClick={() => toggleDescription(course.id)}
-                    style={{color:'blue'}}
-                  >
-                    {course.showFullDescription ? "Read Less" : "Read More"}
-                  </span>
-                )}
-                </p>
-               
-                {course.link && (
-                  <a
-                    href={course.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {course.link}
-                  </a>
-                )}
-
-                 {/* File Name and Download Icon */}
-          {course.fileURL && (
-            <div className="file-info-container" style={{ marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor:'#ccc', padding:'10px', borderRadius:'10px' }}>
-              <span className="file-name" style={{ fontSize: '14px', fontWeight: 'bold', color:'#000' }}>
-                {course.fileName || "Uploaded File"}
-              </span>
-              <a
-                href={course.fileDownload}
-                download={course.fileName || "file"}
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                <FaDownload style={{ fontSize: '20px', cursor: 'pointer', color: '#000' }} />
-              </a>
-            </div>
-          )}
-                <div className="course-card-footer">
-                  <span className="course-timestamp">
-                    {course.timestamp
-                      ? new Date(
-                          course.timestamp.seconds * 1000
-                        ).toLocaleDateString()
-                      : "Unknown"}
-                  </span>
-                </div>
               </div>
             </div>
           ))}
         </div>
+        <div style={{padding:'40px'}}/>
+        </div>
       )}
         {activeSection === "Leaderboard" && (
   <div className="leaderboard-section">
-  <h2>Leaderboard</h2>
+  <h2 className="community-leaderboard-title">Leaderboard</h2>
   {loading ? (
     <LoadingSpinner />  // Display spinner when loading
   ) : errorMessage ? (
@@ -1709,43 +2123,61 @@ const downloadFeedbackAsPDF = (feedback) => {
       )}
 
 {showAddCourseModal && (
-  <div className="task-modal-overlay">
-    <div className="task-modal-content">
-    <div className="task-modal-header">
-      <h2>{editingCourseId ? "Edit Course" : "Add Course"}</h2>
+  <div className="course-modal-overlay">
+    <div className="course-modal-content">
+    <div className="course-modal-header">
+      <h2 className="course-modal-title">{editingCourseId ? "Edit Course" : "Add Course"}</h2>
     </div>
-      <div className="task-modal-body">
-        <label htmlFor="course-title">Title</label>
+      <div className="course-modal-body">
+        <label className="course-modal-label" htmlFor="course-title">Title</label>
         <input
           id="course-title"
           type="text"
           value={courseTitle}
           onChange={(e) => setCourseTitle(e.target.value)}
           placeholder="Enter course title"
+          className="course-modal-input"
         />
 
-        <label htmlFor="course-description">Course Description</label>
+        <label className="course-modal-label" htmlFor="course-description">Course Description</label>
         <textarea
           id="course-description"
           value={courseDescription}
           onChange={(e) => setCourseDescription(e.target.value)}
           placeholder="Enter course description"
+          className="course-modal-textarea"
         />
 
-        <label htmlFor="course-link">Links</label>
+<label className="course-modal-label" htmlFor="course-category">Category</label>
+        <select
+          id="course-category"
+          value={CourseCategory}
+          onChange={(e) => setCourseCategory(e.target.value)}
+          className="course-modal-select"
+        >
+          {Course_Categories.map((cat) => (
+            <option key={cat} value={cat} className="course-select-option">
+              {cat}
+            </option>
+          ))}
+        </select>
+
+        <label className="course-modal-label" htmlFor="course-link">Links</label>
         <input
           id="course-link"
           type="text"
           value={courseLink}
           onChange={(e) => setCourseLink(e.target.value)}
           placeholder="Enter course link"
+          className="course-modal-input"
         />
 
-        <label htmlFor="course-file">Add File</label>
+        <label className="course-modal-label" htmlFor="course-file">Add File</label>
         <input
           id="course-file"
           type="file"
           onChange={(e) => setCourseFile(e.target.files[0])}
+          className="course-modal-input"
         />
       </div>
       <div className="task-modal-footer">
@@ -1817,6 +2249,147 @@ const downloadFeedbackAsPDF = (feedback) => {
     </div>
   </div>
 )}
+
+{showAddEventModal && (
+  <div className="event-modal-overlay">
+    <div className="event-modal-content">
+      {/* Dynamic title */}
+      <h2 className="event-modal-header-title">
+        {editingEventId ? "Edit Event" : "Add Event"}
+      </h2>
+      
+      {/* Event Title */}
+      <label className="event-modal-label">Event Title</label>
+      <input
+        type="text"
+        value={eventTitle}
+        onChange={(e) => setEventTitle(e.target.value)}
+        placeholder="Enter event title"
+        className="event-modal-input"
+      />
+
+      {/* Event Description */}
+      <label className="event-modal-label">Event Description</label>
+      <textarea
+        value={eventDescription}
+        onChange={(e) => setEventDescription(e.target.value)}
+        placeholder="Enter event description"
+        className="event-modal-textarea"
+      ></textarea>
+
+
+
+      {/* Event Type */}
+      <label className="event-modal-label">Event Type</label>
+      <select
+        value={eventType}
+        onChange={(e) => {
+          setEventType(e.target.value);
+          if (e.target.value === "custom") {
+            setShowCustomEventType(true);
+          } else {
+            setShowCustomEventType(false);
+            setCustomEventType("");
+          }
+        }}
+        className="event-modal-select"
+      >
+        <option value="webinar" className="event-modal-option">Webinar</option>
+        <option value="workshops" className="event-modal-option">Workshops</option>
+        <option value="hackathon" className="event-modal-option">Hackathon</option>
+        <option value="conferences" className="event-modal-option">Conferences</option>
+        <option value="custom" className="event-modal-option">Custom</option>
+      </select>
+
+      {/* Custom Event Type */}
+      {showCustomEventType && (
+        <div className="event-modal-custom-event">
+          <label className="event-modal-label">Custom Event Type</label>
+          <input
+            type="text"
+            value={customEventType}
+            onChange={(e) => setCustomEventType(e.target.value)}
+            placeholder="Enter custom event type"
+            className="event-modal-input"
+          />
+        </div>
+      )}
+
+      {/* Start Date */}
+      <label className="event-modal-label">Start Date</label>
+      <input
+        type="date"
+        value={startDate}
+        onChange={(e) => setStartDate(e.target.value)}
+        className="event-modal-input"
+      />
+
+      {/* End Date */}
+      <label className="event-modal-label">End Date</label>
+      <input
+        type="date"
+        value={endDate}
+        onChange={(e) => setEndDate(e.target.value)}
+        className="event-modal-input"
+      />
+
+      {/* Start Time */}
+      <label className="event-modal-label">Start Time</label>
+      <input
+        type="time"
+        value={startTime}
+        onChange={(e) => setStartTime(e.target.value)}
+        className="event-modal-input"
+      />
+
+      {/* End Time */}
+      <label className="event-modal-label">End Time</label>
+      <input
+        type="time"
+        value={endTime}
+        onChange={(e) => setEndTime(e.target.value)}
+        className="event-modal-input"
+      />
+
+      {/* Last Registration Date */}
+      <label className="event-modal-label">Last Registration Date</label>
+      <input
+        type="date"
+        value={lastRegistrationDate}
+        onChange={(e) => setLastRegistrationDate(e.target.value)}
+        className="event-modal-input"
+      />
+
+      {/* Rewards */}
+      <label className="event-modal-label">Rewards</label>
+      <textarea
+        value={rewards}
+        onChange={(e) => setRewards(e.target.value)}
+        placeholder="Enter rewards for the event"
+        className="event-modal-textarea"
+      ></textarea>
+
+      {/* Buttons */}
+      <div className="event-modal-footer">
+        {/* Dynamic button text */}
+        <button
+          onClick={handleAddEvent}
+          className="event-modal-submit-btn"
+        >
+          {editingEventId ? "Update Event" : "Create Event"}
+        </button>
+        <button
+          onClick={handleCloseAddEventModal}
+          className="event-modal-cancel-btn"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
 
 
     </div>

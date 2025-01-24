@@ -265,26 +265,23 @@
     padding: 10px 20px;
     font-size: 1rem;
     color: #ffffff;
-    background-color: #ff4d4f; /* Red for cancellation or danger */
+    background-color: #5865f2; /* Red for cancellation or danger */
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
     margin-top: 20px;
     align-self: center; /* Aligns the button in flex containers */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   }
   
   .cancel-button:hover {
-    background-color: #e63e41; /* Darker red on hover */
+    background-color: #4752c4; /* Slightly darker shade on hover */
+    transform: scale(1.03); /* Slight zoom effect on hover */
   }
   
   .cancel-button:active {
     transform: scale(0.97); /* Slight shrink effect on click */
-  }
-  
-  .cancel-button:focus {
-    outline: 2px solid #ffffff; /* White focus outline for accessibility */
-    outline-offset: 2px;
   }
   
   .send-verification-button {
@@ -318,25 +315,29 @@
   
   
   /* Logout Button */
-.logout-button {
-    background-color: #ff4c4c;  /* Red color for Logout */
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+.settings-logout-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: #ffffff;
+  background-color: #ff4d4f; /* Red for cancellation or danger */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+  align-self: center; /* Aligns the button in flex containers */
   }
   
-  .logout-button:hover {
+  .settings-logout-button:hover {
     background-color: #ff1a1a;  /* Darker red when hovered */
+    transform: scale(1.03);
   }
   
-  .logout-button:active {
+  .settings-logout-button:active {
     transform: scale(0.98);  /* Slightly reduce the size on click for effect */
   }
   
-  .logout-button:focus {
+  .settings-logout-button:focus {
     outline: none;
   }
   
