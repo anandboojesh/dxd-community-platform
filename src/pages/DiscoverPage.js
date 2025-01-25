@@ -43,6 +43,7 @@ const DiscoverPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [userDetails, setUserDetails] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [hide, setHide] = useState("")
 
   // Filter communities based on the search query
 const filteredCommunities = communities.filter((community) =>
@@ -165,6 +166,7 @@ const filteredCommunities = communities.filter((community) =>
 
   return (
     <div  className={`discover-page ${currentUserUID ? "authenticated" : ""}`}>
+      {hide && (
       <div className="discover-sidebar">
         <ul>
           {currentUserUID ? (
@@ -194,8 +196,9 @@ const filteredCommunities = communities.filter((community) =>
             </div>
             <FaCog />
           </div>
+          
         )}
-      </div>
+      </div>)}
 
       {/* Main Content */}
       <div className="discover-main-content">
