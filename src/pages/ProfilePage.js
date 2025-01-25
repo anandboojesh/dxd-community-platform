@@ -206,7 +206,19 @@ const ProfilePage = () => {
   const [communityProfilePhoto, setCommunityProfilePhoto] = useState("");
   const [achievements, setAchievements] = useState([]);
   const [userBadges, setUserBadges] = useState([]);
+  const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
+const [selectedBadge, setSelectedBadge] = useState(null);
 
+
+const handleBadgeClick = (badge) => {
+  setSelectedBadge(badge);
+  setIsBadgeModalOpen(true);
+};
+
+const closeBadgeModal = () => {
+  setIsBadgeModalOpen(false);
+  setSelectedBadge(null);
+};
 
   const updateBadgeForAchievement = async (userId, category, milestone) => {
     try {
@@ -241,6 +253,7 @@ const ProfilePage = () => {
   
           console.log(`Badge "${badge.name}" added for milestone: ${milestone}`);
           alert(`Congratulations! You've earned the "${badge.name}" badge!`);
+          window.location.reload()
         } else {
           console.log(`Badge "${badge.name}" already exists for the user.`);
         }
@@ -319,6 +332,7 @@ const ProfilePage = () => {
           await addDoc(collection(db, "user-achievements"), achievementData);
           console.log("Leadership achievement created:", achievementData);
           alert(message); // Notify the user
+          window.location.reload()
         } else {
           console.log(`Leadership achievement for ${adminCommunitiesCount} communities already exists.`);
         }
@@ -363,6 +377,7 @@ const ProfilePage = () => {
       await addDoc(collection(db, "user-achievements"), achievementData);
       console.log("Achievement created successfully:", achievementData);
       alert(message); // Notify the user
+      window.location.reload()
     } catch (error) {
       console.error("Error creating achievement:", error);
     }
@@ -661,7 +676,7 @@ const ProfilePage = () => {
       });
   
       // Check for milestone and create achievement
-      const milestones = [5, 15, 30, 90, 365];
+      const milestones = [1, 5, 15, 30, 90, 365];
       if (milestones.includes(newStreak)) {
         const message = `Congratulations! You've unlocked a ${newStreak}-day streak achievement!`;
         await createAchievement(user.uid, "streak", message, newStreak);
@@ -935,6 +950,7 @@ const ProfilePage = () => {
                   alt={badge.name}
                   className="badge-icon"
                   style={{ width: "50px", height: "50px"}}
+                  onClick={() => handleBadgeClick(badge)}
                 />
                 </div>
               )}
@@ -1213,6 +1229,32 @@ const ProfilePage = () => {
           </div>
         </div>
       )}
+
+
+{isBadgeModalOpen && selectedBadge && (
+  <div className="modal-overlay">
+    <div className="modal-container">
+      <div className="modal-header">
+        <h3>{selectedBadge.name}</h3>
+        <button className="close-button" onClick={closeBadgeModal}>
+          <FaTimes />
+        </button>
+      </div>
+      <div className="modal-body">
+        <img
+          src={selectedBadge.icon}
+          alt={selectedBadge.name}
+          className="badge-modal-icon"
+        />
+        <p>{selectedBadge.description}</p>
+        {selectedBadge.milestoneDescription && (
+          <p><strong>Milestone:</strong> {selectedBadge.milestoneDescription}</p>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
 
     </div>
   );

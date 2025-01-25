@@ -20,6 +20,7 @@ import {
   TextField,
   Divider,
   Container,
+  debounce,
 } from "@mui/material";
 import LoginPage from './pages/LoginModal';
 import SignUpPage from './pages/SignupPage';
@@ -38,7 +39,7 @@ import CommunityPage from './pages/CommunityPage';
 import TaskDetailsPage from './pages/TaskDetailsPage';
 import CommunityManagementPage from './pages/CommunityManagementPage';
 import { auth, db } from './services/firebase';
-import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc, updateDoc, getDocs,  } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import ActivityPage from './pages/activity';
@@ -48,11 +49,21 @@ import Communities from './pages/communityList';
 import Leaderboard from './pages/LeaderboardPage';
 import ViewCommunity from './pages/ViewCommunity';
 import CoursePage from './pages/CoursePage';
+import SearchResults from "./pages/SearchResults";
 
 const MainNavbar = ({ onSignOut, handleSignOut, toggleModal }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [userData, setUserData] = useState(null);
-  const [user, setUser] = useState("")
+  const [user, setUser] = useState("");
+
+  const navigate = useNavigate();
+
+  const [searchResults, setSearchResults] = useState({
+    communities: [],
+    events: [],
+    courses: [],
+  });
+  
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
@@ -77,9 +88,64 @@ const MainNavbar = ({ onSignOut, handleSignOut, toggleModal }) => {
     return () => unsubscribe();
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    console.log('Search Query:', searchQuery);
+  const handleSearch = debounce(async (query) => {
+    if (!query.trim()) {
+      setSearchResults({ communities: [], events: [], courses: [] }); // Clear results if query is empty
+      navigate("/"); // Navigate to the home page or a default route
+      return;
+    }
+  
+    try {
+      const communitiesQuery = await getDocs(collection(db, "communities"));
+      const eventsQuery = await getDocs(collection(db, "community-events"));
+      const coursesQuery = await getDocs(collection(db, "community-courses"));
+  
+      const communities = communitiesQuery.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter(
+          (community) =>
+            community.name && community.name.toLowerCase().includes(query.toLowerCase())
+        );
+  
+      const events = eventsQuery.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter(
+          (event) =>
+            event.title && event.title.toLowerCase().includes(query.toLowerCase())
+        );
+  
+      const courses = coursesQuery.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter(
+          (course) =>
+            course.name && course.name.toLowerCase().includes(query.toLowerCase())
+        );
+  
+      const results = { communities, events, courses };
+  
+      // Navigate to search results page with results
+      navigate("/search-results", { state: { results, query } });
+    } catch (error) {
+      console.error("Error performing search:", error);
+      alert(error);
+    }
+  }, 300);
+  
+  
+
+  const handleInputChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    if (query.trim()) {
+      handleSearch(query); // Trigger live search
+    } else {
+      // Clear search results if input is empty
+      setSearchResults({ communities: [], events: [], courses: [] });
+    }
+  };
+  
+  const handleSearchBarClick = () => {
+    navigate('/search-results'); // Navigate to the search results page
   };
 
   return (
@@ -88,13 +154,14 @@ const MainNavbar = ({ onSignOut, handleSignOut, toggleModal }) => {
         <h1 className='site-logo'>Community Platform</h1>
       </div>
       <div className="navbar-center">
-          <input
-            type="text"
-            placeholder="Search for communities, events, courses and more..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="main-navbar-search-input"
-          />
+      <input
+          type="text"
+          placeholder="Search for communities, events, courses..."
+          value={searchQuery}
+          onChange={handleInputChange}
+          onClick={handleSearchBarClick}
+          className="main-navbar-search-input"
+        />
       </div>
       <div className="navbar-right">
       {user && userData ? (
@@ -358,6 +425,7 @@ function App() {
         }
     
         await auth.signOut();
+        navigate("/");
       } catch (error) {
         console.error("Error logging out: ", error);
         alert(error);
@@ -377,6 +445,7 @@ function App() {
         <MainNavbar user={user} onSignOut={handleLogout} toggleModal = {toggleModal}/>
         <div className="app-content">
           <Routes>
+
             <Route path="/login" element={<LoginPage />} />
             <Route path="/" element={<DiscoverPage />} />
             <Route path="/signup" element={<SignUpPage />} />
@@ -406,6 +475,8 @@ function App() {
                 <Route path="/communities" element={<Communities />} />
               </>
             )}
+
+<Route path="/search-results" element={<SearchResults />} />
           </Routes>
         </div>
         {isModalOpen && (

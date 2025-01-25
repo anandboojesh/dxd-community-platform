@@ -51,7 +51,7 @@ const SettingsPage = () => {
       await auth.signOut();
   
       // Redirect to the login page
-      navigate("/login");
+      navigate("/");
   
       setIsLoggingOut(true);
     } catch (error) {
@@ -149,36 +149,37 @@ const SettingsPage = () => {
       case "Profile Settings":
         return (
           <div class="profile-settings-container">
-          <div>
-          <div class="input-group">
-            <label for="displayName">Display Name</label>
+          <div style={{width:'100%'}}>
+          <div class="profile-settings-input-group">
+            <label className="profile-settings-label" for="displayName">Display Name</label>
             <input 
             type="text" 
             id="displayName" 
             placeholder="Enter your display name"
-            value={newDisplayname || userData.name} />
+            value={newDisplayname || userData.name}
+            className="profile-settings-input" />
           </div>
 
 
-          <div class="input-group">
-            <label for="username">Username</label>
+          <div class="profile-settings-input-group">
+            <label className="profile-settings-label" for="username">Username</label>
             <input 
             type="text" 
             id="username" 
             placeholder="Enter your username"
             readOnly
-            
+            className="profile-settings-input"
             value={userData.username} />
           </div>
 
-          <div class="input-group">
-            <label for="aboutMe">About Me</label>
+          <div class="profile-settings-input-group">
+            <label className="profile-settings-label" for="aboutMe">About Me</label>
             <textarea
             type="text" 
             id="aboutMe" 
             placeholder="Tell us about yourself"
             value={newAboutme || userData.aboutMe}
-            className="bio-textarea" />
+            className="profile-setting-bio-textarea" />
           </div>
           </div>
 
@@ -197,7 +198,7 @@ const SettingsPage = () => {
             </div>
       <div class="preview-info">
       <div class="preview-avatar-container">
-        <img src={userData.avatar||"https://via.placeholder.com/80"} alt="Profile Avatar" />
+        <img src={userData.avatar|| auth.currentUser?.photoURL||"https://via.placeholder.com/80"} alt="Profile Avatar" />
       </div>
       <div>
         <h3 class="preview-display-name">{userData.name||"Loading..."}</h3>
@@ -369,16 +370,16 @@ const SettingsPage = () => {
       )}
 
       {isLoggingOut && (
-        <div className="modal-overlay">
-        <div className="modal-content">
-          <div className="modal-header">
+        <div className="logout-modal-overlay">
+        <div className="logout-modal-content">
+          <div className="logout-modal-header">
             <h3>Logout</h3>
           </div>
-          <div className="modal-body">
+          <div className="logout-modal-body">
           <h3>Are you sure you want to logout?</h3>
           </div>
-          <div className="modal-footer">
-            <button className="cancel-button" onClick={() => setIsModalOpen(false)}>
+          <div className="logout-modal-footer">
+            <button className="logout-cancel-button" onClick={() => setIsLoggingOut(false)}>
               Cancel
             </button>
             <button className="settings-logout-button" onClick={handleLogout}>
