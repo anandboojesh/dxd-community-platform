@@ -29,6 +29,145 @@ const avatars = [
   require("./assets/avatar20.png"),
 ];
 
+const Achievement_Badges = [
+  // Streak Badges
+  {
+    badgeId: "STREAK_1",
+    name: "First Step",
+    category: "streak",
+    milestone: 1,
+    milestoneDescription: "Achieved a 1-day streak",
+    icon: require('./assets/badges/First Step Badge.png'),
+    description: "Achieved a 1-day login streak."
+  },
+  {
+    badgeId: "STREAK_2",
+    name: "Consistency Champ",
+    category: "streak",
+    milestone: 5,
+    milestoneDescription: "Achieved a 5-day streak",
+    icon: require('./assets/badges/Consistency Champ Badge.png'),
+    description: "Achieved a 5-day login streak."
+  },
+  {
+    badgeId: "STREAK_3",
+    name: "Steadfast User",
+    category: "streak",
+    milestone: 15,
+    milestoneDescription: "Achieved a 15-day streak",
+    icon: require('./assets/badges/Steadfast User Badge.png'),
+    description: "Achieved a 15-day login streak."
+  },
+  {
+    badgeId: "STREAK_4",
+    name: "Trailblazer",
+    category: "streak",
+    milestone: 30,
+    milestoneDescription: "Achieved a 30-day streak",
+    icon: require('./assets/badges/Trailblazer Badge.png'),
+    description: "Achieved a 30-day login streak."
+  },
+  {
+    badgeId: "STREAK_5",
+    name: "Marathoner",
+    category: "streak",
+    milestone: 90,
+    milestoneDescription: "Achieved a 90-day streak",
+    icon: require('./assets/badges/Marathoner Badge.png'),
+    description: "Achieved a 90-day login streak."
+  },
+  {
+    badgeId: "STREAK_6",
+    name: "Legendary Streaker",
+    category: "streak",
+    milestone: 365,
+    milestoneDescription: "Achieved a 365-day streak",
+    icon: require('./assets/badges/Legendary Streaker Badge.png'),
+    description: "Achieved a 365-day login streak."
+  },
+
+  // Leadership Badges
+  {
+    badgeId: "LEADERSHIP_1",
+    name: "Aspiring Leader",
+    category: "leadership",
+    milestone: 1,
+    milestoneDescription: "Created 1 community",
+    icon: require('./assets/badges/Aspiring Leader Badge.png'),
+    description: "Created your first community."
+  },
+  {
+    badgeId: "LEADERSHIP_2",
+    name: "Community Architect",
+    category: "leadership",
+    milestone: 5,
+    milestoneDescription: "Created 5 communities",
+    icon: require('./assets/badges/Community Architect Badge.png'),
+    description: "Created 5 communities."
+  },
+  {
+    badgeId: "LEADERSHIP_3",
+    name: "Network Builder",
+    category: "leadership",
+    milestone: 10,
+    milestoneDescription: "Created 10 communities",
+    icon: require('./assets/badges/Network Builder Badge.png'),
+    description: "Created 10 communities."
+  },
+  {
+    badgeId: "LEADERSHIP_4",
+    name: "Visionary Leader",
+    category: "leadership",
+    milestone: 25,
+    milestoneDescription: "Created 25 communities",
+    icon: require('./assets/badges/Visionary Leader Badge.png'),
+    description: "Created 25 communities."
+  },
+  {
+    badgeId: "LEADERSHIP_5",
+    name: "Community Hero",
+    category: "leadership",
+    milestone: 50,
+    milestoneDescription: "Created 50 communities",
+    icon: require('./assets/badges/Community Hero Badge.png'),
+    description: "Created 50 communities."
+  },
+  {
+    badgeId: "LEADERSHIP_6",
+    name: "Global Influencer",
+    category: "leadership",
+    milestone: 100,
+    milestoneDescription: "Created 100 communities",
+    icon: require('./assets/badges/Global Influencer Badge.png'),
+    description: "Created 100 communities."
+  },
+
+  // Special Combined Milestones
+  {
+    badgeId: "SPECIAL_1",
+    name: "Pioneer",
+    category: "special",
+    milestoneDescription: "30-day streak and 5 communities",
+    icon: require('./assets/badges/Pioneer Badge.png'),
+    description: "Achieved a 30-day streak and created 5 communities."
+  },
+  {
+    badgeId: "SPECIAL_2",
+    name: "Mastermind",
+    category: "special",
+    milestoneDescription: "90-day streak and 10 communities",
+    icon: require('./assets/badges/Mastermind Badge.png'),
+    description: "Achieved a 90-day streak and created 10 communities."
+  },
+  {
+    badgeId: "SPECIAL_3",
+    name: "Ultimate Leader",
+    category: "special",
+    milestoneDescription: "365-day streak and 25 communities",
+    icon: require('./assets/badges/Ultimate Leader Badge.png'),
+    description: "Achieved a 365-day streak and created 25 communities."
+  }
+];
 
 
 const uploadPhoto = require('./assets/upload_photo.jpg')
@@ -65,6 +204,169 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [entranceCode, setEntranceCode] = useState("");
   const [communityProfilePhoto, setCommunityProfilePhoto] = useState("");
+  const [achievements, setAchievements] = useState([]);
+  const [userBadges, setUserBadges] = useState([]);
+
+
+  const updateBadgeForAchievement = async (userId, category, milestone) => {
+    try {
+      // Find the badge in the local Achievement_Badges array
+      const badge = Achievement_Badges.find(
+        (b) => b.category === category && b.milestone === milestone
+      );
+  
+      if (badge) {
+        // Check if the badge already exists for the user in the 'user-badges' collection
+        const userBadgeQuery = query(
+          collection(db, "user-badges"),
+          where("userId", "==", userId),
+          where("badgeId", "==", badge.badgeId)
+        );
+  
+        const userBadgeSnapshot = await getDocs(userBadgeQuery);
+  
+        if (userBadgeSnapshot.empty) {
+          // Add the new badge to the user's 'user-badges' collection
+          const userBadgeData = {
+            userId,
+            badgeId: badge.badgeId, // Correctly use the local badge details
+            name: badge.name,
+            category: badge.category,
+            milestone: badge.milestone,
+            iconUrl: badge.icon,
+            timestamp: serverTimestamp(),
+          };
+  
+          await addDoc(collection(db, "user-badges"), userBadgeData);
+  
+          console.log(`Badge "${badge.name}" added for milestone: ${milestone}`);
+          alert(`Congratulations! You've earned the "${badge.name}" badge!`);
+        } else {
+          console.log(`Badge "${badge.name}" already exists for the user.`);
+        }
+      } else {
+        console.warn(
+          `No badge found in Achievement_Badges for category: ${category} and milestone: ${milestone}`
+        );
+      }
+    } catch (error) {
+      console.error("Error updating badge for achievement:", error);
+      alert(error.message);
+    }
+  };
+  
+  
+  
+
+  const createCommunityAchievement = async (userId) => {
+    try {
+      // Query to find communities where the user is an admin
+      const communitiesQuery = query(
+        collection(db, "communities"),
+        where("adminId", "==", userId)
+      );
+  
+      const querySnapshot = await getDocs(communitiesQuery);
+      const adminCommunitiesCount = querySnapshot.docs.length;
+  
+      // Define leadership achievement milestones
+      const milestones = [1, 5, 10, 25, 50, 100];
+      let message;
+  
+      if (milestones.includes(adminCommunitiesCount)) {
+        // Custom messages for each milestone
+        if (adminCommunitiesCount === 1) {
+          message = `Congratulations! You've created your first community. Welcome to leadership!`;
+        } else if (adminCommunitiesCount === 5) {
+          message = `Fantastic! You've created 5 communities. A true leader in action!`;
+        } else if (adminCommunitiesCount === 10) {
+          message = `Outstanding! You've created 10 communities. You're shaping a vibrant network of communities!`;
+        } else if (adminCommunitiesCount === 25) {
+          message = `Incredible! You've created 25 communities. Your influence is growing stronger!`;
+        } else if (adminCommunitiesCount === 50) {
+          message = `Amazing! You've created 50 communities. You're a Community Hero!`;
+        } else if (adminCommunitiesCount === 100) {
+          message = `Legendary! You've created 100 communities. You're a Global Influencer! Keep inspiring!`;
+        }
+
+        const milestone = adminCommunitiesCount;
+        
+        await updateBadgeForAchievement(userId, "leadership", milestone);
+  
+        // Query to check if the achievement already exists
+        const achievementsQuery = query(
+          collection(db, "user-achievements"),
+          where("userId", "==", userId),
+          where("category", "==", "leadership"),
+          where("metadata.communityCount", "==", adminCommunitiesCount)
+        );
+  
+        const achievementsSnapshot = await getDocs(achievementsQuery);
+  
+        // If the achievement doesn't already exist, create it
+        if (achievementsSnapshot.empty) {
+          const achievementData = {
+            achievementId: `ACH-${Date.now()}`, // Unique ID
+            userId,
+            category: "leadership",
+            message,
+            metadata: {
+              communityCount: adminCommunitiesCount,
+            },
+            timestamp: serverTimestamp(),
+          };
+  
+          await addDoc(collection(db, "user-achievements"), achievementData);
+          console.log("Leadership achievement created:", achievementData);
+          alert(message); // Notify the user
+        } else {
+          console.log(`Leadership achievement for ${adminCommunitiesCount} communities already exists.`);
+        }
+      }
+    } catch (error) {
+      console.error("Error checking leadership achievements:", error);
+    }
+  };
+
+
+
+  const createAchievement = async (userId, category, message, streakDays) => {
+    try {
+      // Query to check if the achievement already exists
+      const achievementsQuery = query(
+        collection(db, "user-achievements"),
+        where("userId", "==", userId),
+        where("category", "==", category),
+        where("streakDays", "==", streakDays) // Match the specific streak milestone
+      );
+  
+      const querySnapshot = await getDocs(achievementsQuery);
+  
+      if (!querySnapshot.empty) {
+        console.log(`Achievement for ${streakDays}-day streak already exists.`);
+        return; // Achievement already exists; no need to create another
+      }
+  
+      // If no achievement exists, create a new one
+      const achievementData = {
+        achievementId: `ACH-${Date.now()}`, // Unique ID
+        userId,
+        category,
+        message,
+        streakDays,
+        timestamp: serverTimestamp(),
+        metadata: {
+          extraInfo: "Achievement unlocked",
+        },
+      };
+  
+      await addDoc(collection(db, "user-achievements"), achievementData);
+      console.log("Achievement created successfully:", achievementData);
+      alert(message); // Notify the user
+    } catch (error) {
+      console.error("Error creating achievement:", error);
+    }
+  };
 
   
   const initGoogleDrive = () => {
@@ -223,6 +525,8 @@ const ProfilePage = () => {
           await setDoc(doc(db, "communities", uniqueCommunityId), communityData);
     
           alert("Community created successfully!");
+
+          await createCommunityAchievement(user.uid);
         } else {
           alert("User not authenticated. Please log in.");
         }
@@ -295,6 +599,16 @@ const ProfilePage = () => {
           currentStreak: userData.currentStreak || 0,
         });
 
+          // Fetch badges from the 'user-badges' collection
+      const badgesQuery = query(
+        collection(db, "user-badges"),
+        where("userId", "==", uid)
+      );
+      const badgesSnapshot = await getDocs(badgesQuery);
+
+      const badges = badgesSnapshot.docs.map((doc) => doc.data());
+      setUserBadges(badges);
+
         const communitiesQuery = collection(db, "communities");
         const communitySnapshot = await getDocs(communitiesQuery);
   
@@ -320,49 +634,74 @@ const ProfilePage = () => {
     }
   };
   
-
   const incrementStreak = async () => {
-    try {
-      const user = auth.currentUser;
-      if (user) {
-        const userRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userRef);
-
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          const today = new Date().setHours(0, 0, 0, 0);
-          const lastActivityDate = userData.lastActivityDate?.toDate().setHours(0, 0, 0, 0);
-
-          let newStreak = userData.currentStreak || 0;
-          if (lastActivityDate === today) {
-            // No update if activity already logged today
-            return;
-          } else if (lastActivityDate === today - 86400000) {
-            // Increment streak if the last activity was yesterday
-            newStreak++;
-          } else {
-            // Reset streak if there's a gap
-            newStreak = 1;
-          }
-
-          await updateDoc(userRef, {
-            currentStreak: newStreak,
-            lastActivityDate: new Date(),
-          });
-
-          setUserData((prev) => ({ ...prev, currentStreak: newStreak }));
-        }
+    const user = auth.currentUser;
+  
+    if (!user) return;
+  
+    const userRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userRef);
+  
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      const today = new Date().setHours(0, 0, 0, 0);
+      const lastActivityDate = userData.lastActivityDate?.toDate().setHours(0, 0, 0, 0);
+  
+      let newStreak = userData.currentStreak || 0;
+  
+      if (lastActivityDate === today - 86400000) {
+        newStreak++; // Increment streak
+      } else if (lastActivityDate !== today) {
+        newStreak = 1; // Reset streak if not continuous
       }
-    } catch (error) {
-      console.error("Error updating streak:", error);
+  
+      await updateDoc(userRef, {
+        currentStreak: newStreak,
+        lastActivityDate: new Date(),
+      });
+  
+      // Check for milestone and create achievement
+      const milestones = [5, 15, 30, 90, 365];
+      if (milestones.includes(newStreak)) {
+        const message = `Congratulations! You've unlocked a ${newStreak}-day streak achievement!`;
+        await createAchievement(user.uid, "streak", message, newStreak);
+        const milestone = newStreak;
+        await updateBadgeForAchievement(user.uid, "streak", milestone);
+      }
+  
+      console.log(`Streak updated: ${newStreak}`);
     }
   };
+  
+  
 
   useEffect(() => {
     if (isOnline) incrementStreak();
   }, [isOnline]);
 
+
+  useEffect(() => {
+    const fetchAchievements = async () => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const achievementsQuery = query(
+            collection(db, "user-achievements"),
+            where("userId", "==", user.uid)
+          );
+          const querySnapshot = await getDocs(achievementsQuery);
+          const fetchedAchievements = querySnapshot.docs.map((doc) => doc.data());
+          setAchievements(fetchedAchievements); // Update state
+        }
+      } catch (error) {
+        console.error("Error fetching achievements:", error);
+      }
+    };
   
+    fetchAchievements();
+  }, []);
+  
+
 
   const handleSidebarClick = (item) => {
     if (item === "Community") {
@@ -397,7 +736,7 @@ const ProfilePage = () => {
     <div className="user-page">
       {/* Sidebar */}
       <div className="profile-page-sidebar">
-        {["Profile", "Activity","Community","Settings"].map((item) => (
+        {["Profile", "Activity","Community","Achivements","Settings"].map((item) => (
           <div key={item} className="profile-page-sidebar-section">
              <div
               className={`profile-page-sidebar-item ${activeSidebar === item ? "active" : ""}`}
@@ -572,13 +911,54 @@ const ProfilePage = () => {
 
   </div>
 )}
+{activeSidebar === "Achivements" && (
+  <div className="achievement-section">
+    <h2>Achievements</h2>
+    {achievements.length > 0 ? (
+      achievements.map((achievement) => {
+        // Find the badge corresponding to the achievement
+        const badge = Achievement_Badges.find(
+          (b) =>
+            b.category === achievement.category &&
+            (b.milestone === achievement.metadata?.communityCount ||
+              b.milestone === achievement.streakDays)
+        );
+
+        return (
+          <div key={achievement.achievementId} className="achievement-card">
+
+              {badge && (
+                <div >
+                <img
+                  src={badge.icon}
+                  title={badge.name}
+                  alt={badge.name}
+                  className="badge-icon"
+                  style={{ width: "50px", height: "50px"}}
+                />
+                </div>
+              )}
+              <p>{achievement.message}</p>
+        
+           
+            <span>
+              {new Date(achievement.timestamp.seconds * 1000).toLocaleDateString()}
+            </span>
+          </div>
+        );
+      })
+    ) : (
+      <p>No achievements yet. Keep working to unlock new milestones!</p>
+    )}
+  </div>
+)}
 
 
         {activeSidebar === "Profile" && (
           <div className="profile-page">
             <div className="profile-banner">
               <img
-                src="https://via.placeholder.com/800x200"
+                src={require('./assets/default-community-banner.jpeg')}
                 alt="Profile Banner"
                 className="banner-image"
               />
@@ -586,7 +966,7 @@ const ProfilePage = () => {
             <div className="profile-info">
               <div className="profile-pic-container"  onClick={() => setIsModalOpen(true)}>
                 <img
-                   src={selectedAvatar || "https://via.placeholder.com/150"}
+                   src={selectedAvatar|| auth.currentUser?.photoURL || "https://via.placeholder.com/150"}
                   alt="Profile Pic"
                   className="profile-pic"
                 />
@@ -613,10 +993,33 @@ const ProfilePage = () => {
                 <div className="streak-section">
                   <h2> Streak</h2>
                   <p>{userData.currentStreak} day(s)</p>
+
                 </div>
-           
+
+                <div className="badges-section">
+  <div className="badges-grid">
+    {userBadges.length > 0 ? (
+      userBadges.map((badge) => (
+        <div key={badge.badgeId} className="badge-item">
+          <img
+            src={badge.iconUrl} // Badge icon from Firestore
+            alt={badge.name}
+            className="badge-icon"
+            title={badge.name}
+          />
+        </div>
+      ))
+    ) : (
+      ""
+    )}
+  </div>
+  </div>
               </div>
+
+              
               </div>
+              
+              
               <button className="edit-profile-button" onClick={() => navigate("/setting")}>Edit Profile</button>
             </div>
             <div className="profile-informattions">

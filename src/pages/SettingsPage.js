@@ -345,8 +345,9 @@ const SettingsPage = () => {
 
       {/* Main Content Area */}
       <div className="settings-content">
-        <h2>{activeOption}</h2>
+        <h2 style={{color:'#ff7e5f'}}>{activeOption}</h2>
         <div className="content-body">{renderContent()}</div>
+        <div style={{padding:'40px'}}/>
       </div>
 
       {isModalOpen &&(

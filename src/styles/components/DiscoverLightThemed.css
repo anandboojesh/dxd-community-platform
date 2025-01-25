@@ -255,15 +255,15 @@
   .discover-event-card-header h3 {
     margin: 0;
     font-size: 16px;
-    color: var(--text-color);
+    color: #ffff;
   }
   
   .discover-event-type {
-    background-color: var(--secondary-color);
+    background-color: var(--primary-color);
     padding: 3px 8px;
     border-radius: 15px;
     font-size: 12px;
-    color: var(--text-color);
+    color: #ffff;
   }
   
   .discover-event-detail {
@@ -332,3 +332,74 @@
     color: var(--hover-color);
     text-decoration: underline;
   }
+
+
+  .empty{}
+  .empty{}
+
+
+  .discover-course-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .discover-course-card {
+    border: 1px solid var(--secondary-color);
+    border-radius: 10px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: var(--secondary-color);
+  }
+
+  .discover-course-section{
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .discover-course-section h2{
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: var(--text-color);
+  }
+  
+  .discover-course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+  }
+  
+  .discover-course-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .discover-course-card-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #ffff;
+  }
+  
+  .discover-course-type {
+    background-color: var(--primary-color);
+    padding: 3px 8px;
+    border-radius: 15px;
+    font-size: 12px;
+    color: #ffff;
+  }
+  
+  .discover-course-detail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #8b8b8b;
+  }
+
+
+  

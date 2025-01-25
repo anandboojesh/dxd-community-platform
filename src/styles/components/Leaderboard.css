@@ -1,16 +1,24 @@
-
-  
-  .community-platform-leaderboard-container {
+:root {
+  --primary-color: #ff7e5f; /* Warm gradient start */
+  --secondary-color: #feb47b; /* Warm gradient end */
+  --text-color: #2d2d2d;
+  --background-color: #fff5f0;
+  --hover-color: #ff6347;
+} 
+ 
+ .community-platform-leaderboard-container {
     max-width: 1200px;
     width: 100%;
     padding: 30px;
-    background: linear-gradient(135deg, #232323, #2c2c2c);
+    background: #ffff;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     overflow-x: auto;
   }
 
-  
+  .community-platform-leaderboard-container h1{
+    color: var(--primary-color);
+  }
   /* Table Styles */
   .community-platform-leaderboard-table {
     width: 100%;
@@ -27,25 +35,23 @@
   }
   
   .community-platform-leaderboard-table th {
-    background-color: #1c1c1c;
+    background-color: var(--primary-color);
     font-size: 1.1rem;
     font-weight: 600;
     text-transform: uppercase;
-    color: #e0e0e0;
+    color: #ffff;
   }
   
   .community-platform-leaderboard-table td {
-    background-color: #2a2a2a;
+    background-color: var(--background-color);
     font-size: 1rem;
-    color: #b0b0b0;
+    color: #000;
   }
   
-  .community-platform-leaderboard-table tr:nth-child(even) td {
-    background-color: #333;
-  }
+
   
   .community-platform-leaderboard-table tr:hover td {
-    background-color: #444;
+    background-color: var(--hover-color);
     cursor: pointer;
     transform: scale(1.02);
   }
@@ -56,12 +62,12 @@
   
   .community-platform-leaderboard-table td:nth-child(2),
   .community-platform-leaderboard-table td:nth-child(3) {
-    color: #e0e0e0;
+    color: #000;
   }
   
   .community-platform-leaderboard-table td:nth-child(4),
   .community-platform-leaderboard-table td:nth-child(5) {
-    color: #ffeb3b;
+    color: var(--secondary-color);
     font-weight: 600;
   }
   
@@ -69,7 +75,7 @@
   .loading {
     text-align: center;
     font-size: 1.2rem;
-    color: #ff4081;
+    color: var(--primary-color);
     font-weight: bold;
     padding: 20px;
   }
@@ -85,7 +91,7 @@
 
   .profile-card {
     padding: 20px;
-    background: linear-gradient(135deg, #232323, #2c2c2c);
+    background: #ffff;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     margin-left: 30px;
@@ -94,7 +100,7 @@
   }
 
   .current-user-profile-info{
-    background-color: #2c2c2c;
+    background-color: var(--primary-color);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
@@ -117,7 +123,7 @@
   
   .current-user-profile-info p {
     font-size: 14px;
-    color: #555;
+    color: #f9f9f9;
   }
 
   .rank-badge {
@@ -170,7 +176,7 @@
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 8px;
-    background-color: #1f2124;
+    background-color: var(--background-color);
     color: #fff;
     outline: none;
   }

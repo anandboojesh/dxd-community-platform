@@ -187,15 +187,7 @@ const Navbar = ({ user, userRole }) => {
                 Profile
               </Link>
             </li>
-            <li className="sub-navbar-item">
-              <Link
-                to="/MyCommunities"
-                className={`navbar-link ${isActive('/MyCommunities') ? 'active' : ''}`}
-              >
-           
-                Communities
-              </Link>
-            </li>
+        
 
             <li className="sub-navbar-item">
               <Link

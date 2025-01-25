@@ -147,7 +147,7 @@ const Leaderboard = ({ currentUserId }) => {
       
 
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "30px" }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "50px", background:'#fff5f0', marginTop:'90px' }}>
       <div className="community-platform-leaderboard-container">
         <h1>Leaderboard</h1>
         <input
@@ -333,12 +333,13 @@ const Leaderboard = ({ currentUserId }) => {
               <div
                 key={community.id}
                 style={{
-                  backgroundColor: "#000",
+                  backgroundColor: "#feb47b",
                   borderRadius: "10px",
-                  padding: "10px",
+                  padding: "5px",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
+                  marginBottom:'10px'
                 }}
               >
                 {community.communityName} (
@@ -349,6 +350,7 @@ const Leaderboard = ({ currentUserId }) => {
                       fontSize: "12px",
                       marginLeft: "10px",
                       padding: "8px",
+                      backgroundColor:"#ff6347"
                     }}
                   >
                     Check assignment's

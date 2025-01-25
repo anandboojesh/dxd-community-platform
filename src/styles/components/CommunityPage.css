@@ -1650,6 +1650,116 @@
   background-color: #e2e6ea;
 }
 
+.event-registration-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent dark overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  margin-top: 50px;
+}
+
+.event-registration-modal-content {
+  background: var(--background-color);
+  border-radius: 8px; /* Reduced border radius */
+  padding: 15px; /* Reduced padding */
+  width: 80%; /* Reduced width */
+  max-width: 400px; /* Smaller max width */
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.event-registration-modal-header {
+  display: flex;
+  justify-content: space-between; /* Space between title and button */
+  align-items: center; /* Vertically center the title and button */
+  margin-bottom: 20px; /* Space between header and modal content */
+}
+
+.event-registration-modal-title {
+  font-size: 20px; /* Smaller title font size */
+  color: var(--primary-color);
+  margin-bottom: 10px; /* Reduced margin */
+  text-align: center;
+  font-weight: bold;
+}
+
+.event-registration-modal-label {
+  font-size: 14px; /* Smaller label font size */
+  color: var(--text-color);
+  margin-bottom: 6px; /* Reduced margin */
+  display: block;
+}
+
+.event-registration-modal-input,
+.event-registration-modal-textarea {
+  width: 100%;
+  padding: 8px; /* Reduced padding */
+  border: 1px solid #ddd;
+  border-radius: 6px; /* Smaller border radius */
+  margin-bottom: 10px; /* Reduced margin */
+  font-size: 12px; /* Smaller font size */
+  color: var(--text-color);
+  background: #fff;
+  transition: border-color 0.3s ease;
+}
+
+.event-registration-modal-input:focus,
+.event-registration-modal-textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 5px rgba(255, 126, 95, 0.4);
+}
+
+.event-registration-modal-textarea {
+  resize: none;
+  height: 60px; /* Smaller height */
+}
+
+.row {
+  display: flex;
+  gap: 8px; /* Reduced gap */
+}
+
+.row .event-registration-modal-input {
+  flex: 1;
+}
+
+.event-registration-modal-register-btn {
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  color: #fff;
+  padding: 10px; /* Reduced padding */
+  font-size: 14px; /* Smaller font size */
+  font-weight: bold;
+  border: none;
+  border-radius: 6px; /* Smaller border radius */
+  width: 100%;
+  cursor: pointer;
+  margin-top: 10px; /* Reduced margin */
+  transition: background 0.3s ease;
+}
+
+.event-registration-modal-register-btn:hover {
+  background: var(--hover-color);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
 /* Animations */
 @keyframes fadeIn {
   from {

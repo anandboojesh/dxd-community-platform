@@ -34,10 +34,11 @@ const formatTime = (timestamp) => {
 
 
 
-const DiscoverPage = ({ toggleModal }) => {
+const DiscoverPage = () => {
   const [activeTab, setActiveTab] = useState("Home");
   const [communities, setCommunities] = useState([]);
   const [events, setEvents] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [userDetails, setUserDetails] = useState(null);
@@ -93,6 +94,9 @@ const filteredCommunities = communities.filter((community) =>
     fetchCommunities();
   }, []);
 
+
+
+
   const fetchEvents = async () => {
     try {
       const eventsCollection = collection(db, "community-events");
@@ -115,6 +119,24 @@ const filteredCommunities = communities.filter((community) =>
 
   useEffect (() => {
     fetchEvents()
+  })
+
+
+  const fetchCourses = async () => {
+    try {
+      const snapshot = await getDocs(collection(db, "community-courses"));
+      const fetchedCourses = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCourses(fetchedCourses);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
+  };
+
+  useEffect (() => {
+    fetchCourses()
   })
 
   const totalPages = Math.ceil(communities.length / itemsPerPage);
@@ -163,7 +185,7 @@ const filteredCommunities = communities.filter((community) =>
           <div className="discover-profile-details">
             <img
               className="discover-profile-avatar"
-              src={userDetails.avatar || "https://via.placeholder.com/50"}
+              src={userDetails.avatar|| auth.currentUser?.photoURL || "https://via.placeholder.com/50"}
               alt="User Avatar"
             />
             <div className="discover-profile-text">
@@ -278,7 +300,7 @@ const filteredCommunities = communities.filter((community) =>
             <div className="discover-events-section">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 20px" }}>
                 <h2>Events for You</h2>
-                <p onClick={() => navigate("/events")} style={{cursor: "pointer"}}>View all</p>
+                <p onClick={() => navigate("/events")} style={{cursor: "pointer"}} className="discover-view-all">View all</p>
               </div>
               {loading ? (
                 <LoadingSpinner />
@@ -300,17 +322,51 @@ const filteredCommunities = communities.filter((community) =>
                       </div>
                       <div className="discover-event-card-details">
                         <div className="discover-event-detail">
-                          <FaCalendarAlt className="event-icon" />
-                          <span>{formatDate(event.startDate)}</span>
+                          <FaCalendarAlt className="event-icon" color="#ffff"/>
+                          <span style={{color:'#000',}}>{formatDate(event.startDate)}</span>
                         </div>
                         <div className="discover-event-detail">
-                          <FaClock className="event-icon" />
-                          <span>{formatTime(event.startTime)} - {formatTime(event.endTime)}</span>
+                          <FaClock className="event-icon" color="#ffff"/>
+                          <span style={{color:'#000',}}>{formatTime(event.startTime)} - {formatTime(event.endTime)}</span>
                         </div>
                         <div className="discover-event-detail">
-                          <FaLayerGroup className="event-icon" />
-                          <span>{event.communityName}</span>
+                          <FaLayerGroup className="event-icon" color="#ffff" />
+                          <span style={{color:'#000'}}>{event.communityName}</span>
                         </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+            </div>
+
+            <div className="discover-course-section">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 20px" }}>
+                <h2>Courses for You</h2>
+                <p onClick={() => navigate("/events")} style={{cursor: "pointer"}} className="discover-view-all">View all</p>
+              </div>
+              {loading ? (
+                <LoadingSpinner />
+              ) : (
+                <div className="discover-course-grid">
+                  {courses.map((course) => (
+                    <div 
+                      key={course.id} 
+                      className="discover-course-card"
+                      onClick={() => 
+                        currentUserUID 
+                          ? navigate(`/event/${course.id}`)
+                          : navigate("/login")
+                      }
+                    >
+                      <div className="discover-course-card-header">
+                        <h3>{course.title}</h3>
+                      </div>
+                      {course.category && (
+                      <span className="discover-course-type">{course.category}</span>)}
+                      <div className="discover-course-card-details">
+                        
                       </div>
                     </div>
                   ))}

@@ -86,6 +86,9 @@ const CommunityPage = () => {
   const [CourseCategory, setCourseCategory] = useState("AI"); // Default category
   const [searchCourse, setSearchCourse] = useState("");
 const [filterCourseCategory, setFilterCourseCategory] = useState("All"); // Default filter
+  const [ShowRegistrationModal, setShowRegistrationModal] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null); // Track the selected event ID
+
 
 const filteredCourses = courses.filter((course) => {
   const matchesSearch = course.title
@@ -117,6 +120,63 @@ const Course_Categories = [
   const CLIENT_ID = "960353326099-8cjg184n3dpruud1r3ju66h2p3au7qat.apps.googleusercontent.com";
 const API_KEY = "AIzaSyCAu251nw4im3YJZLyJUgJmZAF7jTICSh0";
 const SCOPES = "https://www.googleapis.com/auth/drive.file";
+
+
+const handleRegisterEvent = async (eventId, communityId, communityName, adminId) => {
+  try {
+    const userId = auth.currentUser?.uid;
+    if (!userId) {
+      alert("You must be logged in to register for this event.");
+      return;
+    }
+
+    // Get form data
+    const name = document.getElementById("full-name").value;
+    const email = document.getElementById("email").value;
+    const phone = document.getElementById("phone").value;
+    const address = document.getElementById("address").value;
+    const city = document.getElementById("city").value;
+    const state = document.getElementById("state").value;
+    const zip = document.getElementById("zipcode").value;
+
+    // Validate inputs
+    if (!name || !email || !phone || !address || !city || !state || !zip) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    // Update community-events collection
+    const eventRef = doc(db, "community-events", eventId);
+    await updateDoc(eventRef, {
+      subscribers: arrayUnion(userId), // Add userId to the subscribers array
+    });
+
+    // Add to event-registrations collection
+    const registrationData = {
+      userId,
+      name,
+      email,
+      phone,
+      address,
+      city,
+      state,
+      zip,
+      eventId,
+      communityId,
+      communityName,
+      adminId,
+      timestamp: serverTimestamp(),
+    };
+    await addDoc(collection(db, "event-registrations"), registrationData);
+
+    alert("Successfully registered for the event!");
+    setShowRegistrationModal(false); // Close modal
+  } catch (error) {
+    console.error("Error registering for event:", error);
+    alert("Failed to register. Please try again.");
+  }
+};
+
 
 
 useEffect(() => {
@@ -274,11 +334,18 @@ const renderVideoPlayer = (link, courseId) => {
           src={getYouTubeThumbnail(link)}
           alt="YouTube Thumbnail"
           style={{ width: "100%", maxWidth: "480px", borderRadius: "10px", cursor: "pointer" }}
-          onClick={() => navigate(`/course/${courseId}`)}
+         
         />
-        <p style={{ color: "#007bff", textAlign: "center", marginTop: "10px" }}>
-          Click to watch the video
-        </p>
+         <div style={{alignItems:'center', display:'flex', flexDirection:'column', marginTop:'10px'}}>
+        <button style={{display: "inline-block",
+                    padding: "10px 20px",
+                    backgroundColor: "#007bff",
+                    color: "#fff",
+                    borderRadius: "5px",
+                    textDecoration: "none",}}
+                    onClick={() => navigate(`/course/${courseId}`)}
+                    >watch course</button>
+                    </div>
       </div>
     );
   } else if (link.includes("zoom.us")) {
@@ -290,11 +357,20 @@ const renderVideoPlayer = (link, courseId) => {
           src={meeting_thumbnail}
           alt="Join Zoom Meeting"
           style={{ width: "100%", maxWidth: "300px", borderRadius: "10px", cursor: "pointer" }}
-          onClick={() => navigate(`/course/${courseId}`)}
         />
-        <p style={{ color: "#007bff", textAlign: "center", marginTop: "10px" }}>
-          Click to join the meeting
+        <div style={{alignItems:'center', display:'flex', flexDirection:'column'}}>
+        <p style={{ marginBottom:'10px' }}>
+          Click to join the zoom meeting
         </p>
+        <button style={{display: "inline-block",
+                    padding: "10px 20px",
+                    backgroundColor: "#007bff",
+                    color: "#fff",
+                    borderRadius: "5px",
+                    textDecoration: "none",}}
+                    onClick={() => navigate(`/course/${courseId}`)}
+                    >Join Meeting</button>
+                    </div>
       </div>
     );
   } else if (link.includes("meet.google.com")) {
@@ -1357,6 +1433,7 @@ const downloadFeedbackAsPDF = (feedback) => {
             {option}
           </div>
         ))}
+        <div style={{padding:'40px'}}/>
       </aside>
 
       <main className="content">
@@ -1690,7 +1767,7 @@ const downloadFeedbackAsPDF = (feedback) => {
             </p>
           )}
           <div style={{alignItems:'center'}}>
-          <button className="event-details-button" >
+          <button className="event-details-button"  onClick={() => { setSelectedEventId(event.id); setShowRegistrationModal(true); }}>
             Register Event
           </button>
           </div>
@@ -2389,6 +2466,35 @@ const downloadFeedbackAsPDF = (feedback) => {
   </div>
 )}
 
+
+{ShowRegistrationModal && (
+
+<div className="event-registration-modal-overlay">
+<div className="event-registration-modal-content">
+  <div className="event-registration-modal-header">
+  <h2 className="event-registration-modal-title">Register for Event</h2>
+  <button onClick={() => setShowRegistrationModal(false)}>Cancel</button>
+  </div>
+  <label className="event-registration-modal-label">Full Name</label>
+  <input className="event-registration-modal-input" type="text" id="full-name" placeholder="Enter your full name" />
+  <label className="event-registration-modal-label">Email Address</label>
+  <input className="event-registration-modal-input" type="email" id="email" placeholder="Enter your email" />
+  <label className="event-registration-modal-label">Phone Number</label>
+  <input className="event-registration-modal-input" type="text" id="phone" placeholder="Enter your phone number" />
+  <label className="event-registration-modal-label">Address</label>
+  <textarea className="event-registration-modal-textarea" id="address" placeholder="Enter your address"></textarea>
+  <div className="row">
+    <input className="event-registration-modal-input" type="text" id="city" placeholder="City" />
+    <input className="event-registration-modal-input" type="text" id="state" placeholder="State" />
+    <input className="event-registration-modal-input" type="text" id="zipcode" placeholder="ZIP Code" />
+  </div>
+  <button className="event-registration-modal-register-btn"  onClick={() => handleRegisterEvent(selectedEventId, communityId, communityName, AdminID)}>
+    Register
+  </button>
+ 
+</div>
+</div>
+)}
 
 
 
