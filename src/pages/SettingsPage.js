@@ -121,6 +121,13 @@ const SettingsPage = () => {
         
   ];
   
+  const defaultTheme = {
+    "--primary-color": "#ff7e5f",
+    "--secondary-color": "#feb47b",
+    "--text-color": "#2d2d2d",
+    "--background-color": "#fff5f0",
+    "--hover-color": "#ff6347",
+  };
   
   const AppearanceTab = () => {
     // Apply theme and save it to localStorage
@@ -134,12 +141,19 @@ const SettingsPage = () => {
       localStorage.setItem("selectedTheme", JSON.stringify(variables));
     };
   
+    // Reset to default theme
+    const resetToDefaultTheme = () => {
+      applyTheme(defaultTheme);
+    };
+  
     // Load the saved theme on page load
     useEffect(() => {
       const savedTheme = localStorage.getItem("selectedTheme");
       if (savedTheme) {
         const variables = JSON.parse(savedTheme);
         applyTheme(variables);
+      } else {
+        applyTheme(defaultTheme);
       }
     }, []);
   
@@ -149,7 +163,9 @@ const SettingsPage = () => {
         <p className="appearance-subtitle">
           Select a theme to personalize the look and feel of your application.
         </p>
+        
         <div className="theme-card-container">
+          <div className="theme-card-container-gird">
           {themes.map((theme, index) => (
             <div
               key={index}
@@ -166,9 +182,15 @@ const SettingsPage = () => {
                 <h4 className="theme-name">{theme.name}</h4>
                 <button className="apply-button">Apply</button>
               </div>
+
             </div>
           ))}
+          </div>
+              <button className="reset-to-default-button" onClick={resetToDefaultTheme}>
+          Reset to Default Theme
+        </button>
         </div>
+    
       </div>
     );
   };
