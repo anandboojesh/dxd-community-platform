@@ -43,11 +43,21 @@ const DiscoverPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [userDetails, setUserDetails] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [hide, setHide] = useState("")
+  const [eventSearchQuery, setEventSearchQuery] = useState("");
+  const [courseSearchQuery, setCourseSearchQuery] = useState("");
+  const [hide, setHide] = useState("");
 
   // Filter communities based on the search query
 const filteredCommunities = communities.filter((community) =>
   community.communityName.toLowerCase().includes(searchQuery.toLowerCase())
+);
+
+const filteredCourses = courses.filter((course) =>
+  course.title.toLowerCase().includes(courseSearchQuery.toLowerCase())
+);
+
+const filteredEvents = events.filter((event) =>
+  event.title.toLowerCase().includes(eventSearchQuery.toLowerCase())
 );
 
   const currentUserUID = auth.currentUser?.uid;
@@ -260,6 +270,106 @@ const filteredCommunities = communities.filter((community) =>
   </div>
 )}
 
+{activeTab === "Courses" && (
+          <div className="discover-courses-tab">
+            <div className="discover-search-bar">
+              <input
+                type="text"
+                placeholder="Search courses..."
+                value={courseSearchQuery}
+                onChange={(e) => setCourseSearchQuery(e.target.value)} // Update courseSearchQuery state
+                className="discover-search-input"
+              />
+            </div>
+            {loading ? (
+              <LoadingSpinner />
+            ) : (
+              <div className="discover-course-grid">
+                {filteredCourses.map((course) => (
+                  <div
+                    key={course.id}
+                    className="discover-course-card"
+                    onClick={() =>
+                      currentUserUID
+                        ? navigate(`/course/${course.id}`)
+                        : navigate("/login")
+                    }
+                  >
+                    <div className="discover-course-card-header">
+                      <h3>{course.title}</h3>
+                    </div>
+                    {course.category && (
+                      <span className="discover-course-type">{course.category}</span>
+                    )}
+                    <div className="discover-course-card-details">
+                      {/* Optionally display other course details here */}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+
+{activeTab === "Events" && (
+  <div className="discover-events-tab">
+    <div className="discover-search-bar">
+      <input
+        type="text"
+        placeholder="Search events..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="discover-search-input"
+      />
+    </div>
+    {loading ? (
+      <LoadingSpinner />
+    ) : (
+      <div className="discover-events-grid">
+        {filteredEvents
+          .filter((event) =>
+            event.title.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          .slice(0, 16) // limit to 16 events for 4x4 grid
+          .map((event) => (
+            <div
+              key={event.id}
+              className="discover-event-card"
+              onClick={() =>
+                currentUserUID
+                  ? navigate(`/event/${event.id}`)
+                  : navigate("/login")
+              }
+            >
+              <div className="discover-event-card-header">
+                <h3>{event.title}</h3>
+                <span className="discover-event-type">{event.type}</span>
+              </div>
+              <div className="discover-event-card-details">
+                <div className="discover-event-detail">
+                  <FaCalendarAlt className="event-icon" color="#ffff" />
+                  <span style={{ color: "#000" }}>{formatDate(event.startDate)}</span>
+                </div>
+                <div className="discover-event-detail">
+                  <FaClock className="event-icon" color="#ffff" />
+                  <span style={{ color: "#000" }}>
+                    {formatTime(event.startTime)} - {formatTime(event.endTime)}
+                  </span>
+                </div>
+                <div className="discover-event-detail">
+                  <FaLayerGroup className="event-icon" color="#ffff" />
+                  <span style={{ color: "#000" }}>{event.communityName}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+      </div>
+    )}
+  </div>
+)}
+
+
         
         {activeTab === "Home" && (
           <>
@@ -303,7 +413,7 @@ const filteredCommunities = communities.filter((community) =>
             <div className="discover-events-section">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 20px" }}>
                 <h2>Events for You</h2>
-                <p onClick={() => navigate("/events")} style={{cursor: "pointer"}} className="discover-view-all">View all</p>
+                <p onClick={() => setActiveTab("Events")} style={{cursor: "pointer"}} className="discover-view-all">View all</p>
               </div>
               {loading ? (
                 <LoadingSpinner />
@@ -347,7 +457,7 @@ const filteredCommunities = communities.filter((community) =>
             <div className="discover-course-section">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 20px" }}>
                 <h2>Courses for You</h2>
-                <p onClick={() => navigate("/events")} style={{cursor: "pointer"}} className="discover-view-all">View all</p>
+                <p onClick={() => setActiveTab("Courses")} style={{cursor: "pointer"}} className="discover-view-all" >View all</p>
               </div>
               {loading ? (
                 <LoadingSpinner />

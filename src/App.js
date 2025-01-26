@@ -58,6 +58,7 @@ const MainNavbar = ({ onSignOut, handleSignOut, toggleModal }) => {
 
   const navigate = useNavigate();
 
+  
   const [searchResults, setSearchResults] = useState({
     communities: [],
     events: [],
@@ -294,6 +295,22 @@ function App() {
 
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
+
+  const applyTheme = (variables) => {
+    const root = document.documentElement;
+    Object.keys(variables).forEach((key) => {
+      root.style.setProperty(key, variables[key]);
+    });
+  };
+
+  // Load saved theme from localStorage on app load
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("selectedTheme");
+    if (savedTheme) {
+      const variables = JSON.parse(savedTheme);
+      applyTheme(variables);
+    }
+  }, []); // Runs only once on app load
   
 
   useEffect(() => {

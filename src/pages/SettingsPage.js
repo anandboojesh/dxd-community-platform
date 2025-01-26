@@ -25,6 +25,154 @@ const SettingsPage = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newDisplayname, setNewDisplayname] = useState("");
   const [newAboutme, setNewAboutme] = useState("");
+  
+
+  const themes = [
+    {
+      name: "Warm Gradient",
+      variables: {
+        "--primary-color": "#ff7e5f",
+        "--secondary-color": "#feb47b",
+        "--text-color": "#2d2d2d",
+        "--background-color": "#fff5f0",
+        "--hover-color": "#ff6347",
+      },
+    },
+    {
+      name: "Cool Gradient",
+      variables: {
+        "--primary-color": "#6a11cb",
+        "--secondary-color": "#2575fc",
+        "--text-color": "#333333",
+        "--background-color": "#f5faff",
+        "--hover-color": "#1e90ff",
+      },
+    },
+    {
+      name: "Neutral Gray",
+      variables: {
+        "--primary-color": "#a8a8a8",
+        "--secondary-color": "#d3d3d3",
+        "--text-color": "#333333",
+        "--background-color": "#f8f8f8",
+        "--hover-color": "#888888",
+      },
+    },
+    {
+      name: "Forest Calm",
+      variables: {
+        "--primary-color": "#3c6e47", // Forest Green
+        "--secondary-color": "#9caf88", // Soft Olive
+        "--text-color": "#333333",
+        "--background-color": "#2a4d34", // Dark Green Background
+        "--hover-color": "#66c281", // Light Green Hover
+      },
+    },
+    {
+      name: "Ocean Breeze",
+      variables: {
+        "--primary-color": "#0077be", // Ocean Blue
+        "--secondary-color": "#96d1f1", // Sky Blue
+        "--text-color": "#333333",
+        "--background-color": "#e0f7fa", // Light Cyan
+        "--hover-color": "#005f99", // Deep Ocean Hover
+      },
+    },
+    {
+      name: "Desert Sand",
+      variables: {
+        "--primary-color": "#c19a6b", // Sand Brown
+        "--secondary-color": "#d2b48c", // Tan
+        "--text-color": "#5a4c42", // Earthy Text
+        "--background-color": "#f5deb3", // Wheat Background
+        "--hover-color": "#8b4513", // Saddle Brown Hover
+      },
+    },
+    {
+      name: "Candy Pop",
+      variables: {
+        "--primary-color": "#ff6ec7", // Candy Pink
+        "--secondary-color": "#ffccf9", // Soft Pink
+        "--text-color": "#ff6eb4", // White Text
+        "--background-color": "#ffe4f3", // Light Pink Background
+        "--hover-color": "#ff1493", // Neon Pink Hover
+      },
+    },
+    {
+      name: "Monochrome",
+      variables: {
+        "--primary-color": "#1e1e1e", // Rich black
+        "--secondary-color": "#dcdcdc", // Light gray
+        "--text-color": "#333333", // Dark gray
+        "--background-color": "#f8f8f8", // Off white
+        "--hover-color": "#444444", // Charcoal gray
+      },
+    },
+    {
+      name: "Deep Blue Night",
+      variables: {
+        "--primary-color": "#0a192f", // Deep navy blue
+        "--secondary-color": "#112240", // Slightly lighter navy
+   "--text-color": "#b0bec5", // Soft pale blue for readability
+        "--background-color": "#0b1e33", // Very dark blue-gray
+        "--hover-color": "#1c3b57", // Muted steel blue for interaction
+      },
+    },
+        
+  ];
+  
+  
+  const AppearanceTab = () => {
+    // Apply theme and save it to localStorage
+    const applyTheme = (variables) => {
+      const root = document.documentElement;
+      Object.keys(variables).forEach((key) => {
+        root.style.setProperty(key, variables[key]);
+      });
+  
+      // Save the theme to localStorage
+      localStorage.setItem("selectedTheme", JSON.stringify(variables));
+    };
+  
+    // Load the saved theme on page load
+    useEffect(() => {
+      const savedTheme = localStorage.getItem("selectedTheme");
+      if (savedTheme) {
+        const variables = JSON.parse(savedTheme);
+        applyTheme(variables);
+      }
+    }, []);
+  
+    return (
+      <div className="appearance-tab">
+        <h2 className="appearance-title">Customize Your Theme</h2>
+        <p className="appearance-subtitle">
+          Select a theme to personalize the look and feel of your application.
+        </p>
+        <div className="theme-card-container">
+          {themes.map((theme, index) => (
+            <div
+              key={index}
+              className="theme-card"
+              onClick={() => applyTheme(theme.variables)}
+            >
+              <div
+                className="theme-preview"
+                style={{
+                  background: `linear-gradient(135deg, ${theme.variables["--primary-color"]}, ${theme.variables["--secondary-color"]})`,
+                }}
+              />
+              <div className="theme-details">
+                <h4 className="theme-name">{theme.name}</h4>
+                <button className="apply-button">Apply</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+  
 
 
   const navigate = useNavigate()
@@ -287,7 +435,7 @@ const SettingsPage = () => {
       case "Devices":
         return <p>View and manage your connected devices.</p>;
       case "Appearance":
-        return <p>Customize the app's theme and layout.</p>;
+        return <AppearanceTab/>;
       case "Notifications":
         return <p>Adjust notification preferences.</p>;
       case "Language":
@@ -346,7 +494,7 @@ const SettingsPage = () => {
 
       {/* Main Content Area */}
       <div className="settings-content">
-        <h2 style={{color:'#ff7e5f'}}>{activeOption}</h2>
+        <h2 className="settings-content-title">{activeOption}</h2>
         <div className="content-body">{renderContent()}</div>
         <div style={{padding:'40px'}}/>
       </div>

@@ -1,10 +1,4 @@
-:root {
-    --primary-color: #ff7e5f; /* Warm gradient start */
-    --secondary-color: #feb47b; /* Warm gradient end */
-    --text-color: #2d2d2d;
-    --background-color: #fff5f0;
-    --hover-color: #ff6347;
-  }
+
   
   .search-results-container {
     display: flex;
