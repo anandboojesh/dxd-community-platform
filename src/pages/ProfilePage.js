@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../styles/components/ProfilePage.css";
 import { auth, db } from "../services/firebase";
-import { doc, getDoc, collection, getDocs, updateDoc, addDoc, serverTimestamp, setDoc, where, query, orderBy } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, updateDoc, addDoc, serverTimestamp, setDoc, where, query, orderBy, onSnapshot } from "firebase/firestore";
 import { FaChevronDown, FaChevronUp, FaTimes, FaUpload, FaUserAlt } from "react-icons/fa";
 import { AiOutlineArrowRight } from 'react-icons/ai';
 import { useNavigate } from "react-router-dom";
@@ -210,6 +210,42 @@ const ProfilePage = () => {
 const [selectedBadge, setSelectedBadge] = useState(null);
 
 
+
+useEffect(() => {
+  const fetchBadgesRealtime = () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        // Query to listen to badge updates in real time
+        const badgesQuery = query(
+          collection(db, "user-badges"),
+          where("userId", "==", user.uid)
+        );
+
+        // Set up a Firestore real-time listener
+        const unsubscribe = onSnapshot(badgesQuery, (snapshot) => {
+          const updatedBadges = snapshot.docs.map((doc) => doc.data());
+          setUserBadges(updatedBadges); // Update state with the latest badges
+        });
+
+        return unsubscribe; // Return unsubscribe for cleanup
+      }
+    } catch (error) {
+      console.error("Error setting up real-time listener for badges:", error);
+      alert(error)
+    }
+  };
+
+  const unsubscribe = fetchBadgesRealtime();
+
+  return () => {
+    if (unsubscribe) {
+      unsubscribe(); // Clean up the listener when the component unmounts
+    }
+  };
+}, []);
+
+
 const handleBadgeClick = (badge) => {
   setSelectedBadge(badge);
   setIsBadgeModalOpen(true);
@@ -253,7 +289,6 @@ const closeBadgeModal = () => {
   
           console.log(`Badge "${badge.name}" added for milestone: ${milestone}`);
           alert(`Congratulations! You've earned the "${badge.name}" badge!`);
-          window.location.reload()
         } else {
           console.log(`Badge "${badge.name}" already exists for the user.`);
         }
@@ -332,7 +367,6 @@ const closeBadgeModal = () => {
           await addDoc(collection(db, "user-achievements"), achievementData);
           console.log("Leadership achievement created:", achievementData);
           alert(message); // Notify the user
-          window.location.reload()
         } else {
           console.log(`Leadership achievement for ${adminCommunitiesCount} communities already exists.`);
         }
@@ -377,7 +411,6 @@ const closeBadgeModal = () => {
       await addDoc(collection(db, "user-achievements"), achievementData);
       console.log("Achievement created successfully:", achievementData);
       alert(message); // Notify the user
-      window.location.reload()
     } catch (error) {
       console.error("Error creating achievement:", error);
     }
@@ -614,16 +647,7 @@ const closeBadgeModal = () => {
           currentStreak: userData.currentStreak || 0,
         });
 
-          // Fetch badges from the 'user-badges' collection
-      const badgesQuery = query(
-        collection(db, "user-badges"),
-        where("userId", "==", uid)
-      );
-      const badgesSnapshot = await getDocs(badgesQuery);
-
-      const badges = badgesSnapshot.docs.map((doc) => doc.data());
-      setUserBadges(badges);
-
+         
         const communitiesQuery = collection(db, "communities");
         const communitySnapshot = await getDocs(communitiesQuery);
   
@@ -694,27 +718,39 @@ const closeBadgeModal = () => {
     if (isOnline) incrementStreak();
   }, [isOnline]);
 
-
   useEffect(() => {
-    const fetchAchievements = async () => {
+    const fetchAchievementsRealtime = () => {
       try {
         const user = auth.currentUser;
         if (user) {
+          // Query to listen for real-time updates to achievements
           const achievementsQuery = query(
             collection(db, "user-achievements"),
             where("userId", "==", user.uid)
           );
-          const querySnapshot = await getDocs(achievementsQuery);
-          const fetchedAchievements = querySnapshot.docs.map((doc) => doc.data());
-          setAchievements(fetchedAchievements); // Update state
+  
+          // Set up a Firestore real-time listener
+          const unsubscribe = onSnapshot(achievementsQuery, (snapshot) => {
+            const fetchedAchievements = snapshot.docs.map((doc) => doc.data());
+            setAchievements(fetchedAchievements); // Update state with real-time data
+          });
+  
+          return unsubscribe; // Return the unsubscribe function for cleanup
         }
       } catch (error) {
-        console.error("Error fetching achievements:", error);
+        console.error("Error setting up real-time listener for achievements:", error);
       }
     };
   
-    fetchAchievements();
+    const unsubscribe = fetchAchievementsRealtime();
+  
+    return () => {
+      if (unsubscribe) {
+        unsubscribe(); // Clean up the listener when the component unmounts
+      }
+    };
   }, []);
+  
   
 
 

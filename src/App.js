@@ -292,6 +292,17 @@ function App() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showSplashScreen, setShowSplashScreen] = useState(true);
+
+  useEffect(() => {
+    // Show splash screen for 3 seconds before loading the app
+    const splashTimeout = setTimeout(() => {
+      setShowSplashScreen(false);
+    }, 5000);
+
+    return () => clearTimeout(splashTimeout); // Cleanup timeout
+  }, []);
+
 
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
@@ -566,7 +577,24 @@ function App() {
 
   return (
     <Router>
-      <AppContent />
+      {showSplashScreen ? (
+      <div class="splash-screen">
+      <div class="splash-content">
+        <img src={require('./pages/assets/logo.png')} alt="Logo" class="splash-logo" />
+        <h1 class="splash-title">Community Platform</h1>
+        <p class="splash-subtitle">Connecting People, Empowering Communities</p>
+        <div class="loading-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+    
+     
+      ) : (
+        <AppContent />
+      )}
     </Router>
   );
 }
