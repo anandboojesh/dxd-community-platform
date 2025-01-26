@@ -18,7 +18,7 @@ import { FaGoogle, FaApple } from "react-icons/fa";
 import { MdPhoneIphone } from "react-icons/md"; 
 import { useNavigate } from "react-router-dom";
 import "../styles/components/LoginPage.css";
-import { addDoc, collection, doc, serverTimestamp, setDoc, updateDoc, getDoc } from "firebase/firestore";
+import { addDoc, collection, doc, serverTimestamp, setDoc, updateDoc, getDoc, getDocs } from "firebase/firestore";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -82,6 +82,82 @@ const LoginPage = () => {
     }
   };
 
+  const handleGoogleSignUpOrLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+  
+      // Check if the user already exists in the database
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("email", "==", user.email));
+      const querySnapshot = await getDocs(q);
+  
+      if (querySnapshot.empty) {
+        // Create a new user if they don't exist
+        await setDoc(doc(usersRef, user.uid), {
+          name: user.displayName || "No name",
+          email: user.email,
+          username: user.email.split('@')[0],
+          dateOfBirth: "",
+          signUpDate: serverTimestamp(),
+          role: "Member",
+          uid: user.uid,
+          userScore: 0,
+        });
+      }
+  
+      // Log the user in and update profile status
+      const loginTimestamp = new Date();
+      await setDoc(doc(collection(db, "activity_logs"), user.uid + "_" + loginTimestamp.getTime()), {
+        userId: user.uid,
+        email: user.email,
+        action: "Login",
+        message: `Logged in from "${window.location.hostname}" on ${loginTimestamp.toISOString()}`,
+        timestamp: loginTimestamp,
+        ip: window.location.hostname,
+      });
+  
+      // Update profileStatus
+      await updateProfileStatus(user.uid);
+  
+      navigate("/profile");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+  
+
+   const handleGoogleSignUp = async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+    
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("email", "==", user.email));
+        const querySnapshot = await getDocs(q);
+    
+        if (querySnapshot.empty) {
+          await setDoc(doc(usersRef, user.uid), {
+            name: user.displayName || "No name",
+            email: user.email,
+            username: user.email.split('@')[0],
+            dateOfBirth: "",
+            signUpDate: serverTimestamp(),
+            role: "Member",
+            uid: user.uid,
+            userScore:0,
+          });
+        }
+    
+        navigate("/profile");
+      } catch (err) {
+        setError(err.message);
+        alert(err)
+      }
+    };
+
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -107,12 +183,14 @@ const LoginPage = () => {
 
 
 
+
   return (
     <div className="login-modal">
       <div className="login-content">
         <h2>Log In</h2>
+       
 
-        <button onClick={handleGoogleLogin} className="auth-button google">
+        <button onClick={handleGoogleSignUp} className="auth-button google">
         <FaGoogle size={20} />  Continue with Google <p></p>
         </button>
 
