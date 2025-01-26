@@ -180,7 +180,7 @@ const MainNavbar = ({ onSignOut, handleSignOut, toggleModal }) => {
             </button>
           </div>
         ) : (
-          <button className="sign-in-btn" onClick={toggleModal}>
+          <button className="sign-in-btn" onClick={() => navigate("/login")}>
             Sign In
           </button>
         )}
