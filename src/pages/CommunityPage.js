@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/components/CommunityPage.css";
 import { auth, db, } from "../services/firebase";
-import { doc, getDoc, collection, getDocs, serverTimestamp, setDoc, addDoc, updateDoc, arrayUnion, deleteDoc, writeBatch, where, query, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, serverTimestamp, setDoc, addDoc, updateDoc, arrayUnion, deleteDoc, writeBatch, where, query, onSnapshot, arrayRemove } from "firebase/firestore";
 import { FaBell, FaCalendarAlt, FaDownload, FaEdit, FaEllipsisV, FaPaperPlane, FaTrash, FaUsers, } from "react-icons/fa";
 import { ref, } from "firebase/database";
 import { CloudinaryContext, Image, Video, Transformation } from 'cloudinary-react';
@@ -228,10 +228,13 @@ useEffect(() => {
           setActiveMembers(activeStatus.filter(Boolean).length);
 
           // Fetch new members (joined in the last 30 days)
-          const newMemberCount = members.filter((memberId) => {
+          const newMemberCount = members.filter(async (memberId) => {
+            const userRef = doc(db, "users", memberId);
+            const userDoc = await getDoc(userRef);
             const joinedDate = userDoc.data()?.joinedDate?.toDate() || new Date(0);
             return (new Date() - joinedDate) / (1000 * 60 * 60 * 24) <= 30;
           }).length;
+          
           setNewMembers(newMemberCount);
 
           // Calculate engagement rate

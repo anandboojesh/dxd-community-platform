@@ -332,7 +332,6 @@ function App() {
       screenshot
     });
 
-    handleClose(); // Close modal after submitting
   };
 
 
