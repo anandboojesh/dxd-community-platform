@@ -184,9 +184,6 @@ const MainNavbar = ({ onSignOut, handleSignOut, toggleModal }) => {
             <span>
               Hi, {userData.name || userData.username || user.displayName || 'User'}
             </span>
-            <button onClick={onSignOut} className="sign-out-btn">
-              Sign Out
-            </button>
           </div>
         ) : (
           <button className="sign-in-btn" onClick={() => navigate("/login")}>
@@ -493,6 +490,11 @@ function App() {
     }
   };
 
+  const handlenavigateProfile = () => {
+    setIsModalOpen(false);
+    navigate('/profile')
+  }
+
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -601,7 +603,7 @@ function App() {
               
             </div>
           <ul className="main-sidebar-options">
-            <li className='main-sidebar-item'>Profile</li>
+            <li className='main-sidebar-item' onClick={handlenavigateProfile}>Profile</li>
             <li className='main-sidebar-item'>Notifications</li>
             <li className='main-sidebar-item'>Registered Events</li>
             <li className='main-sidebar-item' onClick={toggleBugReport}>Report Bug</li>
