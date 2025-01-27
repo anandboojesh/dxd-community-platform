@@ -1,5 +1,19 @@
 
- 
+.leaderboard-page{
+  overflow-y: auto;
+    top: 0;
+    left: 0;
+    position: fixed;
+    width: 100%; /* Ensure it spans the entire viewport width */
+    height: 100%; /* Optional: Ensure it spans the viewport height */
+    margin-top: 90px;
+    background-color: var(--background-color);
+    display: flex;
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+ }
+
  .community-platform-leaderboard-container {
     max-width: 1200px;
     width: 100%;
@@ -135,6 +149,33 @@
     position: relative;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
+
+  .leaderboard-community-container {
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .leaderboard-check-assignment-btn {
+    font-size: 12px;
+    margin-left: 10px;
+    padding: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .leaderboard-check-assignment-btn:hover {
+    background-color: var(--hover-color);
+  }
+  
   
   .rank-badge::before {
     content: '';

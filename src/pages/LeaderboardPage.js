@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import { db, auth } from "../services/firebase";
 import { collection, query, where, getDocs, getDoc, doc } from "firebase/firestore";
 import "../styles/components/Leaderboard.css";
+import Lottie from "lottie-react";
+import { useNavigate } from "react-router-dom";
+const LeaderboardAnimatiom = require('./assets/leaderboard.json');
+
 
 const Leaderboard = ({ currentUserId }) => {
   const [users, setUsers] = useState([]);
@@ -12,7 +16,9 @@ const Leaderboard = ({ currentUserId }) => {
   const [currentUserRole, setCurrentUserRole] = useState("");
   const [searchTerm, setSearchTerm] = useState(""); // For search functionality
   const [currentPage, setCurrentPage] = useState(1); // For pagination
-  const [usersPerPage] = useState(10); 
+  const [usersPerPage] = useState(10);
+  const [animationVisible, setAnimationVisible] = useState(true); 
+  const navigate = useNavigate();
 
   // Fetch current user's role
   const fetchCurrentUserRole = async () => {
@@ -96,9 +102,11 @@ const Leaderboard = ({ currentUserId }) => {
     fetchCurrentUserRole();
     fetchLeaderboard();
     fetchSubmissionsCount();
-    
-    // Fetch communities for the current logged-in user
+   
     fetchUserCommunities(auth.currentUser?.uid);
+
+       const timeout = setTimeout(() => setAnimationVisible(false), 4000);
+       return () => clearTimeout(timeout);
   }, []);
 
   // Re-fetch communities when a selected user changes
@@ -147,7 +155,25 @@ const Leaderboard = ({ currentUserId }) => {
       
 
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "50px", background:'#fff5f0', marginTop:'90px' }}>
+    <div className="leaderboard-page">
+      {animationVisible && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "white",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+        >
+          <Lottie animationData={LeaderboardAnimatiom} style={{ width: 300, height: 300 }} />
+        </div>
+      )}
       <div className="community-platform-leaderboard-container">
         <h1>Leaderboard</h1>
         <input
@@ -218,9 +244,9 @@ const Leaderboard = ({ currentUserId }) => {
   {selectedUser ? (
     <div>
       <div className="current-user-profile-info">
-        {selectedUser.avatar && (
+        {selectedUser.avatar && auth.currentUser?.photoURL && (
           <img
-            src={selectedUser.avatar}
+            src={selectedUser.avatar||auth.currentUser?.photoURL}
             alt="Avatar"
             style={{ width: "50px", height: "50px" }}
           />
@@ -332,26 +358,15 @@ const Leaderboard = ({ currentUserId }) => {
             {userCommunities.map((community) => (
               <div
                 key={community.id}
-                style={{
-                  backgroundColor: "#feb47b",
-                  borderRadius: "10px",
-                  padding: "5px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom:'10px'
-                }}
+                className="leaderboard-community-container"
+              
               >
                 {community.communityName} (
                 {community.adminId === currentUser.id ? "Admin" : "Member"})
                 <div>
                   <button
-                    style={{
-                      fontSize: "12px",
-                      marginLeft: "10px",
-                      padding: "8px",
-                      backgroundColor:"#ff6347"
-                    }}
+                  className="leaderboard-check-assignment-btn"
+                  onClick={() => navigate(`/community/${community.communityId}`)}
                   >
                     Check assignment's
                   </button>

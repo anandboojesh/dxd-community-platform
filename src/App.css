@@ -74,7 +74,7 @@
 }
 
 .main-navbar-user-info span {
-  color: #000;
+  color: #ffff;
   font-size: 16px;
   margin-right: 15px;
   font-weight: bold;
@@ -128,10 +128,10 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-.navbar-link.active {
+.sub-navbar-link.active {
   color: #fff; /* Ensure text is white for contrast */
   font-weight: bold; /* Make it visually distinct */
-  border-bottom: 3px solid red; /* Optional underline effect */
+  border-bottom: 3px solid var(--background-color); /* Optional underline effect */
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -146,19 +146,19 @@
 
 
 
-.navbar-link {
+.sub-navbar-link {
   color: white;
   text-decoration: none;
   font-size: 16px;
   display: flex;
   align-items: center;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 6px;
   transition: all 0.3s ease;
   font-weight: 500;
 }
 
-.navbar-link:hover {
+.sub-navbar-link:hover {
   background-color: rgba(255, 255, 255, 0.2);
   color: #ffe0cc;
 }
@@ -402,6 +402,301 @@
 .loading-dots span:nth-child(3) {
   animation-delay: 0.4s;
 }
+
+/* General Sidebar Styles */
+.main-sidebar-container{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.2); /* Slightly darker overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.main-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100%;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  z-index: 10000; /* Ensures it's displayed above all */
+  box-shadow: -4px 0px 15px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  transition: transform 0.3s ease;
+  border-radius: 10px 0px 0px 10px;
+}
+
+/* Sidebar Header */
+.main-sidebar-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #34495e;
+  padding-bottom: 20px;
+  justify-content: space-between;
+}
+
+.main-sidebar-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-right: 15px;
+  color: var(--primary-color);
+  text-transform: capitalize;
+}
+
+.main-sidebar-header img {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  margin-left: 10px;
+  border: 2px solid #ecf0f1;
+}
+
+/* Sidebar Menu */
+.main-sidebar-options {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.main-sidebar-item {
+  padding: 15px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.main-sidebar-item:hover {
+  background-color: var(--primary-color);
+  color: #ecf0f1;
+}
+
+.main-sidebar-item i {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+/* Sidebar Footer */
+.main-sidebar-footer {
+  margin-top: auto;
+  text-align: center;
+}
+
+.main-sidebar-logout-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #e74c3c;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.main-sidebar-logout-btn:hover {
+  background-color: #c0392b;
+}
+
+
+/* General Modal Styling */
+.bug-report-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 10000;
+}
+
+.bug-report-modal.open {
+  visibility: visible;
+  opacity: 1;
+}
+
+.bug-report-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  overflow-y: auto; /* Allow scrolling if content overflows */
+  width: 80%;
+  max-height: 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Header */
+.bug-report-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.bug-report-header svg {
+  font-size: 2rem;
+  margin-right: 10px;
+  color: #f44336;
+}
+
+.bug-report-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Form Groups */
+.bug-report-form-group {
+  margin-bottom: 20px;
+}
+
+.bug-report-label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.bug-report-select,
+.bug-report-textarea,
+.bug-report-file {
+  width: 100%;
+  padding: 12px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  background-color: #fafafa;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.bug-report-select:focus,
+.bug-report-textarea:focus,
+.bug-report-file:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+.bug-report-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.bug-report-file {
+  padding: 10px;
+}
+
+.bug-report-select option {
+  padding: 8px;
+}
+
+/* Footer */
+.bug-report-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.bug-report-submit-btn,
+.bug-report-cancel-btn {
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.bug-report-submit-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.bug-report-submit-btn:hover {
+  background-color: #45a049;
+}
+
+.bug-report-cancel-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.bug-report-cancel-btn:hover {
+  background-color: #e53935;
+}
+
+/* Spacing and Responsiveness */
+@media (max-width: 768px) {
+  .bug-report-content {
+    padding: 20px;
+  }
+
+  .bug-report-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .bug-report-form-group {
+    margin-bottom: 15px;
+  }
+
+  .bug-report-select,
+  .bug-report-textarea,
+  .bug-report-file {
+    padding: 10px;
+  }
+
+  .bug-report-submit-btn,
+  .bug-report-cancel-btn {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+  }
+}
+
+
+/* For mobile responsiveness */
+@media (max-width: 768px) {
+  .main-sidebar {
+    width: 230px;
+  }
+  .main-sidebar-header h2 {
+    font-size: 20px;
+  }
+  .main-sidebar-item {
+    font-size: 14px;
+    padding: 12px;
+  }
+}
+
 
 /* Keyframes for animations */
 @keyframes fadeIn {

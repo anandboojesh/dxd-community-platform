@@ -32,6 +32,7 @@ import {
   FaCompass,
   FaSearch,
   FaGoogle,
+  FaBug,
 } from 'react-icons/fa';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
@@ -40,7 +41,7 @@ import TaskDetailsPage from './pages/TaskDetailsPage';
 import CommunityManagementPage from './pages/CommunityManagementPage';
 import { auth, db } from './services/firebase';
 import { collection, doc, getDoc, setDoc, updateDoc, getDocs,  } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import ActivityPage from './pages/activity';
 import AdminProfilePage from './pages/AdminProfilePage';
@@ -50,6 +51,8 @@ import Leaderboard from './pages/LeaderboardPage';
 import ViewCommunity from './pages/ViewCommunity';
 import CoursePage from './pages/CoursePage';
 import SearchResults from "./pages/SearchResults";
+import ReportsPage from './pages/reportsPanel';
+import { BugReport } from '@mui/icons-material';
 
 const MainNavbar = ({ onSignOut, handleSignOut, toggleModal }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,6 +61,11 @@ const MainNavbar = ({ onSignOut, handleSignOut, toggleModal }) => {
 
   const navigate = useNavigate();
 
+  const handleProfilePicClick = (e) => {
+    e.stopPropagation(); // Prevent the event from propagating and closing the modal
+    toggleModal(); // Toggle the modal state
+  };
+  
   
   const [searchResults, setSearchResults] = useState({
     communities: [],
@@ -171,9 +179,10 @@ const MainNavbar = ({ onSignOut, handleSignOut, toggleModal }) => {
               src={userData.avatar || user.photoURL || require('./pages/assets/default_profile_avatar.jpg')}
               alt="Avatar"
               className="avatar"
+              onClick={handleProfilePicClick}
             />
             <span>
-              Hi, {userData.username || userData.name || user.displayName || 'User'}
+              Hi, {userData.name || userData.username || user.displayName || 'User'}
             </span>
             <button onClick={onSignOut} className="sign-out-btn">
               Sign Out
@@ -205,18 +214,18 @@ const Navbar = ({ user, userRole }) => {
             <li className="sub-navbar-item">
               <Link
                 to="/adminprofile"
-                className={`navbar-link ${isActive('/adminprofile') ? 'active' : ''}`}
+                className={`sub-navbar-link ${isActive('/adminprofile') ? 'active' : ''}`}
               >
-                <FaUser className="icon" size={20} />
+          
                 Profile
               </Link>
             </li>
             <li className="navbar-item">
               <Link
                 to="/communities"
-                className={`navbar-link ${isActive('/communities') ? 'active' : ''}`}
+                className={`sub-navbar-link ${isActive('/communities') ? 'active' : ''}`}
               >
-                <FaUsers className="icon" size={30} />
+            
                 Communities
               </Link>
             </li>
@@ -224,18 +233,18 @@ const Navbar = ({ user, userRole }) => {
             <li className="sub-navbar-item">
               <Link
                 to="/leaderboard"
-                className={`navbar-link ${isActive('/leaderboard') ? 'active' : ''}`}
+                className={`sub-navbar-link ${isActive('/leaderboard') ? 'active' : ''}`}
               >
-                <FaTrophy className="icon" size={30} />
+          
                 Leaderboard
               </Link>
             </li>
             <li className="sub-navbar-item">
               <Link
                 to="/discover"
-                className={`navbar-link ${isActive('/discover') ? 'active' : ''}`}
+                className={`sub-navbar-link ${isActive('/discover') ? 'active' : ''}`}
               >
-                <FaCompass className="icon" size={30} />
+             
                 Discover
               </Link>
             </li>
@@ -249,7 +258,7 @@ const Navbar = ({ user, userRole }) => {
             <li className="sub-navbar-item">
               <Link
                 to="/profile"
-                className={`navbar-link ${isActive('/profile') ? 'active' : ''}`}
+                className={`sub-navbar-link ${isActive('/profile') ? 'active' : ''}`}
               >
         
                 Profile
@@ -260,7 +269,7 @@ const Navbar = ({ user, userRole }) => {
             <li className="sub-navbar-item">
               <Link
                 to="/leaderboard"
-                className={`navbar-link ${isActive('/leaderboard') ? 'active' : ''}`}
+                className={`sub-navbar-link ${isActive('/leaderboard') ? 'active' : ''}`}
               >
             
                 Leaderboard
@@ -269,7 +278,7 @@ const Navbar = ({ user, userRole }) => {
             <li className="sub-navbar-item">
               <Link
                 to="/discover"
-                className={`navbar-link ${isActive('/discover') ? 'active' : ''}`}
+                className={`sub-navbar-link ${isActive('/discover') ? 'active' : ''}`}
               >
                 Discover
               </Link>
@@ -293,6 +302,42 @@ function App() {
     const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSplashScreen, setShowSplashScreen] = useState(true);
+  const [userProfilePic, setUserProfilePic] = useState("");
+  const [name, setName] = useState("");
+  const modalRef = useRef(null);
+    const [bugCategory, setBugCategory] = useState("");
+  const [severity, setSeverity] = useState("");
+  const [description, setDescription] = useState("");
+  const [steps, setSteps] = useState("");
+  const [expectedBehavior, setExpectedBehavior] = useState("");
+  const [actualBehavior, setActualBehavior] = useState("");
+  const [screenshot, setScreenshot] = useState(null);
+  const [isBugReport, setIsBugReport] = useState(false);
+
+  const toggleBugReport = () => {
+    setIsBugReport(false);
+    setIsBugReport(true)
+  }
+
+  const closeBugReport = () => {
+    setIsBugReport(false)
+  }
+  
+  const handleSubmit = () => {
+    // Form submission logic here
+    console.log({
+      bugCategory,
+      severity,
+      description,
+      steps,
+      expectedBehavior,
+      actualBehavior,
+      screenshot
+    });
+
+    handleClose(); // Close modal after submitting
+  };
+
 
   useEffect(() => {
     // Show splash screen for 3 seconds before loading the app
@@ -332,6 +377,8 @@ function App() {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             setUserRole(userDoc.data().role);
+            setUserProfilePic(userDoc.data().avatar);
+            setName(userDoc.data().name);
           } else {
             console.error('No user document found!');
           }
@@ -351,6 +398,39 @@ function App() {
   const AppContent = () => {
     const navigate = useNavigate();
 
+    useEffect(() => {
+      const handleEscapeKey = (e) => {
+        if (e.key === 'Escape') {
+          setIsModalOpen(false); // Close the modal if Escape is pressed
+        }
+      };
+    
+      // Add event listener when the component mounts
+      window.addEventListener('keydown', handleEscapeKey);
+    
+      // Clean up event listener when the component unmounts
+      return () => {
+        window.removeEventListener('keydown', handleEscapeKey);
+      };
+    }, []); // Empty dependency array means this will run once when the component mounts
+    
+
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (modalRef.current && !modalRef.current.contains(event.target)) {
+          setIsModalOpen(false); // Close the modal if click is outside
+        }
+      };
+    
+      // Add event listener when the component mounts
+      window.addEventListener('click', handleClickOutside);
+    
+      // Clean up event listener when the component unmounts
+      return () => {
+        window.removeEventListener('click', handleClickOutside);
+      };
+    }, []);
+    
     
   const updateProfileStatus = async (uid) => {
     try {
@@ -383,7 +463,10 @@ function App() {
   };
   
 
-  
+  const handleAccounSettingClick = () => {
+    setIsModalOpen(false);
+    navigate('/setting')
+  }
 
   const handleEmailPasswordLogin = async (e) => {
     e.preventDefault();
@@ -453,6 +536,7 @@ function App() {
         }
     
         await auth.signOut();
+        setIsModalOpen(false);
         navigate("/");
       } catch (error) {
         console.error("Error logging out: ", error);
@@ -501,6 +585,7 @@ function App() {
               <>
                 <Route path="/adminProfile" element={<AdminProfilePage />} />
                 <Route path="/communities" element={<Communities />} />
+                <Route path='/report' element={<ReportsPage/>} />
               </>
             )}
 
@@ -508,68 +593,137 @@ function App() {
           </Routes>
         </div>
         {isModalOpen && (
-          <div className="main-modal-overlay">
-            <div className="main-modal-content">
-            <div>
-      <div className='main-login-container'>
-        <h2 className='main-login-title'>Log In</h2>
-
-        <button onClick={handleGoogleLogin} className="main-login-auth-button">
-        <FaGoogle size={20} />  Continue with Google <p></p>
-        </button>
-
-        <Box display="flex" alignItems="center" my={2}>
-        <Divider sx={{ flexGrow: 1, bgcolor: "#444" }} />
-        <Typography variant="body2" sx={{ color: "#aaa", mx: 2 }}>
-          OR
-        </Typography>
-        <Divider sx={{ flexGrow: 1, bgcolor: "#444" }} />
-      </Box>
-
-        {error && <p className="error">{error}</p>}
-        <form onSubmit={handleEmailPasswordLogin}>
-          <div className="main-login-input-group">
-            <label className='main-login-label' htmlFor="email">Email or Username</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className='main-login-input'
-            />
-          </div>
-          <div className="main-login-input-group">
-            <label className='main-login-label' htmlFor="password">Password</label>
-            <input
-             className='main-login-input'
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className="main-login-button">
-            Log In
-          </button>
-        </form>
-
-        <div className="main-login-footer-links">
-          <a href="/forgot-password" className="main-login-forgot-password">
-            Forgot Password?
-          </a>
-          <p>
-            New to the platform? <a href="/signup">Sign Up</a>
-          </p>
-        </div>
-      </div>
-    </div>
-              <button onClick={toggleModal} className="main-login-close-modal-btn">
-                Close
-              </button>
+          <div className='main-sidebar-container'>
+          <div className="main-sidebar" ref={modalRef}>
+            <div className='main-sidebar-header'>
+              <h2>Hey, {name|| "loading..."}</h2>
+              <img src={userProfilePic || auth.currentUser?.photoURL||""} alt='Profile pic'/>
+              
             </div>
+          <ul className="main-sidebar-options">
+            <li className='main-sidebar-item'>Profile</li>
+            <li className='main-sidebar-item'>Notifications</li>
+            <li className='main-sidebar-item'>Registered Events</li>
+            <li className='main-sidebar-item' onClick={toggleBugReport}>Report Bug</li>
+            <li className='main-sidebar-item' onClick={handleAccounSettingClick}> Accounts & Settings</li>
+            
+          </ul>
+
+          <div className='main-sidebar-footer'>
+            <button className='main-sidebar-logout-btn' onClick={handleLogout}>Logout</button>
           </div>
+        </div>
+        </div>
+        )}
+
+        {isBugReport && (
+           <div className={`bug-report-modal ${isBugReport ? 'open' : ''}`} onClick={closeBugReport}>
+           <div className="bug-report-content" onClick={(e) => e.stopPropagation()}>
+             <div className="bug-report-header">
+               <FaBug />
+               <h2>Report a Bug</h2>
+             </div>
+     
+             <div className="bug-report-body">
+               <div className="bug-report-form-group">
+                 <label className='bug-report-label'>Bug Category</label>
+                 <select
+                 className='bug-report-select'
+                   value={bugCategory}
+                   onChange={(e) => setBugCategory(e.target.value)}
+                   required
+                 >
+                   <option className='bug-report-select-option' value="UI">UI</option>
+                   <option className='bug-report-select-option' value="Performance">Performance</option>
+                   <option className='bug-report-select-option' value="Functionality">Functionality</option>
+                   <option className='bug-report-select-option' value="Security">Security</option>
+                   <option className='bug-report-select-option' value="Network/Connectivity">Network/Connectivity</option>
+                   <option className='bug-report-select-option' value="Compatibility">Compatibility</option>
+                   <option className='bug-report-select-option' value="Crashes/Errors">Crashes/Errors</option>
+                   <option className='bug-report-select-option' value="Localization/Internationalization">Localization</option>
+                   <option className='bug-report-select-option' value="Accessibility">Accessibility</option>
+                   <option className='bug-report-select-option' value="Notifications">Notifications</option>
+                   <option className='bug-report-select-option' value="Data Integrity">Data Integrity</option>
+                   <option className='bug-report-select-option' value="User Permissions">User Permissions</option>
+                   <option className='bug-report-select-option' value="Others">Others</option>
+                 </select>
+               </div>
+     
+               <div className="bug-report-form-group">
+                 <label className='bug-report-label'>Severity</label>
+                 <select
+                   value={severity}
+                   onChange={(e) => setSeverity(e.target.value)}
+                   required
+                   className='bug-report-select'
+                 >
+                   <option className='bug-report-select-option' value="Critical">Critical</option>
+                   <option className='bug-report-select-option' value="High">High</option>
+                   <option className='bug-report-select-option' value="Medium">Medium</option>
+                   <option className='bug-report-select-option' value="Low">Low</option>
+                   <option className='bug-report-select-option' value="Trivial">Trivial</option>
+                   <option className='bug-report-select-option' value="Enhancement">Enhancement</option>
+                 </select>
+               </div>
+     
+               <div className="bug-report-form-group">
+                 <label className='bug-report-label'>Bug Description</label>
+                 <textarea
+                   value={description}
+                   onChange={(e) => setDescription(e.target.value)}
+                   required
+                   placeholder="Describe the issue in detail..."
+                   className='bug-report-textarea'
+                 />
+               </div>
+     
+               <div className="bug-report-form-group">
+                 <label className='bug-report-label'>Steps to Reproduce</label>
+                 <textarea
+                 className='bug-report-textarea'
+                   value={steps}
+                   onChange={(e) => setSteps(e.target.value)}
+                   placeholder="Provide steps to reproduce the bug..."
+                 />
+               </div>
+     
+               <div className="bug-report-form-group">
+                 <label className='bug-report-label'>Expected Behavior</label>
+                 <textarea
+                 className='bug-report-textarea'
+                   value={expectedBehavior}
+                   onChange={(e) => setExpectedBehavior(e.target.value)}
+                   placeholder="What should have happened?"
+                 />
+               </div>
+     
+               <div className="bug-report-form-group">
+                 <label className='bug-report-label'>Actual Behavior</label>
+                 <textarea
+                 className='bug-report-textarea'
+                   value={actualBehavior}
+                   onChange={(e) => setActualBehavior(e.target.value)}
+                   placeholder="What actually happened?"
+                 />
+               </div>
+     
+               <div className="bug-report-form-group">
+                 <label className='bug-report-label'>Attach Screenshot (optional)</label>
+                 <input
+                 className='bug-report-file'
+                   type="file"
+                   accept="image/*"
+                   onChange={(e) => setScreenshot(e.target.files[0])}
+                 />
+               </div>
+             </div>
+     
+             <div className="bug-report-footer">
+               <button className='bug-report-submit-btn' onClick={handleSubmit}>Submit Report</button>
+               <button className='bug-report-cancel-btn' onClick={closeBugReport}>Cancel</button>
+             </div>
+           </div>
+         </div>
         )}
       </>
     );

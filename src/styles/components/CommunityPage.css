@@ -1,4 +1,123 @@
 
+/* Community User Management Section */
+.community-user-management-section {
+  background: #f9fafa;
+  border: 1px solid #e4e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 900px;
+  margin: 20px auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.community-user-management-section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.community-user-search-input {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.community-user-search-input:focus {
+  border-color: var(--primary-color);
+ 
+}
+
+.community-member-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.community-member-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  background: var(--background-color);
+  border: 1px solid #e4e7eb;
+  border-radius: 8px;
+  transition: box-shadow 0.3s;
+}
+
+.community-member-item:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.community-member-item span {
+  font-size: 1rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.community-promote-button {
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.community-promote-button:hover {
+  background-color: #45a049;
+}
+
+.community-more-options {
+  position: relative;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--text-color);
+}
+
+.community-options-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e4e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 5px 0;
+  display: none;
+  z-index: 10;
+}
+
+.community-more-options:hover .community-options-dropdown {
+  display: block;
+}
+
+.community-options-dropdown button {
+  background: none;
+  border: none;
+  padding: 8px 15px;
+  width: 100%;
+  text-align: left;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.community-options-dropdown button:hover {
+  background-color: #f4f5f7;
+}
+
 
 /* Overall page layout */
 .community-page {
@@ -193,7 +312,6 @@
 
 .my-submissions-section {
   padding: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   width: 100%;
   box-sizing: border-box;
 }
@@ -201,7 +319,7 @@
 .my-submissions-section h2 {
   text-align: center;
   margin-bottom: 20px;
-  color: #ffff;
+  color: var(--primary-color);
 }
 
 .my-submissions-grid {
@@ -467,7 +585,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
-  background-color: #005bb5;
+  background-color: var(--primary-color);
   justify-content: center;
   border-radius: 10px;
 }
@@ -527,13 +645,17 @@
 }
 
 
-.event-details-button {
-  background: linear-gradient(45deg, #2575fc, #6a11cb); /* Reverse gradient on hover */
+.event-section-register-button {
+  background: linear-gradient(45deg, var(--secondary-color), var(--primary-color)); /* Reverse gradient on hover */
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Deeper shadow on hover */
   transform: translateY(-3px); /* Lift button on hover */
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  color: #ffff;
 }
 
-.event-details-button:hover {
+.event-section-register-button {
   transform: translateY(0); /* Reset lift on click */
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow on click */
 }
@@ -1741,6 +1863,308 @@
 .event-registration-modal-register-btn:hover {
   background: var(--hover-color);
 }
+
+
+.analytics-section {
+  background: #f9fafa;
+  border: 1px solid #e4e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 900px;
+  margin: 20px auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  
+}
+
+.analytics-section h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: var(--primary-color);
+  text-align: center;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Create a 4-column grid */
+  gap: 20px; /* Space between cards */
+  padding: 20px;
+}
+
+.analytics-card {
+  background-color: var(--background-color);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.analytics-card:hover {
+  transform: scale(1.05);
+}
+
+.analytics-card h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: var(--text-color);
+}
+
+.analytics-card p {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.analytics-card.empty {
+  background: none;
+  border: none;
+  box-shadow: none;
+  cursor: default;
+}
+
+
+
+.analytics-selector-label {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-right: 15px;
+}
+
+.analytics-selector-dropdown {
+  width: 250px;
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 2px solid #ccc;
+  background-color: #fff;
+  color: #333;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+/* Focus and hover effects for the dropdown */
+.analytics-selector-dropdown:focus {
+  border-color: var(--secondary-color);
+ 
+}
+
+.analytics-selector-dropdown:hover {
+  border-color: var(--secondary-color);
+}
+
+.analytics-selector-option {
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Adding a smooth transition to the dropdown */
+.analytics-selector-dropdown option {
+  padding: 10px;
+  background-color: #fff;
+}
+
+.more-options-container {
+  position: relative;
+}
+
+.more-options-dropdown {
+  position: absolute;
+  top: 25px;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.dropdown-option {
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  color: var(--text-color);
+}
+
+.dropdown-option:hover {
+  background-color: #f1f1f1;
+}
+
+/* Modal Overlay */
+.community-report-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Semi-transparent dark background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Modal Content */
+.community-report-modal-content {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  padding: 25px 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Add depth */
+  animation: slideDown 0.4s ease-in-out;
+  text-align: left;
+  margin-top: 30px;
+}
+
+/* Modal Header */
+.community-report-modal-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.community-report-modal-description {
+  font-size: 14px;
+  color: #666666;
+  text-align: center;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* Form Sections */
+.community-report-modal-section {
+  margin-bottom: 20px;
+}
+
+.community-report-modal-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 8px;
+}
+
+.community-report-modal-select {
+  width: 100%;
+  font-size: 14px;
+  padding: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  background: #f9f9f9;
+  color: #333333;
+  transition: border-color 0.3s ease;
+}
+
+.community-report-modal-select:focus {
+  border-color: #007bff; /* Highlight on focus */
+  outline: none;
+}
+
+.community-report-modal-textarea {
+  width: 100%;
+  font-size: 14px;
+  padding: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  background: #f9f9f9;
+  color: #333333;
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color 0.3s ease;
+}
+
+.community-report-modal-textarea:focus {
+  border-color: #007bff; /* Highlight on focus */
+  outline: none;
+}
+
+/* Action Buttons */
+.community-report-modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.community-report-modal-cancel-button,
+.community-report-modal-submit-button {
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.community-report-modal-cancel-button {
+  background: #e0e0e0;
+  color: #333333;
+}
+
+.community-report-modal-cancel-button:hover {
+  background: #cccccc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.community-report-modal-submit-button {
+  background: #007bff;
+  color: #ffffff;
+}
+
+.community-report-modal-submit-button:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+
+/* Adding responsiveness for smaller screens */
+@media (max-width: 768px) {
+  .analytics-selector {
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .analytics-selector-label {
+    margin-bottom: 10px;
+  }
+
+  .analytics-selector-dropdown {
+    width: 100%;
+  }
+}
+
+
 
 @keyframes fadeIn {
   from {

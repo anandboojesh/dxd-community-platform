@@ -1276,11 +1276,12 @@ const closeBadgeModal = () => {
           <FaTimes />
         </button>
       </div>
-      <div className="modal-body">
+      <div style={{alignItems:'center', display:'flex', flexDirection:'column'}}>
         <img
           src={selectedBadge.icon}
           alt={selectedBadge.name}
           className="badge-modal-icon"
+          style={{marginBottom:'10px'}}
         />
         <p>{selectedBadge.description}</p>
         {selectedBadge.milestoneDescription && (

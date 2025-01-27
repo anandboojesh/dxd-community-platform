@@ -10,6 +10,14 @@ import jsPDF from "jspdf";
 import { gapi } from "gapi-script";
 import Calendar from "react-calendar/dist/cjs/Calendar.js";
 import ReactDatePicker from "react-datepicker";
+import { Bar, Pie, Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,CategoryScale,LinearScale,BarElement,Title,Tooltip,Legend,ArcElement,PointElement,LineElement, // Import LineElement
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,LinearScale,BarElement,Title,Tooltip,Legend,ArcElement,PointElement,LineElement // Register LineElement for the Line chart
+);
 
 const meeting_thumbnail = require('./assets/meeting_thumbnail.jpg');
 
@@ -88,6 +96,351 @@ const CommunityPage = () => {
 const [filterCourseCategory, setFilterCourseCategory] = useState("All"); // Default filter
   const [ShowRegistrationModal, setShowRegistrationModal] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null); // Track the selected event ID
+  const [searchUser, setSearchUser] = useState("");
+  const [totalMembers, setTotalMembers] = useState(0);
+const [activeMembers, setActiveMembers] = useState(0);
+const [newMembers, setNewMembers] = useState(0);
+const [engagementRate, setEngagementRate] = useState(0);
+const [contentPerformance, setContentPerformance] = useState({
+  announcements: 0,
+  tasksCompleted: 0,
+  eventParticipation: 0,
+});
+const [coursePerformance, setCoursePerformance] = useState([]);
+const [eventAnalytics, setEventAnalytics] = useState({
+  totalEvents: 0,
+  totalRegistrations: 0,
+  avgParticipation: 0,
+});
+const [taskAnalytics, setTaskAnalytics] = useState({
+  totalTasks: 0,
+  tasksCompleted: 0,
+  completionRate: 0,
+  totalSubmissions: 0,
+  totalPoints: 0,
+  totalPointsEarned: 0,
+});
+const [showMoreOptions, setShowMoreOptions] = useState(false);
+
+const toggleMoreOptions = () => setShowMoreOptions((prev) => !prev);
+
+
+
+const handleDeleteCommunity = () => {
+  if (window.confirm("Are you sure you want to delete this community?")) {
+    alert("Community deleted!");
+  }
+};
+
+const handleLeaveCommunity = () => {
+  alert("Left the community!");
+};
+
+const handleManageCommunity = () => {
+  alert("Navigating to manage community page...");
+  navigate(`/community/${communityId}/manage`);
+};
+
+
+const [selectedAnalytics, setSelectedAnalytics] = useState("Member Engagement");
+
+const handleAnalyticsChange = (event) => {
+  setSelectedAnalytics(event.target.value);
+};
+
+const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+const [selectedIssue, setSelectedIssue] = useState("");
+const [issueDescription, setIssueDescription] = useState("");
+
+const handleReportCommunity = () => setIsReportModalOpen(true);
+const handleCloseReportModal = () => {
+  setIsReportModalOpen(false);
+  setSelectedIssue("");
+  setIssueDescription("");
+};
+
+const handleSubmitReport = async () => {
+  if (!selectedIssue || !issueDescription.trim()) {
+    alert("Please select an issue and provide a detailed description.");
+    return;
+  }
+
+  try {
+    const userId = auth.currentUser?.uid; // Get the current user ID
+    if (!userId) {
+      alert("You must be logged in to submit a report.");
+      return;
+    }
+
+    const reportId = `report-${Date.now()}-${Math.floor(Math.random() * 10000)}`; // Generate unique report ID
+    const timestamp = serverTimestamp(); // Get the current timestamp
+
+    const reportData = {
+      reportId,
+      issue: selectedIssue,
+      description: issueDescription.trim(),
+      communityId,
+      communityName,
+      adminId: AdminID,
+      timestamp,
+      userId,
+    };
+
+    // Add the report to the "community-reports" collection
+    await addDoc(collection(db, "community-reports"), reportData);
+
+    alert("Report submitted successfully!");
+    handleCloseReportModal(); // Close the modal
+  } catch (error) {
+    console.error("Error submitting report:", error);
+    alert("Failed to submit the report. Please try again.");
+  }
+};
+
+
+
+
+
+
+
+useEffect(() => {
+  if (activeSection === "Analytics") {
+    const fetchMemberEngagement = async () => {
+      try {
+        const communityRef = doc(db, "communities", communityId);
+        const communityDoc = await getDoc(communityRef);
+
+        if (communityDoc.exists()) {
+          const members = communityDoc.data().member || [];
+          setTotalMembers(members.length);
+
+          // Fetch last active timestamps and calculate active members
+          const activeMemberPromises = members.map(async (memberId) => {
+            const userRef = doc(db, "users", memberId);
+            const userDoc = await getDoc(userRef);
+            const lastActive = userDoc.data()?.lastActive?.toDate() || new Date(0);
+
+            // Consider a member active if they've been online in the past 7 days
+            return (new Date() - lastActive) / (1000 * 60 * 60 * 24) <= 7;
+          });
+
+          const activeStatus = await Promise.all(activeMemberPromises);
+          setActiveMembers(activeStatus.filter(Boolean).length);
+
+          // Fetch new members (joined in the last 30 days)
+          const newMemberCount = members.filter((memberId) => {
+            const joinedDate = userDoc.data()?.joinedDate?.toDate() || new Date(0);
+            return (new Date() - joinedDate) / (1000 * 60 * 60 * 24) <= 30;
+          }).length;
+          setNewMembers(newMemberCount);
+
+          // Calculate engagement rate
+          const rate = ((activeStatus.filter(Boolean).length / members.length) * 100).toFixed(2);
+          setEngagementRate(rate);
+        }
+      } catch (error) {
+        console.error("Error fetching member engagement data:", error);
+      }
+    };
+
+    const fetchContentPerformance = async () => {
+      try {
+        // Fetch announcements count
+        const announcementsRef = collection(db, "community-announcement");
+        const announcementsQuery = query(
+          announcementsRef,
+          where("communityId", "==", communityId)
+        );
+        const announcementsSnapshot = await getDocs(announcementsQuery);
+        const announcementsCount = announcementsSnapshot.size;
+
+        // Fetch completed tasks count
+        const tasksRef = collection(db, "community-assignment-submission");
+        const tasksQuery = query(
+          tasksRef,
+          where("communityId", "==", communityId),
+          where("assignmentStatus", "==", "Complete")
+        );
+        const tasksSnapshot = await getDocs(tasksQuery);
+        const tasksCompletedCount = tasksSnapshot.size;
+
+        // Fetch event participation count
+        const eventsRef = collection(db, "community-events");
+        const eventsQuery = query(eventsRef, where("communityId", "==", communityId));
+        const eventsSnapshot = await getDocs(eventsQuery);
+
+        let eventParticipationCount = 0;
+        eventsSnapshot.docs.forEach((doc) => {
+          eventParticipationCount += doc.data()?.subscribers?.length || 0;
+        });
+
+        // Update state
+        setContentPerformance({
+          announcements: announcementsCount,
+          tasksCompleted: tasksCompletedCount,
+          eventParticipation: eventParticipationCount,
+        });
+
+        
+      } catch (error) {
+        console.error("Error fetching content performance data:", error);
+      }
+    };
+
+    const fetchCoursePerformance = async () => {
+      try {
+        const coursesRef = collection(db, "community-courses");
+        const q = query(coursesRef, where("communityId", "==", communityId));
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          const performanceData = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              title: data.title || "Unnamed Course",
+              enrollments: data.enrollments || 0,
+              completionRate: data.completionRate || 0, // Example field
+            };
+          });
+
+          setCoursePerformance(performanceData);
+        }
+      } catch (error) {
+        console.error("Error fetching course performance data:", error);
+      }
+    };
+
+    const fetchEventAnalytics = async () => {
+      try {
+        const eventsRef = collection(db, "community-events");
+        const eventsQuery = query(eventsRef, where("communityId", "==", communityId));
+        const eventsSnapshot = await getDocs(eventsQuery);
+
+        let totalEventsCount = 0;
+        let totalRegistrationsCount = 0;
+
+        eventsSnapshot.docs.forEach((doc) => {
+          totalEventsCount += 1;
+          totalRegistrationsCount += doc.data()?.subscribers?.length || 0;
+        });
+
+        const avgParticipationRate =
+          totalEventsCount > 0 ? (totalRegistrationsCount / totalEventsCount).toFixed(2) : 0;
+
+        // Update state
+        setEventAnalytics({
+          totalEvents: totalEventsCount,
+          totalRegistrations: totalRegistrationsCount,
+          avgParticipation: avgParticipationRate,
+        });
+      } catch (error) {
+        console.error("Error fetching event analytics data:", error);
+      }
+    };
+
+    const fetchTaskAnalytics = async () => {
+      try {
+        const tasksRef = collection(db, "community-tasks", communityId, "tasks");
+        const tasksSnapshot = await getDocs(tasksRef);
+    
+        let totalTasksCount = 0;
+        let tasksCompletedCount = 0;
+        let totalSubmissionsCount = 0;
+        let totalPoints = 0;
+        let totalPointsEarned = 0;
+    
+        // Fetch tasks
+        tasksSnapshot.docs.forEach((doc) => {
+          totalTasksCount += 1;
+        });
+    
+        // Fetch submissions and points from community-assignment-submission
+        const submissionsRef = collection(db, "community-assignment-submission");
+        const submissionsSnapshot = await getDocs(submissionsRef);
+    
+        submissionsSnapshot.docs.forEach((doc) => {
+          const submissionData = doc.data();
+    
+          // Check if the submission is related to the current communityId
+          if (submissionData?.communityId === communityId) {
+            totalSubmissionsCount += 1;
+            
+            // Only count completed assignments
+            if (submissionData?.assignmentStatus === "Complete") {
+              tasksCompletedCount += 1;
+            }
+    
+            totalPoints += parseInt(submissionData?.points || 0);
+            totalPointsEarned += parseInt(submissionData?.rewardEarned || 0);
+          }
+        });
+    
+        // Calculate completion rate
+        const completionRate =
+          totalTasksCount > 0 ? ((tasksCompletedCount / totalTasksCount) * 100).toFixed(2) : 0;
+    
+        // Update state with all analytics
+        setTaskAnalytics({
+          totalTasks: totalTasksCount,
+          tasksCompleted: tasksCompletedCount,
+          completionRate,
+          totalSubmissions: totalSubmissionsCount,
+          totalPoints,
+          totalPointsEarned,
+        });
+      } catch (error) {
+        console.error("Error fetching task analytics data:", error);
+      }
+    };
+    
+    fetchTaskAnalytics();    
+    fetchEventAnalytics();
+    fetchCoursePerformance();
+    fetchContentPerformance();
+    fetchMemberEngagement();
+  }
+}, [activeSection, communityId]);
+
+  const handlePromote = async (userId) => {
+    try {
+      // Update the "Moderators" field in the Firestore community document
+      await updateDoc(doc(db, "communities", communityId), {
+        Moderators: arrayUnion(userId),
+      });
+      alert("Member promoted to moderator.");
+    } catch (error) {
+      console.error("Error promoting member to moderator:", error);
+      alert("Failed to promote the member.");
+    }
+  };
+  
+  const handleKick = async (userId) => {
+    try {
+      await updateDoc(doc(db, "communities", communityId), {
+        member: arrayRemove(userId),
+      });
+      setMembers((prev) => prev.filter((member) => member.uid !== userId));
+      alert("Member kicked from the community.");
+    } catch (error) {
+      console.error("Error kicking member:", error);
+      alert("Failed to kick the member.");
+    }
+  };
+  
+  const handleBan = async (userId) => {
+    try {
+      await updateDoc(doc(db, "communities", communityId), {
+        member: arrayRemove(userId),
+        blockedUsers: arrayUnion(userId),
+      });
+      setMembers((prev) => prev.filter((member) => member.uid !== userId));
+      alert("Member banned and added to blocked users.");
+    } catch (error) {
+      console.error("Error banning member:", error);
+      alert("Failed to ban the member.");
+    }
+  };
+  
 
 
 const filteredCourses = courses.filter((course) => {
@@ -1398,7 +1751,7 @@ const downloadFeedbackAsPDF = (feedback) => {
     "Events",
     "Courses",
     "Leaderboard",
-    ...(isAdmin ? ["Submissions","Manage"] : []),
+    ...(isAdmin ? ["User Management","Submissions","Analytics","Manage"] : []),
     ...(isMember ? ["My Submissions"]:[])
   ];
 
@@ -1462,6 +1815,23 @@ const downloadFeedbackAsPDF = (feedback) => {
           </button>
         )}
 
+        {isAdmin && activeSection === "Analytics" && (
+          <div className="analytics-selector">
+          <select
+            id="analytics-type"
+            value={selectedAnalytics}
+            onChange={handleAnalyticsChange}
+            className="analytics-selector-dropdown"
+          >
+            <option className="analytics-selector-option" value="Member Engagement">Member Engagement</option>
+            <option className="analytics-selector-option" value="Course Performance">Course Performance</option>
+            <option className="analytics-selector-option" value="Content Performance">Content Performance</option>
+            <option className="analytics-selector-option" value="Event Analytics">Event Analytics</option>
+            <option className="analytics-selector-option" value="Task Analytics">Task Analytics</option>
+          </select>
+        </div>
+        )}
+
 
         {activeSection === "Courses" && (
           <button 
@@ -1481,7 +1851,45 @@ const downloadFeedbackAsPDF = (feedback) => {
 
     
           <FaBell className="navbar-icon" title="Announcements" />
-          <FaEllipsisV className="navbar-icon" title="More Options" />
+          <div className="more-options-container">
+  <FaEllipsisV
+    className="navbar-icon"
+    title="More Options"
+    onClick={toggleMoreOptions}
+  />
+  {showMoreOptions && (
+    <div className="more-options-dropdown">
+      {isAdmin ? (
+        <>
+          <div onClick={handleManageCommunity} className="dropdown-option">
+            Manage Community
+          </div>
+          <div onClick={handleDeleteCommunity} className="dropdown-option">
+            Delete Community
+          </div>
+        </>
+      ) : isMember ? (
+        <>
+          <div onClick={handleReportCommunity} className="dropdown-option">
+            Report Community
+          </div>
+          <div onClick={handleLeaveCommunity} className="dropdown-option">
+            Leave Community
+          </div>
+        </>
+      ) : (
+        <>
+          <div onClick={handleJoinCommunity} className="dropdown-option">
+            Join Community
+          </div>
+          <div onClick={handleReportCommunity} className="dropdown-option">
+            Report Community
+          </div>
+        </>
+      )}
+    </div>
+  )}
+</div>
         </div>
       </nav>
 <div style={{display:'flex',justifyContent:'center'}}>
@@ -1767,7 +2175,7 @@ const downloadFeedbackAsPDF = (feedback) => {
             </p>
           )}
           <div style={{alignItems:'center'}}>
-          <button className="event-details-button"  onClick={() => { setSelectedEventId(event.id); setShowRegistrationModal(true); }}>
+          <button className="event-section-register-button"  onClick={() => { setSelectedEventId(event.id); setShowRegistrationModal(true); }}>
             Register Event
           </button>
           </div>
@@ -1876,6 +2284,168 @@ const downloadFeedbackAsPDF = (feedback) => {
     <p>No submissions yet.</p>
   )}
 </div>
+)}
+{activeSection === "Analytics" && isAdmin && (
+  <div className="analytics-section">
+    {selectedAnalytics === "Member Engagement" && (
+       <div className="member-engagement">
+       <h2>Member Engagement</h2>
+       <div className="analytics-grid">
+         <div className="analytics-card">
+           <h3>Total Members</h3>
+           <p>{totalMembers}</p>
+         </div>
+         <div className="analytics-card">
+           <h3>Active Members (Last 7 days)</h3>
+           <p>{activeMembers}</p>
+         </div>
+         <div className="analytics-card">
+           <h3>New Members (Last 30 days)</h3>
+           <p>{newMembers}</p>
+         </div>
+         <div className="analytics-card">
+           <h3>Engagement Rate</h3>
+           <p>{engagementRate}%</p>
+         </div>
+       </div>
+     </div>
+   )}
+    
+    {selectedAnalytics === "Course Performance" && (
+      <div className="course-performance">
+        <h2>Course Performance</h2>
+        <div className="analytics-grid">
+          {coursePerformance.length > 0 ? (
+            coursePerformance.map((course, index) => (
+              <div key={index} className="analytics-card">
+                <h3>{course.title}</h3>
+                <p>Enrollments: {course.enrollments}</p>
+                <p>Completion Rate: {course.completionRate}%</p>
+              </div>
+            ))
+          ) : (
+            <p>No course performance data available.</p>
+          )}
+        </div>
+      </div>
+    )}
+
+{selectedAnalytics === "Content Performance" && (
+      <div className="content-performance">
+        <h2>Content Performance</h2>
+        <div className="analytics-grid">
+          <div className="analytics-card">
+            <h3>Announcements</h3>
+            <p>{contentPerformance.announcements}</p>
+          </div>
+          <div className="analytics-card">
+            <h3>Tasks Completed</h3>
+            <p>{contentPerformance.tasksCompleted}</p>
+          </div>
+          <div className="analytics-card">
+            <h3>Event Participation</h3>
+            <p>{contentPerformance.eventParticipation}</p>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {selectedAnalytics === "Event Analytics" && (
+      <div className="event-analytics">
+        <h2>Event Analytics</h2>
+        <div className="analytics-grid">
+          <div className="analytics-card">
+            <h3>Total Events</h3>
+            <p>{eventAnalytics.totalEvents}</p>
+          </div>
+          <div className="analytics-card">
+            <h3>Total Registrations</h3>
+            <p>{eventAnalytics.totalRegistrations}</p>
+          </div>
+          <div className="analytics-card">
+            <h3>Average Participation</h3>
+            <p>{eventAnalytics.avgParticipation}</p>
+          </div>
+        </div>
+      </div>
+    )}
+
+{selectedAnalytics === "Task Analytics" && (
+      <div className="task-analytics">
+        <h2 style={{ marginTop: "40px" }}>Task Analytics</h2>
+        <div className="analytics-grid">
+          <div className="analytics-card">
+            <h3>Total Tasks</h3>
+            <p>{taskAnalytics.totalTasks}</p>
+          </div>
+          <div className="analytics-card">
+            <h3>Tasks Completed</h3>
+            <p>{taskAnalytics.tasksCompleted}</p>
+          </div>
+          <div className="analytics-card">
+            <h3>Completion Rate</h3>
+            <p>{taskAnalytics.completionRate}%</p>
+          </div>
+          <div className="analytics-card">
+            <h3>Total Submissions</h3>
+            <p>{taskAnalytics.totalSubmissions}</p>
+          </div>
+          <div className="analytics-card">
+            <h3>Total Points</h3>
+            <p>{taskAnalytics.totalPoints}</p>
+          </div>
+          <div className="analytics-card">
+            <h3>Total Points Earned</h3>
+            <p>{taskAnalytics.totalPointsEarned}</p>
+          </div>
+        </div>
+      </div>
+    )}
+
+ 
+  <div style={{padding:'40px'}}/>
+  </div>
+)}
+
+{activeSection === "User Management" && isAdmin && (
+  <div className="community-user-management-section">
+    <h2>Community Members</h2>
+    <input
+      type="text"
+      placeholder="Search members..."
+      value={searchUser}
+      onChange={(e) => setSearchUser(e.target.value)}
+      className="community-user-search-input"
+    />
+    <ul className="community-member-list">
+      {members
+        .filter((member) =>
+          member.name.toLowerCase().includes(searchUser.toLowerCase())
+        )
+        .map((member) => (
+          <li key={member.uid} className="community-member-item">
+            <span>{member.name}</span>
+            <div style={{display:'flex', alignItems:'center'}}>
+            <span className={`status-dot ${member.status === "online" ? "online" : "offline"}`}></span>
+            <p>{member.status}</p>
+            </div>
+            <button
+              className="community-promote-button"
+              onClick={() => handlePromote(member.uid)}
+            >
+              Promote
+            </button>
+            <div className="community-more-options">
+              <FaEllipsisV />
+              <div className="community-options-dropdown">
+                <button onClick={() => handleKick(member.uid)}>Kick</button>
+                <button onClick={() => handleBan(member.uid)}>Ban</button>
+              </div>
+            </div>
+          </li>
+        ))}
+    </ul>
+  </div>
 )}
 
 
@@ -2495,6 +3065,66 @@ const downloadFeedbackAsPDF = (feedback) => {
 </div>
 </div>
 )}
+
+
+{isReportModalOpen && (
+  <div className="community-report-modal-overlay" onClick={handleCloseReportModal}>
+    <div
+      className="community-report-modal-content"
+      onClick={(e) => e.stopPropagation()} // Prevent closing the modal when clicking inside
+    >
+      {/* Modal Header */}
+      <h2 className="community-report-modal-title">Submit a Report</h2>
+      <p className="community-report-modal-description">Help us improve the community by reporting any issues you encounter.</p>
+
+      {/* Issue Type Dropdown */}
+      <div className="community-report-modal-section">
+        <label htmlFor="issue-type" className="modal-label">Select an Issue:</label>
+        <select
+          id="issue-type"
+          value={selectedIssue}
+          onChange={(e) => setSelectedIssue(e.target.value)}
+          className="community-report-modal-select"
+        >
+          <option className="community-report-modal-select-option" value="" disabled>
+            Choose an issue
+          </option>
+          <option value="Inappropriate Content">Inappropriate Content</option>
+          <option value="Harassment or Bullying">Harassment or Bullying</option>
+          <option value="Spam or Scams">Spam or Scams</option>
+          <option value="Hate Speech or Symbols">Hate Speech or Symbols</option>
+          <option value="Misinformation">Misinformation</option>
+          <option value="Privacy Concerns">Privacy Concerns</option>
+          <option value="Copyright Infringement">Copyright Infringement</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      {/* Issue Description */}
+      <div className="community-report-modal-section">
+        <label htmlFor="issue-description" className="community-report-modal-label">Describe the Issue:</label>
+        <textarea
+          id="issue-description"
+          value={issueDescription}
+          onChange={(e) => setIssueDescription(e.target.value)}
+          className="community-report-modal-textarea"
+          placeholder="Provide a detailed description of the issue..."
+        ></textarea>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="community-report-modal-actions">
+        <button className="community-report-modal-cancel-button" onClick={handleCloseReportModal}>
+          Cancel
+        </button>
+        <button className="community-report-modal-submit-button" onClick={handleSubmitReport}>
+          Submit Report
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
 
 

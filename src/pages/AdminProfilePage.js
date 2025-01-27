@@ -166,6 +166,8 @@ const AdminProfilePage = () => {
   const handleSidebarClick = (section) => {
     if (section === "Admin Settings") {
       navigate("/setting");
+    }else if (section === "Reports"){
+      navigate("/report")
     }
     else {
       // If a different tab is clicked, update active tab
@@ -382,7 +384,7 @@ const AdminProfilePage = () => {
 {activeSidebar === "Users" && (
   <Box
     sx={{
-      background: "linear-gradient(135deg, #2f3136, #3a3f44)",
+      background: "#ffff",
       minHeight: "100vh",
       p: 4,
       display: "flex",
@@ -397,8 +399,8 @@ const AdminProfilePage = () => {
       variant="h3"
       sx={{
         fontWeight: "bold",
-        color: "#d8dee9",
-        textShadow: "2px 2px 4px rgba(0, 0, 0, 0.6)",
+        color:`var(--primary-color)`,
+        
       }}
     >
       User Management
@@ -410,7 +412,7 @@ const AdminProfilePage = () => {
         display: "flex",
         alignItems: "center",
         gap: 2,
-        background: "rgba(255, 255, 255, 0.1)",
+        background: `var(--background-color)`,
         backdropFilter: "blur(10px)",
         borderRadius: "20px",
         padding: "12px 24px",
@@ -427,17 +429,17 @@ const AdminProfilePage = () => {
         onChange={handleSearchChange}
         InputProps={{
           disableUnderline: true,
-          style: { color: "#eceff4" },
+          style: { color:`var(--text-color)` },
         }}
         sx={{
           "& input": {
-            color: "#d8dee9",
+            color: `var(--text-color)`,
           },
         }}
       />
       <IconButton
         sx={{
-          color: "#d8dee9",
+          color: `var(--text-color)`,
           fontSize: "24px",
         }}
       >
@@ -448,42 +450,44 @@ const AdminProfilePage = () => {
     {/* Actions */}
     {selectedUsers.length > 0 && (
       <Box display="flex" gap={2}>
-        <Button
-          variant="contained"
-          sx={{
-            background: "linear-gradient(135deg, #f0932b, #e84118)",
-            color: "#ffffff",
-            px: 4,
-            fontWeight: "bold",
-            borderRadius: "30px",
-            transition: "background 0.3s ease",
-            "&:hover": {
-              background: "linear-gradient(135deg, #e84118, #c23616)",
-            },
-          }}
-          startIcon={<FaStopCircle />}
-          onClick={openSuspendModal}
-        >
-          Suspend
-        </Button>
-        <Button
-          variant="contained"
-          sx={{
-            background: "linear-gradient(135deg, #c23616, #e84118)",
-            color: "#ffffff",
-            px: 4,
-            fontWeight: "bold",
-            borderRadius: "30px",
-            transition: "background 0.3s ease",
-            "&:hover": {
-              background: "linear-gradient(135deg, #e84118, #e74c3c)",
-            },
-          }}
-          startIcon={<FaBan />}
-          onClick={handleBlockUsers}
-        >
-          Block
-        </Button>
+      <Button
+  variant="contained"
+  sx={{
+    background: "linear-gradient(135deg, #ff9f43, #ff6f00)", // Orange gradient
+    color: "#ffffff",
+    px: 4,
+    fontWeight: "bold",
+    borderRadius: "30px",
+    transition: "background 0.3s ease",
+    "&:hover": {
+      background: "linear-gradient(135deg, #ff6f00, #e65100)", // Hover gradient
+    },
+  }}
+  startIcon={<FaStopCircle />}
+  onClick={openSuspendModal}
+>
+  Suspend
+</Button>
+<Button
+  variant="contained"
+  sx={{
+    background: "linear-gradient(135deg, #d32f2f, #c62828)", // Bold red gradient
+    color: "#ffffff",
+    px: 4,
+    fontWeight: "bold",
+    borderRadius: "30px",
+    transition: "background 0.3s ease",
+    "&:hover": {
+      background: "linear-gradient(135deg, #c62828, #8e0000)", // Hover gradient
+    },
+  }}
+  startIcon={<FaBan />}
+  onClick={handleBlockUsers}
+>
+  Block
+</Button>
+
+
       </Box>
     )}
 
@@ -491,7 +495,7 @@ const AdminProfilePage = () => {
     <TableContainer
       component={Paper}
       sx={{
-        background: "linear-gradient(135deg, #2f3136, #3a3f44)",
+        background: `var(--background-color)`,
         backdropFilter: "blur(15px)",
         borderRadius: "20px",
         width: "100%",
@@ -503,9 +507,9 @@ const AdminProfilePage = () => {
         <TableHead>
           <TableRow
             sx={{
-              background: "rgba(255, 255, 255, 0.1)",
+              background: `var(--primary-color)`,
               "& th": {
-                color: "#eceff4",
+                color: "#ffff",
                 fontWeight: "bold",
               },
             }}
@@ -535,7 +539,7 @@ const AdminProfilePage = () => {
                 <Checkbox
                   checked={selectedUsers.includes(user.id)}
                   onChange={() => handleSelectUser(user.id)}
-                  sx={{ color: "#eceff4" }}
+                  sx={{ color: "#ffff" }}
                 />
               </TableCell>
               <TableCell>
@@ -549,10 +553,10 @@ const AdminProfilePage = () => {
                       border: "2px solid #d8dee9",
                     }}
                   />
-                  <Typography>{user.name}</Typography>
+                  <Typography sx={{ color: `var(--text-color)` }}>{user.name}</Typography>
                 </Box>
               </TableCell>
-              <TableCell sx={{ color: "#d8dee9" }}>@{user.username}</TableCell>
+              <TableCell sx={{ color: `var(--text-color)` }}>@{user.username}</TableCell>
               <TableCell>
                 <Select
                   value={user.role}
@@ -560,10 +564,10 @@ const AdminProfilePage = () => {
                   size="small"
                   sx={{
                     background: "rgba(255, 255, 255, 0.1)",
-                    color: "#eceff4",
+                    color: `var(--text-color)`,
                     borderRadius: "8px",
                     "& .MuiSelect-icon": {
-                      color: "#eceff4",
+                      color: `var(--text-color)`,
                     },
                   }}
                 >

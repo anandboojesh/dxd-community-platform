@@ -252,7 +252,7 @@ const filteredEvents = events.filter((event) =>
             key={community.id}
             onClick={() =>
               currentUserUID
-                ?  handleCommunityClick(community.communityId)
+                ?   navigate(`/community/${community.communityId}`)
                 : navigate("/login")
             }
           >

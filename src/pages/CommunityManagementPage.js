@@ -82,14 +82,14 @@ const CommunityManagementPage = () => {
   const sidebarOptions = ["General", "Security", "Notifications"];
 
   return (
-    <div className="community-management-page" style={{ display: "flex" }}>
+    <div className="community-management-page">
       {/* Sidebar */}
       <aside className="community-management-sidebar">
         <h2>Community Management</h2>
         {sidebarOptions.map((option) => (
           <div
             key={option}
-            className={`sidebar-item ${activeSection === option ? "active" : ""}`}
+            className={`community-management-sidebar-item ${activeSection === option ? "active" : ""}`}
             onClick={() => setActiveSection(option)}
           >
             {option}
@@ -101,86 +101,91 @@ const CommunityManagementPage = () => {
       <main className="community-management-content">
         <h3>{activeSection}</h3>
         {activeSection === "General" && (
-          <div className="general-section">
+          <div className="community-management-general-section">
             <h4>Community Details</h4>
 
-            <div className="form-group">
-              <label htmlFor="community-name">Community Name:</label>
+            <div className="community-management-form-group">
+              <label htmlFor="community-management-community-name">Community Name:</label>
               <input
                 type="text"
                 id="community-name"
                 value={communityName}
                 onChange={(e) => setCommunityName(e.target.value)}
+                className="community-management-input"
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="community-description">Community Description:</label>
+            <div className="community-management-form-group">
+              <label htmlFor="community-management-community-description">Community Description:</label>
               <textarea
                 id="community-description"
                 value={communityDescription}
                 onChange={(e) => setCommunityDescription(e.target.value)}
+                className="community-management-textarea"
               ></textarea>
             </div>
 
-            <button onClick={handleSaveChanges}>Save Changes</button>
+            <button onClick={handleSaveChanges} className="community-management-save-changes-btn">Save Changes</button>
           </div>
         )}
         {activeSection === "Security" && (
-  <div className="security-section">
+  <div className="community-management-security-section">
     <h4>Security Settings</h4>
 
-    <div className="form-group">
-      <label htmlFor="community-id">Community ID:</label>
+    <div className="community-management-form-group">
+      <label className="community-management-label" htmlFor="community-id">Community ID:</label>
       <input
         type="text"
         id="community-id"
         value={communityId}
         readOnly
+        className="community-management-input"
       />
     </div>
 
-    <div className="form-group">
-      <label htmlFor="entrance-code">Entrance Code:</label>
+    <div className="community-management--form-group">
+      <label className="community-management-label" htmlFor="entrance-code">Entrance Code:</label>
       <input
         type="text"
         id="entrance-code"
         value={entranceCode|| 'No entrance code available'}
         readOnly
+        className="community-management-input"
       />
       {entranceCode === "" && (
-        <button className="generate-code-button" onClick={generateEntranceCode}>
+        <button className="community-management-generate-code-button" onClick={generateEntranceCode}>
           Generate Entrance Code
         </button>
       )}
     </div>
 
-    <div className="form-group">
-      <label htmlFor="visibility">Visibility:</label>
+    <div className="community-management-form-group">
+      <label className="community-management-label" htmlFor="visibility">Visibility:</label>
       <input
         type="text"
         id="visibility"
         value={visibility || "Public"}
         onClick={() => setVisibilityDropdownOpen(!visibilityDropdownOpen)}
         readOnly
+        className="community-management-input"
       />
       {visibilityDropdownOpen && (
         <select
           value={visibility}
           onChange={(e) => setVisibility(e.target.value)}
-          className="visibility-select"
+          className="community-management-visibility-select"
         >
-          <option value="Public">Public</option>
-          <option value="Private">Private</option>
+          <option className="community-management-select-option" value="Public">Public</option>
+          <option className="community-management-select-option" value="Private">Private</option>
         </select>
       )}
     </div>
 
-    <div className="form-actions">
-      <button className="disable-community-btn" onClick={handleDisableCommunity}>
+    <div className="community-management-form-actions">
+      <button className="community-management-disable-community-btn" onClick={handleDisableCommunity}>
         Disable Community
       </button>
-      <button className="delete-community-btn" onClick={handleDeleteCommunity}>
+      <button className="community-management-delete-community-btn" onClick={handleDeleteCommunity}>
         Delete Community
       </button>
     </div>
